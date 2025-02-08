@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="ab62d87a-c49b-4988-979f-f2aad7db4669" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/eclipseCodeFormatter.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/scala_compiler.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/App.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/ArangoDbUtilities.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/NodeTypeCounter.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/NodeTypeCounts.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyParser.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/TripleTypeSets.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/gov/nih/nlm/AppTest.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectCodeStyleSettingsMigration">
+    <option name="version" value="2" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 0
+}</component>
+  <component name="ProjectId" id="2se5YEl2JUHRyb9ZCBuIkGNO9Lc" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.App.executor": "Debug",
+    "Application.ArangoDbUtilities.executor": "Run",
+    "Application.NodeTypeCounter.executor": "Run",
+    "Application.OntologyLoader.executor": "Run",
+    "Application.OntologyParser.executor": "Debug",
+    "JUnit.AppTest.executor": "Run",
+    "Maven. [org.apache.maven.plugins:maven-archetype-plugin:RELEASE:generate].executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "git-widget-placeholder": "main",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/Users/raymondleclair/Projects/NIH-NLM/Cell-KN/springbok-cell-kn-etl",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "EclipseFormatter",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/../" />
+      <recent name="$PROJECT_DIR$" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Application.NodeTypeCounter">
+    <configuration name="App" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="gov.nih.nlm.App" />
+      <module name="springbok-cell-kn-etl" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="gov.nih.nlm.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ArangoDbUtilities" type="Application" factoryName="Application" activateToolWindowBeforeRun="false" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="gov.nih.nlm.ArangoDbUtilities" />
+      <module name="springbok-cell-kn-etl" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="gov.nih.nlm.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NodeTypeCounter" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="gov.nih.nlm.NodeTypeCounter" />
+      <module name="springbok-cell-kn-etl" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="gov.nih.nlm.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="OntologyParser" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="gov.nih.nlm.OntologyParser" />
+      <module name="springbok-cell-kn-etl" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="gov.nih.nlm.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="AppTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="springbok-cell-kn-etl" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="gov.nih.nlm.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="gov.nih.nlm" />
+      <option name="MAIN_CLASS_NAME" value="gov.nih.nlm.AppTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="Application.NodeTypeCounter" />
+      <item itemvalue="Application.OntologyParser" />
+      <item itemvalue="Application.App" />
+      <item itemvalue="Application.ArangoDbUtilities" />
+      <item itemvalue="JUnit.AppTest" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.NodeTypeCounter" />
+        <item itemvalue="Application.OntologyParser" />
+        <item itemvalue="Application.ArangoDbUtilities" />
+        <item itemvalue="Application.App" />
+        <item itemvalue="JUnit.AppTest" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-b114ca120d71-intellij.indexing.shared.core-IU-242.20224.387" />
+        <option value="bundled-js-predefined-d6986cc7102b-410509235cf1-JavaScript-IU-242.20224.387" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="ab62d87a-c49b-4988-979f-f2aad7db4669" name="Changes" comment="" />
+      <created>1738803245951</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1738803245951</updated>
+      <workItem from="1738803246960" duration="4254000" />
+      <workItem from="1738854319560" duration="1273000" />
+      <workItem from="1738855627055" duration="12000" />
+      <workItem from="1738855642415" duration="77000" />
+      <workItem from="1738855725427" duration="486000" />
+      <workItem from="1738856218464" duration="17441000" />
+      <workItem from="1738875401061" duration="41593000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyParser.java</url>
+          <line>127</line>
+          <option name="timeStamp" value="39" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+    <watches-manager>
+      <configuration name="Application">
+        <watch expression="((HashMap)sBlankNodeTriples).entrySet().toArray()[100]" custom="java.util.HashMap" />
+        <watch expression="((HashMap)sBlankNodeTriples).entrySet().toArray()[100]" custom="java.util.HashMap" />
+        <watch expression="((HashMap)sBlankNodeTriples).entrySet().toArray()[100]" custom="java.util.HashMap" />
+      </configuration>
+    </watches-manager>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
+  </component>
+</project>
