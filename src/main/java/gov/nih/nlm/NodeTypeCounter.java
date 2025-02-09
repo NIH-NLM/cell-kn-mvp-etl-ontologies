@@ -1,5 +1,7 @@
 package gov.nih.nlm;
 
+import static gov.nih.nlm.PathUtilities.listFilesMatchingPattern;
+
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -11,8 +13,10 @@ import org.apache.jena.graph.Triple;
 import org.apache.jena.riot.RDFParser;
 import org.apache.jena.riot.lang.CollectorStreamTriples;
 
-import static gov.nih.nlm.PathUtilities.listFilesMatchingPattern;
-
+/**
+ * Parses each ontology file in the data/obo directory, counts types of every
+ * node of every triple, and writes the result.
+ */
 public class NodeTypeCounter {
 
 	// Specify location of ontology files
@@ -20,10 +24,11 @@ public class NodeTypeCounter {
 	private static final Path oboDir = usrDir.resolve("data/obo");
 
 	/**
-	 * Parse the ontology file, count types of the subject, predicate, and object node of every triple, then write the result.
+	 * Parse the ontology file, count types of the subject, predicate, and object
+	 * node of every triple, then write the result.
 	 *
-	 * @param oboPth Path to ontology file
-	 * @param writer Write with which to write results
+	 * @param oboPth        Path to ontology file
+	 * @param writer        Write with which to write results
 	 * @param doPrintHeader Flag to print header, or not
 	 * @throws IOException
 	 */
@@ -55,8 +60,15 @@ public class NodeTypeCounter {
 		writer.write(String.format("%s,%d,%s,%s", oboPth.getFileName(), nTriples, "Object", objectCounts));
 	}
 
-	// TODO: Complete documentation
+	/**
+	 * Parse each ontology file in a directory, count types of every node of every
+	 * triple, and write the result.
+	 *
+	 * @param args (None expected)
+	 */
 	public static void main(String[] args) {
+
+		// List ontology OWL files
 		String directoryPath = oboDir.toString();
 		String filePattern = ".*\\.owl";
 		List<Path> files = null;
@@ -70,6 +82,7 @@ public class NodeTypeCounter {
 		} else {
 			String outFNm = oboDir.resolve("../../results/countNodeTypes.csv").normalize().toString();
 			try {
+				// Count node types for each ontology file
 				BufferedWriter writer = new BufferedWriter(new FileWriter(outFNm));
 				boolean doPrintHeader = true;
 				for (Path file : files) {

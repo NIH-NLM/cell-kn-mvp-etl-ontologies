@@ -3,7 +3,7 @@ package gov.nih.nlm;
 import org.apache.jena.graph.Node;
 
 /**
- * Counts types of specified nodes.
+ * Counts of specified node types.
  */
 public class NodeTypeCounts {
 

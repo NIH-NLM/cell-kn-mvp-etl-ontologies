@@ -17,6 +17,10 @@ import org.apache.jena.graph.Triple;
 import org.apache.jena.riot.RDFParser;
 import org.apache.jena.riot.lang.CollectorStreamTriples;
 
+/**
+ * Parses each ontology file in the data/obo directory, parses each file to
+ * produce triple sets sorted by the types of nodes the triples contain.
+ */
 public class OntologyParser {
 
 	private static final Path usrDir = Paths.get(System.getProperty("user.dir"));
@@ -34,13 +38,16 @@ public class OntologyParser {
 	 * <li>Blank subject and object</li>
 	 * </ul>
 	 * 
-	 * @param oboPth
-	 * @param tripleTypeSets
+	 * @param oboPth         Path to ontology file
+	 * @param tripleTypeSets Triple sets sorted by the types of nodes the triples
+	 *                       contain
 	 */
 	public static void populateTripleTypeSets(Path oboPth, TripleTypeSets tripleTypeSets) {
+		// Only populate empty triple type sets
 		if (tripleTypeSets.size() != 0) {
 			throw new RuntimeException("TripleTypeSets have already been populated");
 		}
+		// Parse ontology file, and process each triple
 		CollectorStreamTriples inputStream = new CollectorStreamTriples();
 		RDFParser.source(oboPth).parse(inputStream);
 		int nTriples = 0;
@@ -65,6 +72,7 @@ public class OntologyParser {
 				tripleTypeSets.soBNodeTriples.add(triple);
 			}
 		}
+		// Ensure all triples typed, and assign number of triples
 		if (tripleTypeSets.size() != nTriples) {
 			System.err.println("Warning: tripleTypeSets.size() != nTriples");
 		} else {
@@ -76,8 +84,9 @@ public class OntologyParser {
 	 * Move blank object triple sets into blank subject triple sets. If this method
 	 * is called after populating the triple type sets, the blank subject triple
 	 * sets will each use a single blank node throughout the set.
-	 * 
-	 * @param tripleTypeSets
+	 *
+	 * @param tripleTypeSets Triple sets sorted by the types of nodes the triples
+	 *                       contain
 	 */
 	public static void moveOtoSBNodeTriples(TripleTypeSets tripleTypeSets) {
 		for (Node key : tripleTypeSets.oBNodeTriples.keySet().toArray(new Node[0])) {
@@ -86,11 +95,19 @@ public class OntologyParser {
 				tripleTypeSets.oBNodeTriples.remove(key);
 			}
 		}
+		// Ensure no triples have been added or removed
 		if (tripleTypeSets.size() != tripleTypeSets.nTriples) {
 			System.err.println("Warning: tripleTypeSets.size() != nTriples");
 		}
 	}
 
+	/**
+	 * The the filled node of a triple containing either a blank subject or object
+	 * node.
+	 *
+	 * @param triple Triple containing a blank subject or object node
+	 * @return Filled node
+	 */
 	public static Node getFNode(Triple triple) {
 		if (triple.getSubject().isBlank() && triple.getObject().isBlank()) {
 			throw new IllegalArgumentException("Triple subject and object are both blank");
@@ -103,8 +120,21 @@ public class OntologyParser {
 		}
 	}
 
+	/**
+	 * Flatten Axiom triple sets by identifying the components of the Axiom triple
+	 * contained in the triples of the set, creating a corresponding triple, and
+	 * adding it to the list of triples with filled subject and object nodes.
+	 * <p>
+	 * Use triples remaining after flattening to add annotations corresponding to
+	 * the identified subject node.
+	 * </p>
+	 *
+	 * @param tripleTypeSets Triple sets sorted by the types of nodes the triples
+	 *                       contain
+	 * @param key            Node identifying triple lists containing the same blank
+	 *                       node
+	 */
 	public static void flattenAxiomTripleSets(TripleTypeSets tripleTypeSets, Node key) {
-
 		Node flattened_s = null;
 		Node flattened_p = null;
 		Node flattened_o = null;
@@ -112,6 +142,7 @@ public class OntologyParser {
 		ArrayList<Triple> remainingTriples = new ArrayList<>();
 		for (Triple triple : tripleTypeSets.sBNodeTriples.get(key)) {
 			String p_fragment = URI.create(triple.getPredicate().getURI()).getFragment();
+			// Identify components of the Axiom triple
 			if (p_fragment != null && p_fragment.equals("annotatedSource")) {
 				flattenedTriples.add(triple);
 				flattened_s = getFNode(triple);
@@ -126,11 +157,17 @@ public class OntologyParser {
 			}
 		}
 		if (flattened_s != null && flattened_p != null && flattened_o != null) {
+			// Create triple, and add it to the list of triples with filled subject and
+			// object nodes
 			tripleTypeSets.nTriples++;
 			tripleTypeSets.soFNodeTriples.add(Triple.create(flattened_s, flattened_p, flattened_o));
+
+			// Keep track of flattened triples
 			tripleTypeSets.flattenedBNodeTriples.addAll(flattenedTriples);
 			tripleTypeSets.sBNodeTriples.get(key).removeAll(flattenedTriples);
 
+			// Use remaining triples to remaining annotations corresponding to the
+			// identified subject node
 			flattenedTriples.clear();
 			for (Triple triple : remainingTriples) {
 				flattened_o = triple.getObject();
@@ -146,8 +183,18 @@ public class OntologyParser {
 		}
 	}
 
+	/**
+	 * Flatten Restriction triple sets by identifying the components of the
+	 * Restriction triple contained in the triples of the set, creating a
+	 * corresponding triple, and adding it to the list of triples with filled
+	 * subject and object nodes.
+	 *
+	 * @param tripleTypeSets Triple sets sorted by the types of nodes the triples
+	 *                       contain
+	 * @param key            Node identifying triple lists containing the same blank
+	 *                       node
+	 */
 	public static void flattenRestrictionTripleSets(TripleTypeSets tripleTypeSets, Node key) {
-
 		Node flattened_s = null;
 		Node flattened_p = null;
 		Node flattened_o = null;
@@ -155,6 +202,7 @@ public class OntologyParser {
 		ArrayList<Triple> remainingTriples = new ArrayList<>();
 		for (Triple triple : tripleTypeSets.sBNodeTriples.get(key)) {
 			String p_fragment = URI.create(triple.getPredicate().getURI()).getFragment();
+			// Identify components of the Restriction triple
 			if (p_fragment.equals("subClassOf")) {
 				flattenedTriples.add(triple);
 				flattened_s = getFNode(triple);
@@ -169,14 +217,26 @@ public class OntologyParser {
 			}
 		}
 		if (flattened_s != null && flattened_p != null && flattened_o != null) {
+			// Create triple, and add it to the list of triples with filled subject and
+			// object nodes
 			tripleTypeSets.nTriples++;
 			tripleTypeSets.soFNodeTriples.add(Triple.create(flattened_s, flattened_p, flattened_o));
+
+			// Keep track of flattened triples
 			tripleTypeSets.flattenedBNodeTriples.addAll(flattenedTriples);
 			tripleTypeSets.sBNodeTriples.get(key).removeAll(flattenedTriples);
 		}
 	}
 
+	/**
+	 * Flattend Axiom and Restriction triple sets.
+	 * 
+	 * @param tripleTypeSets Triple sets sorted by the types of nodes the triples
+	 *                       contain
+	 */
 	public static void flattenSBNodeTriples(TripleTypeSets tripleTypeSets) {
+		// Process each triple list containing the same blank node successively without
+		// assuming Axiom and Restriction triple sets are not contained in the same list
 		String[] fragments = { "Axiom", "Restriction" };
 		for (String fragment : fragments) {
 			for (Node key : tripleTypeSets.sBNodeTriples.keySet().toArray(new Node[0])) {
@@ -195,6 +255,7 @@ public class OntologyParser {
 					}
 				}
 			}
+			// Ensure no triples have been added or removed
 			if (tripleTypeSets.size() != tripleTypeSets.nTriples) {
 				System.err.println("Warning: tripleTypeSets.size() != nTriples");
 			}
@@ -206,7 +267,8 @@ public class OntologyParser {
 	 * are contained in the subject blank node triple sets, then remove these
 	 * linking blank triples from the both blank triples.
 	 *
-	 * @param tripleTypeSets
+	 * @param tripleTypeSets Triple sets sorted by the types of nodes the triples
+	 *                       contain
 	 */
 	public static void collectLinkingBnodeTriples(TripleTypeSets tripleTypeSets) {
 		for (Triple triple : tripleTypeSets.soBNodeTriples.toArray(new Triple[0])) {
@@ -217,11 +279,19 @@ public class OntologyParser {
 			}
 		}
 		tripleTypeSets.soBNodeTriples.removeAll(tripleTypeSets.linkingBNodeTriples);
+
+		// Ensure no triples have been added or removed
 		if (tripleTypeSets.size() != tripleTypeSets.nTriples) {
 			System.err.println("Warning: tripleTypeSets.size() != nTriples");
 		}
 	}
 
+	/**
+	 * Combine subject blank node triple sets linked by triple with blank subject
+	 * and object nodes.
+	 * 
+	 * @param tripleTypeSets
+	 */
 	public static void linkSBNodeTriples(TripleTypeSets tripleTypeSets) {
 		for (Triple triple : tripleTypeSets.linkingBNodeTriples.toArray(new Triple[0])) {
 			Node s = triple.getSubject();
@@ -229,11 +299,20 @@ public class OntologyParser {
 			tripleTypeSets.sBNodeTriples.get(s).addAll(tripleTypeSets.sBNodeTriples.get(o));
 			tripleTypeSets.sBNodeTriples.get(o).clear();
 		}
+		// Ensure no triples have been added or removed
 		if (tripleTypeSets.size() != tripleTypeSets.nTriples) {
 			System.err.println("Warning: tripleTypeSets.size() != nTriples");
 		}
 	}
 
+	/**
+	 * Parses ontology files to produce triple sets sorted by the types of nodes the
+	 * triples contain.
+	 * 
+	 * @param files Paths to ontology files
+	 * @return Map by ontology file name of triple sets sorted by the types of nodes
+	 *         the triples contain
+	 */
 	public static Map<String, TripleTypeSets> parseOntologies(List<Path> files) {
 		Map<String, TripleTypeSets> ontologyTripleTypeSets = new HashMap<String, TripleTypeSets>();
 		for (Path file : files) {
@@ -250,6 +329,12 @@ public class OntologyParser {
 		return ontologyTripleTypeSets;
 	}
 
+	/**
+	 * Parses each ontology file in the data/obo directory, parses each file to
+	 * produce triple sets sorted by the types of nodes the triples contain.
+	 * 
+	 * @param args (None expected)
+	 */
 	public static void main(String[] args) {
 		String directoryPath = oboDir.toString();
 		String filePattern = ".*\\.owl";

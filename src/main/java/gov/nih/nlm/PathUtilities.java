@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+/**
+ * Collects common methods for handling paths.
+ */
 public class PathUtilities {
 
 	/**
