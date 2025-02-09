@@ -7,17 +7,33 @@ import org.apache.jena.graph.Triple;
 
 public class TripleTypeSets {
 
-	public List<Triple> fNodeTriples;
+	public int nTriples;
+	public List<Triple> soFNodeTriples;
 	public Map<Node, ArrayList<Triple>> sBNodeTriples;
 	public Map<Node, ArrayList<Triple>> oBNodeTriples;
-	public List<Triple> bBNodeTriples;
-	public Set<Triple> lBNodeTriples;
+	public List<Triple> soBNodeTriples;
+	public Set<Triple> linkingBNodeTriples;
+	public Set<Triple> flattenedBNodeTriples;
 
 	public TripleTypeSets() {
-		List<Triple> filledNodeTriples = new ArrayList<>();
-		Map<Node, ArrayList<Triple>> sBlankNodeTriples = new HashMap<>();
-		Map<Node, ArrayList<Triple>> oBlankNodeTriples = new HashMap<>();
-		List<Triple> bBlankTriples = new ArrayList<>();
-		Set<Triple> lBlankTriples = new HashSet<>();
+		nTriples = 0;
+		soFNodeTriples = new ArrayList<>();
+		sBNodeTriples = new HashMap<>();
+		oBNodeTriples = new HashMap<>();
+		soBNodeTriples = new ArrayList<>();
+		linkingBNodeTriples = new HashSet<>();
+		flattenedBNodeTriples = new HashSet<>();
+	}
+
+	public int size() {
+		int totalSize = soFNodeTriples.size();
+		for (Map.Entry<Node, ArrayList<Triple>> entry : sBNodeTriples.entrySet()) {
+			totalSize += entry.getValue().size();
+		}
+		for (Map.Entry<Node, ArrayList<Triple>> entry : oBNodeTriples.entrySet()) {
+			totalSize += entry.getValue().size();
+		}
+		totalSize += soBNodeTriples.size() + linkingBNodeTriples.size() + flattenedBNodeTriples.size();
+		return totalSize;
 	}
 }

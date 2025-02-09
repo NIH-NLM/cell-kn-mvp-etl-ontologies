@@ -5,24 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ab62d87a-c49b-4988-979f-f2aad7db4669" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/eclipseCodeFormatter.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/scala_compiler.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/App.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/ArangoDbUtilities.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/NodeTypeCounter.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/NodeTypeCounts.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyParser.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/TripleTypeSets.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/gov/nih/nlm/AppTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/PathUtilities.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/NodeTypeCounter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/NodeTypeCounter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/NodeTypeCounts.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/NodeTypeCounts.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyParser.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/TripleTypeSets.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/TripleTypeSets.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -39,6 +27,10 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="KubernetesApiPersistence"><![CDATA[{}]]></component>
+  <component name="KubernetesApiProvider"><![CDATA[{
+  "isMigrated": true
+}]]></component>
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="CurrentFile" />
   </component>
@@ -60,7 +52,7 @@
     "Application.ArangoDbUtilities.executor": "Run",
     "Application.NodeTypeCounter.executor": "Run",
     "Application.OntologyLoader.executor": "Run",
-    "Application.OntologyParser.executor": "Debug",
+    "Application.OntologyParser.executor": "Run",
     "JUnit.AppTest.executor": "Run",
     "Maven. [org.apache.maven.plugins:maven-archetype-plugin:RELEASE:generate].executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
@@ -86,7 +78,7 @@
       <recent name="$PROJECT_DIR$" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.NodeTypeCounter">
+  <component name="RunManager" selected="Application.OntologyParser">
     <configuration name="App" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="gov.nih.nlm.App" />
       <module name="springbok-cell-kn-etl" />
@@ -155,16 +147,16 @@
       </method>
     </configuration>
     <list>
-      <item itemvalue="Application.NodeTypeCounter" />
-      <item itemvalue="Application.OntologyParser" />
       <item itemvalue="Application.App" />
       <item itemvalue="Application.ArangoDbUtilities" />
+      <item itemvalue="Application.NodeTypeCounter" />
+      <item itemvalue="Application.OntologyParser" />
       <item itemvalue="JUnit.AppTest" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Application.NodeTypeCounter" />
         <item itemvalue="Application.OntologyParser" />
+        <item itemvalue="Application.NodeTypeCounter" />
         <item itemvalue="Application.ArangoDbUtilities" />
         <item itemvalue="Application.App" />
         <item itemvalue="JUnit.AppTest" />
@@ -193,30 +185,32 @@
       <workItem from="1738855642415" duration="77000" />
       <workItem from="1738855725427" duration="486000" />
       <workItem from="1738856218464" duration="17441000" />
-      <workItem from="1738875401061" duration="41593000" />
+      <workItem from="1738875401061" duration="46382000" />
+      <workItem from="1739042467472" duration="4000" />
+      <workItem from="1739042477524" duration="26879000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
   <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyParser.java</url>
-          <line>127</line>
-          <option name="timeStamp" value="39" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
-    <watches-manager>
-      <configuration name="Application">
-        <watch expression="((HashMap)sBlankNodeTriples).entrySet().toArray()[100]" custom="java.util.HashMap" />
-        <watch expression="((HashMap)sBlankNodeTriples).entrySet().toArray()[100]" custom="java.util.HashMap" />
-        <watch expression="((HashMap)sBlankNodeTriples).entrySet().toArray()[100]" custom="java.util.HashMap" />
-      </configuration>
-    </watches-manager>
+    <pin-to-top-manager>
+      <pinned-members>
+        <PinnedItemInfo parentTag="gov.nih.nlm.TripleTypeSets" memberName="oBNodeTriples" />
+      </pinned-members>
+    </pin-to-top-manager>
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

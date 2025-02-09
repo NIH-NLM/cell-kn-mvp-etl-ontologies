@@ -2,17 +2,31 @@ package gov.nih.nlm;
 
 import org.apache.jena.graph.Node;
 
+/**
+ * Counts types of specified nodes.
+ */
 public class NodeTypeCounts {
 
+	/** Number of blank nodes */
 	public int nIsBlank;
+	/** Number of concrete nodes (nodes that have data in the RDF Graph) */
 	public int nIsConcrete;
+	/** Number of extension nodes */
 	public int nIsExt;
+	/** Number of literal nodes */
 	public int nIsLiteral;
+	/** Number of "graph nodes" (N3 formula) */
 	public int nIsNodeGraph;
+	/** Number of "triple nodes" (RDF-star) */
 	public int nIsNodeTriple;
+	/** Number of URI nodes */
 	public int nIsURI;
+	/** Number of variable nodes */
 	public int nIsVariable;
 
+	/**
+	 * No argument constructor initializes counts.
+	 */
 	public NodeTypeCounts() {
 		nIsBlank = 0;
 		nIsConcrete = 0;
@@ -24,6 +38,11 @@ public class NodeTypeCounts {
 		nIsVariable = 0;
 	}
 
+	/**
+	 * Count the types of the specified node.
+	 *
+	 * @param node Node for which types are counted
+	 */
 	public void countNodeTypes(Node node) {
 		if (node.isBlank()) {
 			nIsBlank++;
@@ -51,9 +70,13 @@ public class NodeTypeCounts {
 		}
 	}
 
+	/**
+	 * Format a string suitable for printing to a table.
+	 *
+	 * @return Formatted string suitable for printing to a table.
+	 */
 	public String toString() {
 		return String.format("%d,%d,%d,%d,%d,%d,%d,%d\n", nIsBlank, nIsConcrete, nIsExt, nIsLiteral, nIsNodeGraph,
 				nIsNodeTriple, nIsURI, nIsVariable);
 	}
-
 }
