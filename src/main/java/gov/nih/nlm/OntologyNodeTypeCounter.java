@@ -17,7 +17,7 @@ import org.apache.jena.riot.lang.CollectorStreamTriples;
  * Parses each ontology file in the data/obo directory, counts types of every
  * node of every triple, and writes the result.
  */
-public class NodeTypeCounter {
+public class OntologyNodeTypeCounter {
 
 	// Specify location of ontology files
 	private static final Path usrDir = Paths.get(System.getProperty("user.dir"));
@@ -44,9 +44,9 @@ public class NodeTypeCounter {
 
 		// Count each node of each triple
 		int nTriples = 0;
-		NodeTypeCounts subjectCounts = new NodeTypeCounts();
-		NodeTypeCounts predicateCounts = new NodeTypeCounts();
-		NodeTypeCounts objectCounts = new NodeTypeCounts();
+		OntologyNodeTypeCounts subjectCounts = new OntologyNodeTypeCounts();
+		OntologyNodeTypeCounts predicateCounts = new OntologyNodeTypeCounts();
+		OntologyNodeTypeCounts objectCounts = new OntologyNodeTypeCounts();
 		for (Triple triple : inputStream.getCollected()) {
 			nTriples++;
 			subjectCounts.countNodeTypes(triple.getSubject());
@@ -80,7 +80,7 @@ public class NodeTypeCounter {
 		if (files.isEmpty()) {
 			System.out.println("No files found matching the pattern.");
 		} else {
-			String outFNm = oboDir.resolve("../../results/countNodeTypes.csv").normalize().toString();
+			String outFNm = oboDir.resolve("../../results/OntologyNodeTypeCounts.csv").normalize().toString();
 			try {
 				// Count node types for each ontology file
 				BufferedWriter writer = new BufferedWriter(new FileWriter(outFNm));

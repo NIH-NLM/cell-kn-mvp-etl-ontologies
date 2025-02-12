@@ -3,9 +3,9 @@ package gov.nih.nlm;
 import org.apache.jena.graph.Node;
 
 /**
- * Counts of specified node types.
+ * Counts of specified ontology node types.
  */
-public class NodeTypeCounts {
+public class OntologyNodeTypeCounts {
 
 	/** Number of blank nodes */
 	public int nIsBlank;
@@ -27,7 +27,7 @@ public class NodeTypeCounts {
 	/**
 	 * No argument constructor initializes counts.
 	 */
-	public NodeTypeCounts() {
+	public OntologyNodeTypeCounts() {
 		nIsBlank = 0;
 		nIsConcrete = 0;
 		nIsExt = 0;

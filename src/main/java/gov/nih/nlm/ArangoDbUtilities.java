@@ -164,6 +164,11 @@ public class ArangoDbUtilities {
 		}
 	}
 
+	/**
+	 * Exercise the utilities.
+	 *
+	 * @param args (None expected)
+	 */
 	public static void main(String[] args) {
 		ArangoDbUtilities arangoDbUtilities = new ArangoDbUtilities();
 		String databaseName = "myDb";

@@ -21,11 +21,13 @@ import org.apache.jena.riot.lang.CollectorStreamTriples;
  * Parses each ontology file in the data/obo directory, parses each file to
  * produce triple sets sorted by the types of nodes the triples contain.
  */
-public class OntologyParser {
+public class OntologyTripleParser {
 
+	// Assign location of ontology files
 	private static final Path usrDir = Paths.get(System.getProperty("user.dir"));
 	private static final Path oboDir = usrDir.resolve("data/obo");
 
+	// Assign location of ontology files
 	private static final Node axiom = NodeFactory.createURI("http://www.w3.org/2002/07/owl#Axiom");
 	private static final Node restriction = NodeFactory.createURI("http://www.w3.org/2002/07/owl#Restriction");
 
@@ -308,15 +310,16 @@ public class OntologyParser {
 	/**
 	 * Parses ontology files to produce triple sets sorted by the types of nodes the
 	 * triples contain.
-	 * 
+	 *
 	 * @param files Paths to ontology files
-	 * @return Map by ontology file name of triple sets sorted by the types of nodes
+	 * @return Map by ontology file name containing triple sets sorted by the types of nodes
 	 *         the triples contain
 	 */
-	public static Map<String, TripleTypeSets> parseOntologies(List<Path> files) {
-		Map<String, TripleTypeSets> ontologyTripleTypeSets = new HashMap<String, TripleTypeSets>();
+	public static Map<String, TripleTypeSets> parseOntologyTriples(List<Path> files) {
+		Map<String, TripleTypeSets> ontologyTripleTypeSets = new HashMap<>();
 		for (Path file : files) {
-			System.out.println("Processing " + file.getFileName());
+			String oboFNm = file.getFileName().toString();
+			System.out.println("Parsing ontology triples in " + oboFNm);
 			TripleTypeSets tripleTypeSets = new TripleTypeSets();
 			populateTripleTypeSets(file, tripleTypeSets);
 			moveOtoSBNodeTriples(tripleTypeSets);
@@ -324,7 +327,7 @@ public class OntologyParser {
 			// TODO: Take a another look at the utility of these
 			// collectLinkingBnodeTriples(tripleTypeSets);
 			// linkSBNodeTriples(tripleTypeSets);
-			ontologyTripleTypeSets.put(file.getFileName().toString(), tripleTypeSets);
+			ontologyTripleTypeSets.put(oboFNm, tripleTypeSets);
 		}
 		return ontologyTripleTypeSets;
 	}
@@ -347,7 +350,7 @@ public class OntologyParser {
 		if (files.isEmpty()) {
 			System.out.println("No files found matching the pattern.");
 		} else {
-			parseOntologies(files);
+			parseOntologyTriples(files);
 		}
 	}
 }
