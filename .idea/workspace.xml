@@ -8,14 +8,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ab62d87a-c49b-4988-979f-f2aad7db4669" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyElementMap.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyElementParser.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyTripleLoader.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/ArangoDbUtilities.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/ArangoDbUtilities.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/NodeTypeCounter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyNodeTypeCounter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/NodeTypeCounts.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyNodeTypeCounts.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyTripleParser.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyElementParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyElementParser.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyTripleLoader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyTripleLoader.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -60,7 +55,7 @@
     "Application.OntologyLoader.executor": "Debug",
     "Application.OntologyNodeTypeCounter.executor": "Run",
     "Application.OntologyParser.executor": "Run",
-    "Application.OntologyTripleLoader.executor": "Debug",
+    "Application.OntologyTripleLoader.executor": "Run",
     "JUnit.AppTest.executor": "Run",
     "Maven. [org.apache.maven.plugins:maven-archetype-plugin:RELEASE:generate].executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
@@ -85,40 +80,6 @@
       <recent name="$PROJECT_DIR$/../" />
       <recent name="$PROJECT_DIR$" />
     </key>
-  </component>
-  <component name="RunManager" selected="Application.OntologyElementParser">
-    <configuration name="OntologyElementParser" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="gov.nih.nlm.OntologyElementParser" />
-      <module name="springbok-cell-kn-etl" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="gov.nih.nlm.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="OntologyTripleLoader" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="gov.nih.nlm.OntologyTripleLoader" />
-      <module name="springbok-cell-kn-etl" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="gov.nih.nlm.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <recent_temporary>
-      <list>
-        <item itemvalue="Application.OntologyElementParser" />
-        <item itemvalue="Application.OntologyTripleLoader" />
-      </list>
-    </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
@@ -145,7 +106,7 @@
       <workItem from="1738875401061" duration="46382000" />
       <workItem from="1739042467472" duration="4000" />
       <workItem from="1739042477524" duration="36375000" />
-      <workItem from="1739209359069" duration="49122000" />
+      <workItem from="1739209359069" duration="72014000" />
     </task>
     <servers />
   </component>
@@ -172,24 +133,9 @@
           <option name="timeStamp" value="9" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyTripleLoader.java</url>
-          <line>68</line>
-          <option name="timeStamp" value="29" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyTripleLoader.java</url>
-          <line>50</line>
-          <option name="timeStamp" value="30" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyElementParser.java</url>
-          <line>173</line>
+          <line>172</line>
           <option name="timeStamp" value="31" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyElementParser.java</url>
-          <line>149</line>
-          <option name="timeStamp" value="32" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

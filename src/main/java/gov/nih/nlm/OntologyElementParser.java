@@ -84,8 +84,7 @@ public class OntologyElementParser {
 					URI uri = URI.create(about);
 					String term = Paths.get(uri.getPath()).getFileName().toString();
 					if (term.contains("_")) {
-						String[] tokens = term.split("_");
-						String id = tokens[0];
+						String id = term.split("_")[0];
 						if (!id.equals("valid")) {
 							ontologyElementMap.ids.add(id);
 						}
