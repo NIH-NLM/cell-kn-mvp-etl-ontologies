@@ -20,16 +20,22 @@ import com.arangodb.ArangoVertexCollection;
 import com.arangodb.entity.BaseDocument;
 import com.arangodb.entity.BaseEdgeDocument;
 
+/**
+ * Loads triples parsed from each ontology file in the data/obo directory into a
+ * local ArangoDB server instance.
+ */
 public class OntologyTripleLoader {
 
 	// Assign location of ontology files
 	private static final Path usrDir = Paths.get(System.getProperty("user.dir"));
 	private static final Path oboDir = usrDir.resolve("data/obo");
 
-	private static final ArangoDbUtilities arangoDbUtilities = new ArangoDbUtilities();
+	// Assign vertices to include in the graph
+	private static final ArrayList<String> validVertices = new ArrayList<>(Arrays.asList("CAPO", "CHEBI", "CL", "CLM",
+			"GO", "HANCESTRO", "HsapDv", "MONDO", "MusDv", "NCBITaxon", "PATO", "PCL", "PR", "UBERON"));
 
-	private static final ArrayList<String> validVertices = new ArrayList<>(
-			Arrays.asList("UBERON", "CL", "GO", "NCBITaxon", "PR", "PATO", "CHEBI", "CLM"));
+	// Connect to a local ArangoDB server instance
+	private static final ArangoDbUtilities arangoDbUtilities = new ArangoDbUtilities();
 
 	private static Map<String, OntologyElementMap> ontologyElementMaps = null;
 	private static Map<String, TripleTypeSets> ontologyTripleTypeSets = null;
@@ -38,21 +44,32 @@ public class OntologyTripleLoader {
 	private static final Map<String, ArangoEdgeCollection> edgeCollections = new HashMap<>();
 	private static final Map<String, Map<String, BaseEdgeDocument>> edgeDocuments = new HashMap<>();
 
+	/**
+	 * Construct vertices using triples parsed from specified ontology files that
+	 * contain a filled subject and object which contain an ontology ID contained in
+	 * the valid vertices collection.
+	 *
+	 * @param files Paths to ontology files
+	 * @param graph ArangoDB graph in which to create vertex collections
+	 */
 	public static void constructVertices(List<Path> files, ArangoGraph graph) {
+
+		// Collect vertex keys to prevent constructing duplicate vertices
 		Map<String, Set<String>> vertexKeys = new HashMap<>();
 
+		// Process triples parsed from each file
 		for (Path file : files) {
 			long startTime = System.nanoTime();
-
 			String oboFNm = file.getFileName().toString();
 			List<Triple> triples = ontologyTripleTypeSets.get(oboFNm).soFNodeTriples;
 			System.out.println("Constructing vertices using " + triples.size() + " triples from " + oboFNm);
-
 			int nVertices = 0;
 			for (Triple triple : triples) {
 
+				// Consider the subject and object nodes
 				ArrayList<Node> nodes = new ArrayList<>(Arrays.asList(triple.getSubject(), triple.getObject()));
 				for (Node n : nodes) {
+					// Construct a vertex from the current node, if it contains a valid id
 					if (!n.isURI())
 						continue;
 					if (URI.create(n.getURI()).getPath() == null)
@@ -63,12 +80,14 @@ public class OntologyTripleLoader {
 					String id = term.contains("_") ? term.split("_")[0] : null;
 					if (validVertices.contains(id)) {
 
+						// Create a vertex collection, if needed
 						if (!vertexCollections.containsKey(id)) {
 							vertexCollections.put(id, arangoDbUtilities.createOrGetVertexCollection(graph, id));
 							vertexDocuments.put(id, new HashMap<>());
 							vertexKeys.put(id, new HashSet<>());
 						}
 
+						// Construct the vertex, if needed
 						if (!vertexKeys.get(id).contains(term)) {
 							nVertices++;
 							BaseDocument doc = new BaseDocument(term);
@@ -84,21 +103,31 @@ public class OntologyTripleLoader {
 		}
 	}
 
+	/**
+	 * Update vertices using triples parsed from specified ontology files that
+	 * contain a filled subject which contains an ontology ID contained in the valid
+	 * vertices collection, and a filled object literal.
+	 *
+	 * @param files Paths to ontology files
+	 */
 	public static void updateVertices(List<Path> files) {
+
+		// Process triples parsed from each file
 		for (Path file : files) {
 			long startTime = System.nanoTime();
-
 			String oboFNm = file.getFileName().toString();
 			List<Triple> triples = ontologyTripleTypeSets.get(oboFNm).soFNodeTriples;
 			System.out.println("Updating vertices using " + triples.size() + " triples from " + oboFNm);
-
-			Set<String> updatedVertices = new HashSet<>();
+			Set<String> updatedVertices = new HashSet<>(); // For counting
 			for (Triple triple : triples) {
+
+				// Ensure the object contains a literal
 				Node o = triple.getObject();
 				if (!o.isLiteral()) {
 					continue;
 				}
 
+				// Ensure the subject contains a valid ontology ID
 				Node s = triple.getSubject();
 				if (URI.create(s.getURI()).getPath() == null)
 					continue;
@@ -108,15 +137,19 @@ public class OntologyTripleLoader {
 				String id = term.contains("_") ? term.split("_")[0] : null;
 				if (validVertices.contains(id)) {
 
+					// Parse the predicate
 					Node p = triple.getPredicate();
 					String attribute = URI.create(p.getURI()).getFragment();
 					if (attribute == null) {
 						attribute = URI.create(p.getURI()).getPath();
 						attribute = attribute.substring(attribute.lastIndexOf('/') + 1);
+						// TODO: Translate the predicate using the relationship ontology
 					}
 
+					// Parse the object
 					String literal = o.getLiteralValue().toString();
 
+					// Update the corresponding vertex
 					updatedVertices.add(id + "-" + term);
 					BaseDocument doc = vertexDocuments.get(id).get(term);
 					doc.addAttribute(attribute, literal);
@@ -128,6 +161,10 @@ public class OntologyTripleLoader {
 		}
 	}
 
+	/**
+	 * Insert all vertices after they have been constructed and updated to improve
+	 * performance.
+	 */
 	public static void insertVertices() {
 		System.out.println("Insert vertices");
 		long startTime = System.nanoTime();
@@ -144,19 +181,29 @@ public class OntologyTripleLoader {
 		System.out.println("Inserted " + nVertices + " vertices in " + (stopTime - startTime) / 1e9 + " s");
 	}
 
+	/**
+	 * Construct edges using triples parsed from specified ontology files that
+	 * contain a filled subject and object which contain an ontology ID contained in
+	 * the valid vertices collection.
+	 * 
+	 * @param files
+	 * @param graph
+	 */
 	public static void constructEdges(List<Path> files, ArangoGraph graph) {
+
+		// Collect edge keys to prevent constructing duplicate edges
 		Map<String, Set<String>> edgeKeys = new HashMap<>();
 
+		// Process triples parsed from each file
 		for (Path file : files) {
 			long startTime = System.nanoTime();
-
 			String oboFNm = file.getFileName().toString();
 			List<Triple> triples = ontologyTripleTypeSets.get(oboFNm).soFNodeTriples;
 			System.out.println("Constructing edges using " + triples.size() + " triples from " + oboFNm);
-
 			int nEdges = 0;
 			for (Triple triple : triples) {
 
+				// Ensure the subject contains a valid ontology ID
 				Node s = triple.getSubject();
 				if (URI.create(s.getURI()).getPath() == null)
 					continue;
@@ -167,6 +214,7 @@ public class OntologyTripleLoader {
 				if (!validVertices.contains(s_id))
 					continue;
 
+				// Ensure the subject contains a valid ontology ID
 				Node o = triple.getObject();
 				if (!o.isURI())
 					continue;
@@ -179,6 +227,7 @@ public class OntologyTripleLoader {
 				if (!validVertices.contains(o_id))
 					continue;
 
+				// Parse the predicate
 				Node p = triple.getPredicate();
 				String label = URI.create(p.getURI()).getFragment();
 				if (label == null) {
@@ -186,6 +235,7 @@ public class OntologyTripleLoader {
 					label = label.substring(label.lastIndexOf('/') + 1);
 				}
 
+				// Create an edge collection, if needed
 				String id = s_id + "-" + o_id;
 				if (!edgeCollections.containsKey(id)) {
 					edgeCollections.put(id, arangoDbUtilities.createOrGetEdgeCollection(graph, s_id, o_id));
@@ -193,6 +243,7 @@ public class OntologyTripleLoader {
 					edgeKeys.put(id, new HashSet<>());
 				}
 
+				// Construct the edge, if needed
 				String key = s_term + "-" + o_term;
 				if (!edgeKeys.get(id).contains(key)) {
 					nEdges++;
@@ -208,6 +259,9 @@ public class OntologyTripleLoader {
 		}
 	}
 
+	/**
+	 * Insert all edges after they have been constructed to improve performance.
+	 */
 	public static void insertEdges() {
 		System.out.println("Inserting edges");
 		long startTime = System.nanoTime();
@@ -224,6 +278,13 @@ public class OntologyTripleLoader {
 		System.out.println("Inserted " + nEdges + " edges in " + (stopTime - startTime) / 1e9 + " s");
 	}
 
+	/**
+	 * Loads triples parsed from each ontology file in the data/obo directory into a
+	 * local ArangoDB server instance.
+	 *
+	 * @param args (None expected)
+	 * @throws Exception
+	 */
 	public static void main(String[] args) throws Exception {
 		String directoryPath = oboDir.toString();
 		String filePattern = ".*\\.owl";

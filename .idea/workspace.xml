@@ -9,7 +9,6 @@
   <component name="ChangeListManager">
     <list default="true" id="ab62d87a-c49b-4988-979f-f2aad7db4669" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyElementParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyElementParser.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyTripleLoader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyTripleLoader.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -106,7 +105,7 @@
       <workItem from="1738875401061" duration="46382000" />
       <workItem from="1739042467472" duration="4000" />
       <workItem from="1739042477524" duration="36375000" />
-      <workItem from="1739209359069" duration="72014000" />
+      <workItem from="1739209359069" duration="79892000" />
     </task>
     <servers />
   </component>
@@ -137,6 +136,11 @@
           <line>172</line>
           <option name="timeStamp" value="31" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyTripleLoader.java</url>
+          <line>303</line>
+          <option name="timeStamp" value="49" />
+        </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
     <pin-to-top-manager>
@@ -144,6 +148,13 @@
         <PinnedItemInfo parentTag="gov.nih.nlm.TripleTypeSets" memberName="oBNodeTriples" />
       </pinned-members>
     </pin-to-top-manager>
+    <watches-manager>
+      <configuration name="Application">
+        <watch expression="((HashSet)((OntologyElementMap)((HashMap.Node)((HashMap)OntologyTripleLoader.ontologyElementMaps).entrySet().toArray()[0]).getValue()).ids).toArray()[23]" custom="java.util.HashSet,gov.nih.nlm.OntologyElementMap,java.util.HashMap.Node,java.util.HashMap" />
+        <watch expression="((HashSet)((OntologyElementMap)((HashMap.Node)((HashMap)OntologyTripleLoader.ontologyElementMaps).entrySet().toArray()[0]).getValue()).ids).toArray()[23]" custom="java.util.HashSet,gov.nih.nlm.OntologyElementMap,java.util.HashMap.Node,java.util.HashMap" />
+        <watch expression="((HashSet)((OntologyElementMap)((HashMap.Node)((HashMap)OntologyTripleLoader.ontologyElementMaps).entrySet().toArray()[0]).getValue()).ids).toArray()[23]" custom="java.util.HashSet,gov.nih.nlm.OntologyElementMap,java.util.HashMap.Node,java.util.HashMap" />
+      </configuration>
+    </watches-manager>
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand>
