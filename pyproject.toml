@@ -28,6 +28,7 @@ mypy = ">=1.10"
 notebook = ">=7.2"
 pylint = ">=3.2"
 pytest = ">=8.2"
+sphinx = ">=8.1"
 
 [build-system]
 requires = ["poetry-core"]

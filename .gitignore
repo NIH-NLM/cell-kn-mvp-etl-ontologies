@@ -39,6 +39,7 @@ build/
 
 ### Dev ###
 data/
+docs/java
 results/
 .poetry
 .venv
