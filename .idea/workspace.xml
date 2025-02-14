@@ -7,12 +7,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ab62d87a-c49b-4988-979f-f2aad7db4669" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyElementParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyElementParser.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyTripleLoader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyTripleLoader.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyTripleParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyTripleParser.java" afterDir="false" />
-    </list>
+    <list default="true" id="ab62d87a-c49b-4988-979f-f2aad7db4669" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -107,7 +102,7 @@
       <workItem from="1738875401061" duration="46382000" />
       <workItem from="1739042467472" duration="4000" />
       <workItem from="1739042477524" duration="36375000" />
-      <workItem from="1739209359069" duration="99403000" />
+      <workItem from="1739209359069" duration="99535000" />
     </task>
     <servers />
   </component>
