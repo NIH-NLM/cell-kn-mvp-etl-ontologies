@@ -40,3 +40,4 @@ build/
 ### Dev ###
 data/
 results/
+.zshenv
