@@ -10,7 +10,7 @@ from rdflib import Graph
 from rdflib.term import BNode, Literal
 import requests
 
-import ArangoDB as adb
+import ArangoDbUtilities as adb
 
 BIOPORTAL_DIRPATH = Path("../data/bioportal")
 
