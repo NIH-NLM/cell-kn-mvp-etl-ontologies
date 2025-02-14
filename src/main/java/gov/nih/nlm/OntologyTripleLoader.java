@@ -1,11 +1,11 @@
 package gov.nih.nlm;
 
+import static gov.nih.nlm.OntologyElementParser.createURI;
 import static gov.nih.nlm.OntologyElementParser.parseOntologyElements;
 import static gov.nih.nlm.OntologyTripleParser.parseOntologyTriples;
 import static gov.nih.nlm.PathUtilities.listFilesMatchingPattern;
 
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -31,13 +31,13 @@ public class OntologyTripleLoader {
 	private static final Path oboDir = usrDir.resolve("data/obo");
 
 	// Assign vertices to include in the graph
-	private static final ArrayList<String> validVertices = new ArrayList<>(Arrays.asList("CAPO", "CHEBI", "CL", "CLM",
-			"GO", "HANCESTRO", "HsapDv", "MONDO", "MusDv", "NCBITaxon", "PATO", "PCL", "PR", "UBERON"));
+	private static final ArrayList<String> validVertices = new ArrayList<>(Arrays.asList("CHEBI", "CL", "ENSG", "GO",
+			"HsapDv", "MONDO", "MmusDv", "NCBITaxon", "PATO", "PCL", "PCLCS", "PR", "SO", "UBERON"));
 
 	// Connect to a local ArangoDB server instance
 	private static final ArangoDbUtilities arangoDbUtilities = new ArangoDbUtilities();
 
-	private static Map<String, OntologyElementMap> ontologyElementMaps = null;
+	private static final Map<String, OntologyElementMap> ontologyElementMaps = null;
 	private static Map<String, TripleTypeSets> ontologyTripleTypeSets = null;
 	private static final Map<String, ArangoVertexCollection> vertexCollections = new HashMap<>();
 	private static final Map<String, Map<String, BaseDocument>> vertexDocuments = new HashMap<>();
@@ -72,11 +72,11 @@ public class OntologyTripleLoader {
 					// Construct a vertex from the current node, if it contains a valid id
 					if (!n.isURI())
 						continue;
-					if (URI.create(n.getURI()).getPath() == null)
+					if (createURI(n.getURI()).getPath() == null)
 						continue;
-					if (Paths.get(URI.create(n.getURI()).getPath()).getFileName() == null)
+					if (Paths.get(createURI(n.getURI()).getPath()).getFileName() == null)
 						continue;
-					String term = Paths.get(URI.create(n.getURI()).getPath()).getFileName().toString();
+					String term = Paths.get(createURI(n.getURI()).getPath()).getFileName().toString();
 					String id = term.contains("_") ? term.split("_")[0] : null;
 					if (validVertices.contains(id)) {
 
@@ -129,19 +129,19 @@ public class OntologyTripleLoader {
 
 				// Ensure the subject contains a valid ontology ID
 				Node s = triple.getSubject();
-				if (URI.create(s.getURI()).getPath() == null)
+				if (createURI(s.getURI()).getPath() == null)
 					continue;
-				if (Paths.get(URI.create(s.getURI()).getPath()).getFileName() == null)
+				if (Paths.get(createURI(s.getURI()).getPath()).getFileName() == null)
 					continue;
-				String term = Paths.get(URI.create(s.getURI()).getPath()).getFileName().toString();
+				String term = Paths.get(createURI(s.getURI()).getPath()).getFileName().toString();
 				String id = term.contains("_") ? term.split("_")[0] : null;
 				if (validVertices.contains(id)) {
 
 					// Parse the predicate
 					Node p = triple.getPredicate();
-					String attribute = URI.create(p.getURI()).getFragment();
+					String attribute = createURI(p.getURI()).getFragment();
 					if (attribute == null) {
-						attribute = URI.create(p.getURI()).getPath();
+						attribute = createURI(p.getURI()).getPath();
 						attribute = attribute.substring(attribute.lastIndexOf('/') + 1);
 						// TODO: Translate the predicate using the relationship ontology
 					}
@@ -205,11 +205,11 @@ public class OntologyTripleLoader {
 
 				// Ensure the subject contains a valid ontology ID
 				Node s = triple.getSubject();
-				if (URI.create(s.getURI()).getPath() == null)
+				if (createURI(s.getURI()).getPath() == null)
 					continue;
-				if (Paths.get(URI.create(s.getURI()).getPath()).getFileName() == null)
+				if (Paths.get(createURI(s.getURI()).getPath()).getFileName() == null)
 					continue;
-				String s_term = Paths.get(URI.create(s.getURI()).getPath()).getFileName().toString();
+				String s_term = Paths.get(createURI(s.getURI()).getPath()).getFileName().toString();
 				String s_id = s_term.contains("_") ? s_term.split("_")[0] : null;
 				if (!validVertices.contains(s_id))
 					continue;
@@ -218,20 +218,20 @@ public class OntologyTripleLoader {
 				Node o = triple.getObject();
 				if (!o.isURI())
 					continue;
-				if (URI.create(o.getURI()).getPath() == null)
+				if (createURI(o.getURI()).getPath() == null)
 					continue;
-				if (Paths.get(URI.create(o.getURI()).getPath()).getFileName() == null)
+				if (Paths.get(createURI(o.getURI()).getPath()).getFileName() == null)
 					continue;
-				String o_term = Paths.get(URI.create(o.getURI()).getPath()).getFileName().toString();
+				String o_term = Paths.get(createURI(o.getURI()).getPath()).getFileName().toString();
 				String o_id = o_term.contains("_") ? o_term.split("_")[0] : null;
 				if (!validVertices.contains(o_id))
 					continue;
 
 				// Parse the predicate
 				Node p = triple.getPredicate();
-				String label = URI.create(p.getURI()).getFragment();
+				String label = createURI(p.getURI()).getFragment();
 				if (label == null) {
-					label = URI.create(p.getURI()).getPath();
+					label = createURI(p.getURI()).getPath();
 					label = label.substring(label.lastIndexOf('/') + 1);
 				}
 
@@ -295,6 +295,7 @@ public class OntologyTripleLoader {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+		Map<String, OntologyElementMap> ontologyElementMaps = null;
 		if (files.isEmpty()) {
 			System.out.println("No files found matching the pattern.");
 		} else {

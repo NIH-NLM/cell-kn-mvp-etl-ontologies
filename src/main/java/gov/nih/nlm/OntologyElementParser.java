@@ -10,6 +10,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -29,7 +30,13 @@ public class OntologyElementParser {
 	private static final Path oboDir = usrDir.resolve("data/obo");
 
 	// Assign pattern for matching to required elements
-	private static final Pattern p_owl = Pattern.compile("^(owl:).*");
+	private static final Pattern p_owl = Pattern.compile("^owl:");
+
+	// Assign pattern for matching to pcl/CS terms
+	private static final Pattern p_pcl = Pattern.compile("/pcl/CS");
+
+	// Assign pattern for matching to ensembl/ENSG terms
+	private static final Pattern p_ensembl = Pattern.compile("/ensembl/ENSG");
 
 	/**
 	 * Parse the specified file in the specified directory, and normalize.
@@ -60,6 +67,25 @@ public class OntologyElementParser {
 	}
 
 	/**
+	 * Create a URI from a string, handling the provisonal cell ontology as a
+	 * special case.
+	 * 
+	 * @param uri String from which to create URI
+	 * @return URI created
+	 */
+	public static URI createURI(String uri) {
+		Matcher m_pcl = p_pcl.matcher(uri);
+		if (m_pcl.find()) {
+			return URI.create(m_pcl.replaceFirst("/PCLCS_"));
+		}
+		Matcher m_ensembl = p_ensembl.matcher(uri);
+		if (m_ensembl.find()) {
+			return URI.create(m_ensembl.replaceFirst("/ENSG_"));
+		}
+		return URI.create(uri);
+	}
+
+	/**
 	 * Parse a node recursively to find all elements in the "owl" namespace which
 	 * contain a non-empty "about" attribute, and single "label" element. Also
 	 * collect resulting unique ontology term id.
@@ -73,15 +99,14 @@ public class OntologyElementParser {
 			Element element = (Element) node;
 
 			// Consider elements with tags in the "owl" namespace
-			String tagName = element.getTagName();
-			if (p_owl.matcher(element.getTagName()).matches()) {
+			if (p_owl.matcher(element.getTagName()).find()) {
 
 				// Consider elements with a non-empty "about" attribute
 				String about = element.getAttribute("rdf:about");
 				if (!about.equals("")) {
 
 					// Consider terms containing an underscore
-					URI uri = URI.create(about);
+					URI uri = createURI(about);
 					String term = Paths.get(uri.getPath()).getFileName().toString();
 					if (term.contains("_")) {
 						String id = term.split("_")[0];
@@ -166,10 +191,12 @@ public class OntologyElementParser {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+		Map<String, OntologyElementMap> ontologyElementMaps = null;
 		if (files.isEmpty()) {
 			System.out.println("No files found matching the pattern.");
 		} else {
-			parseOntologyElements(files);
+			ontologyElementMaps = parseOntologyElements(files);
 		}
+		System.out.println("Parsed ontology elements from " + files.size() + " files.");
 	}
 }

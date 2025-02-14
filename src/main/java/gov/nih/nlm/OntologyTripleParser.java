@@ -1,9 +1,9 @@
 package gov.nih.nlm;
 
+import static gov.nih.nlm.OntologyElementParser.createURI;
 import static gov.nih.nlm.PathUtilities.listFilesMatchingPattern;
 
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -104,7 +104,7 @@ public class OntologyTripleParser {
 	}
 
 	/**
-	 * The the filled node of a triple containing either a blank subject or object
+	 * Get the filled node of a triple containing either a blank subject or object
 	 * node.
 	 *
 	 * @param triple Triple containing a blank subject or object node
@@ -143,7 +143,7 @@ public class OntologyTripleParser {
 		ArrayList<Triple> flattenedTriples = new ArrayList<>();
 		ArrayList<Triple> remainingTriples = new ArrayList<>();
 		for (Triple triple : tripleTypeSets.sBNodeTriples.get(key)) {
-			String p_fragment = URI.create(triple.getPredicate().getURI()).getFragment();
+			String p_fragment = createURI(triple.getPredicate().getURI()).getFragment();
 			// Identify components of the Axiom triple
 			if (p_fragment != null && p_fragment.equals("annotatedSource")) {
 				flattenedTriples.add(triple);
@@ -203,7 +203,7 @@ public class OntologyTripleParser {
 		ArrayList<Triple> flattenedTriples = new ArrayList<>();
 		ArrayList<Triple> remainingTriples = new ArrayList<>();
 		for (Triple triple : tripleTypeSets.sBNodeTriples.get(key)) {
-			String p_fragment = URI.create(triple.getPredicate().getURI()).getFragment();
+			String p_fragment = createURI(triple.getPredicate().getURI()).getFragment();
 			// Identify components of the Restriction triple
 			if (p_fragment.equals("subClassOf")) {
 				flattenedTriples.add(triple);
@@ -245,7 +245,7 @@ public class OntologyTripleParser {
 				for (Triple triple : tripleTypeSets.sBNodeTriples.get(key).toArray(new Triple[0])) {
 					Node o = triple.getObject();
 					if (o.isURI()) {
-						String o_fragment = URI.create(o.getURI()).getFragment();
+						String o_fragment = createURI(o.getURI()).getFragment();
 						if (o_fragment != null && o_fragment.equals(fragment)) {
 							if (fragment.equals("Axiom")) {
 								flattenAxiomTripleSets(tripleTypeSets, key);
@@ -347,10 +347,12 @@ public class OntologyTripleParser {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+		Map<String, TripleTypeSets> ontologyTripleTypeSets = null;
 		if (files.isEmpty()) {
 			System.out.println("No files found matching the pattern.");
 		} else {
-			parseOntologyTriples(files);
+			ontologyTripleTypeSets = parseOntologyTriples(files);
 		}
+		System.out.println("Parsed ontology triples from " + files.size() + " files.");
 	}
 }
