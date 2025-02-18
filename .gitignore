@@ -38,10 +38,11 @@ build/
 .DS_Store
 
 ### Dev ###
-data/
-docs/java
-results/
 .poetry
 .venv
 .zshenv
 __pycache__
+data/
+docs/java
+log
+results/
