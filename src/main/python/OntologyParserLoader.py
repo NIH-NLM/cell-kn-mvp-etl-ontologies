@@ -12,9 +12,7 @@ import requests
 
 import ArangoDbUtilities as adb
 
-BIOPORTAL_DIRPATH = Path("../data/bioportal")
-
-OBO_DIRPATH = Path("../data/obo")
+OBO_DIRPATH = Path("../../../data/obo")
 OBO_PURLS = [
     "http://purl.obolibrary.org/obo/cl.owl",
     "http://purl.obolibrary.org/obo/ro.owl",
@@ -26,6 +24,9 @@ RDFS_NS = "{http://www.w3.org/2000/01/rdf-schema#}"
 
 URIREF_PATTERN = re.compile(r"/obo/([A-Za-z]*)_([A-Z0-9]*)")
 VALID_VERTICES = set(["UBERON", "CL", "GO", "NCBITaxon", "PR", "PATO", "CHEBI", "CLM"])
+
+LOG_DIRPATH = Path("./log")
+LOG_DIRPATH.mkdir()
 
 
 def update_ontologies():
@@ -919,14 +920,26 @@ def update_vertex_from_triple(adb_graph, vertex_collections, s, p, o, ro=None):
     return vertex
 
 
-def main():
+def main(parameters=None):
 
     parser = argparse.ArgumentParser(description="Load Cell Ontology")
+
     parser.add_argument(
         "--update",
         action="store_true",
         help="update ontologies downloaded from the OBO Foundry",
     )
+
+    if parameters is None:
+        args, remaining = parser.parse_known_args()
+
+    else:
+        args, remaining = parser.parse_known_args(parameters)
+
+    if args.update:
+        update_ontologies()
+        return
+
     parser.add_argument(
         "--label",
         default="",
@@ -938,36 +951,46 @@ def main():
     group = parser.add_argument_group("Cell Ontology (CL)", "Version of the CL to load")
     exclusive_group = group.add_mutually_exclusive_group(required=True)
     exclusive_group.add_argument(
+        "--test", action="store_true", help="load the test ontology"
+    )
+    exclusive_group.add_argument(
         "--slim", action="store_true", help="load the slim ontology"
     )
     exclusive_group.add_argument(
         "--full", action="store_true", help="load the full ontology"
     )
 
-    args = parser.parse_args()
+    if parameters is None:
+        args = parser.parse_args(remaining)
 
-    if args.update:
-        update_ontologies()
+    else:
+        args = parser.parse_args(remaining)
+
+    if args.test:
+        cl_dirpath = Path("../../test/python/data/obo")
+        cl_filename = "macrophage.owl"
+        db_name = "cl-test"
+        graph_name = "test"
 
     if args.slim:
-        cl_dirpath = BIOPORTAL_DIRPATH
+        cl_dirpath = OBO_DIRPATH
         cl_filename = "general_cell_types_upper_slim.owl"
-        db_name = "BioPortal-Slim"
-        graph_name = "CL-Slim"
+        db_name = "cl-slim"
+        graph_name = "slim"
 
     if args.full:
         cl_dirpath = OBO_DIRPATH
         cl_filename = "cl.owl"
-        db_name = "BioPortal-Full"
-        graph_name = "CL-Full"
+        db_name = "cl-full"
+        graph_name = "full"
 
     if args.include_bnodes:
-        db_name += "-BNodes"
-        graph_name += "-BNodes"
+        db_name += "-bnodes"
+        graph_name += "-bnodes"
 
     if args.label:
         db_name += f"-{args.label}"
-        
+
     ro_filename = "ro.owl"
     log_filename = f"{graph_name}.log"
 
@@ -986,7 +1009,7 @@ def main():
     print("Printing all triples in rdflib graph")
     triples = []
     triples_filename = log_filename.replace(".log", "_triples.txt")
-    with open(triples_filename, "w") as fp:
+    with open(LOG_DIRPATH / triples_filename, "w") as fp:
         for triple in rdf_graph:
             triples.append(triple)
             fp.write(str(triple) + "\n")
@@ -994,7 +1017,7 @@ def main():
     print("Collecting and printing all filled node triples in rdflib graph")
     fnode_triples = collect_fnode_triples(rdf_graph)
     fnode_triples_filename = log_filename.replace(".log", "_fnode_triples.txt")
-    with open(fnode_triples_filename, "w") as fp:
+    with open(LOG_DIRPATH / fnode_triples_filename, "w") as fp:
         for fnode_triple in fnode_triples:
             fp.write(str(fnode_triple) + "\n")
 
@@ -1004,7 +1027,7 @@ def main():
     collect_bnode_triple_sets(rdf_graph, bnode_triple_sets, use="subject", ro=ro)
     collect_bnode_triple_sets(rdf_graph, bnode_triple_sets, use="object", ro=ro)
     bnode_triple_sets_filename = log_filename.replace(".log", "_bnode_triple_sets.txt")
-    with open(bnode_triple_sets_filename, "w") as fp:
+    with open(LOG_DIRPATH / bnode_triple_sets_filename, "w") as fp:
         pprint(bnode_triple_sets, fp)
 
     print("Creating and printing all blank node triples in rdflib graph")
@@ -1012,7 +1035,7 @@ def main():
         bnode_triple_sets, ro=ro
     )
     bnode_triples_filename = log_filename.replace(".log", "_bnode_triples.txt")
-    with open(bnode_triples_filename, "w") as fp:
+    with open(LOG_DIRPATH / bnode_triples_filename, "w") as fp:
         for bnode_triple in bnode_triples:
             fp.write(str(bnode_triple) + "\n")
 
