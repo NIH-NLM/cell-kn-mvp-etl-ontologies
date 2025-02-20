@@ -23,6 +23,12 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+/**
+ * Identifies ontology files in the data/obo directory, parses each file to
+ * produce unique term ids, and a mapping of ontology term to ontology term
+ * PURLs and labels for all elements with a non-empty "about" attribute and at
+ * least one "label" element.
+ */
 public class OntologyElementParser {
 
 	// Assign location of ontology files
@@ -67,8 +73,8 @@ public class OntologyElementParser {
 	}
 
 	/**
-	 * Create a URI from a string, handling the provisonal cell ontology as a
-	 * special case.
+	 * Create a URI from a string, handling the provisional cell ontology as special
+	 * cases.
 	 * 
 	 * @param uri String from which to create URI
 	 * @return URI created
@@ -87,8 +93,8 @@ public class OntologyElementParser {
 
 	/**
 	 * Parse a node recursively to find all elements in the "owl" namespace which
-	 * contain a non-empty "about" attribute, and single "label" element. Also
-	 * collect resulting unique ontology term id.
+	 * contain a non-empty "about" attribute, and at least one "label" element. Also
+	 * collect resulting unique ontology term ids.
 	 * 
 	 * @param node
 	 * @param ontologyElementMap
@@ -148,28 +154,35 @@ public class OntologyElementParser {
 			System.out.println("Parsing ontology element in " + oboFNm);
 			Document doc = parseXmlFile(oboDir, oboFNm);
 			OntologyElementMap ontologyElementMap = new OntologyElementMap();
+			// Get title
 			Element titleElement = (Element) doc.getElementsByTagName("dc:title").item(0);
 			if (titleElement != null) {
 				ontologyElementMap.title = titleElement.getTextContent();
 			}
+			// Get description
 			Element descriptionElement = (Element) doc.getElementsByTagName("dc:description").item(0);
 			if (descriptionElement != null) {
 				ontologyElementMap.description = descriptionElement.getTextContent();
 			}
+			// Get PURL
 			Element purlElement = (Element) doc.getElementsByTagName("owl:Ontology").item(0);
 			if (purlElement != null) {
 				ontologyElementMap.purl = URI.create(purlElement.getAttribute("rdf:about"));
 			}
+			// Get version
 			Element versionElement = (Element) purlElement.getElementsByTagName("owl:versionIRI").item(0);
 			if (versionElement != null) {
 				ontologyElementMap.versionIRI = URI.create(versionElement.getAttribute("rdf:resource"));
 			}
+			// Get root
 			Element rootElement = (Element) doc.getElementsByTagName("obo:IAO_0000700").item(0);
 			if (rootElement != null) {
 				ontologyElementMap.root = URI.create(rootElement.getAttribute("rdf:resource"));
 			}
+			// Parse the first node
 			parseOntologyNode(doc.getDocumentElement(), ontologyElementMap);
-			ontologyElementMaps.put(oboFNm, ontologyElementMap);
+			// Map maps by filename
+			ontologyElementMaps.put(oboFNm.substring(0, oboFNm.lastIndexOf(".")), ontologyElementMap);
 		}
 		return ontologyElementMaps;
 	}

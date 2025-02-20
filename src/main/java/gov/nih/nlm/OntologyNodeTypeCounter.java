@@ -28,7 +28,7 @@ public class OntologyNodeTypeCounter {
 	 * node of every triple, then write the result.
 	 *
 	 * @param oboPth        Path to ontology file
-	 * @param writer        Write with which to write results
+	 * @param writer        Writer with which to write results
 	 * @param doPrintHeader Flag to print header, or not
 	 * @throws IOException
 	 */

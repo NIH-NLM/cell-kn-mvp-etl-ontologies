@@ -20,8 +20,8 @@ public class OntologyElementMap {
 	public URI purl;
 	/** Ontology version */
 	public URI versionIRI;
-	/** Ontology root term */
-    public URI root;
+        /** Ontology root term */
+        public URI root;
 	/** Unique ontology term ids */
 	public Set<String> ids;
 	/** Mapping from ontology term to PURLs and labels */
@@ -36,7 +36,7 @@ public class OntologyElementMap {
 		public String label;
 
 		/**
-		 * Consturct an OntologyTerm instance.
+		 * Construct an OntologyTerm instance.
 		 * 
 		 * @param purl  Ontology term PURL
 		 * @param label Ontology term label

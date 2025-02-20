@@ -21,7 +21,10 @@ public class TripleTypeSets {
 	public Map<Node, ArrayList<Triple>> oBNodeTriples;
 	/** Triples with blank subject and object nodes */
 	public List<Triple> soBNodeTriples;
-	/** Triples with blank subject and object nodes that link triple lists containing the same blank subject or object node */
+	/**
+	 * Triples with blank subject and object nodes that link triple lists containing
+	 * the same blank subject or object node
+	 */
 	public Set<Triple> linkingBNodeTriples;
 	/** Triples of Axiom and Restriction triple lists which have been flattened */
 	public Set<Triple> flattenedBNodeTriples;

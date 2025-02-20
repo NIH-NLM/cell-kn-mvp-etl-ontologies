@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.jena.graph.Node;
-import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.riot.RDFParser;
 import org.apache.jena.riot.lang.CollectorStreamTriples;
@@ -26,10 +25,6 @@ public class OntologyTripleParser {
 	// Assign location of ontology files
 	private static final Path usrDir = Paths.get(System.getProperty("user.dir"));
 	private static final Path oboDir = usrDir.resolve("data/obo");
-
-	// Assign location of ontology files
-	private static final Node axiom = NodeFactory.createURI("http://www.w3.org/2002/07/owl#Axiom");
-	private static final Node restriction = NodeFactory.createURI("http://www.w3.org/2002/07/owl#Restriction");
 
 	/**
 	 * Collect all triples into sets containing triples with:
@@ -59,18 +54,23 @@ public class OntologyTripleParser {
 			Node p = triple.getPredicate();
 			Node o = triple.getObject();
 			if (!s.isBlank() && !o.isBlank()) {
+				// Collect filled node triples
 				tripleTypeSets.soFNodeTriples.add(triple);
 			} else if (s.isBlank() && !o.isBlank()) {
+				// Collect blank subject node triples in sets identified by the blank subject
+				// node
 				if (!tripleTypeSets.sBNodeTriples.containsKey(s)) {
 					tripleTypeSets.sBNodeTriples.put(s, new ArrayList<>());
 				}
 				tripleTypeSets.sBNodeTriples.get(s).add(triple);
 			} else if (!s.isBlank() && o.isBlank()) {
+				// Collect blank object node triples in sets identified by the blank object node
 				if (!tripleTypeSets.oBNodeTriples.containsKey(o)) {
 					tripleTypeSets.oBNodeTriples.put(o, new ArrayList<>());
 				}
 				tripleTypeSets.oBNodeTriples.get(o).add(triple);
 			} else {
+				// Collect blank subject and object node triples
 				tripleTypeSets.soBNodeTriples.add(triple);
 			}
 		}
@@ -168,7 +168,7 @@ public class OntologyTripleParser {
 			tripleTypeSets.flattenedBNodeTriples.addAll(flattenedTriples);
 			tripleTypeSets.sBNodeTriples.get(key).removeAll(flattenedTriples);
 
-			// Use remaining triples to remaining annotations corresponding to the
+			// Use remaining triples to add annotations corresponding to the
 			// identified subject node
 			flattenedTriples.clear();
 			for (Triple triple : remainingTriples) {
@@ -231,7 +231,7 @@ public class OntologyTripleParser {
 	}
 
 	/**
-	 * Flattend Axiom and Restriction triple sets.
+	 * Flatten Axiom and Restriction triple sets.
 	 * 
 	 * @param tripleTypeSets Triple sets sorted by the types of nodes the triples
 	 *                       contain
@@ -308,12 +308,12 @@ public class OntologyTripleParser {
 	}
 
 	/**
-	 * Parses ontology files to produce triple sets sorted by the types of nodes the
+	 * Parse ontology files to produce triple sets sorted by the types of nodes the
 	 * triples contain.
 	 *
 	 * @param files Paths to ontology files
-	 * @return Map by ontology file name containing triple sets sorted by the types of nodes
-	 *         the triples contain
+	 * @return Map by ontology file name containing triple sets sorted by the types
+	 *         of nodes the triples contain
 	 */
 	public static Map<String, TripleTypeSets> parseOntologyTriples(List<Path> files) {
 		Map<String, TripleTypeSets> ontologyTripleTypeSets = new HashMap<>();

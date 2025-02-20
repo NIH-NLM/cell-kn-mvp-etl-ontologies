@@ -54,14 +54,16 @@ public class OntologyTripleLoader {
 	 */
 	public static void constructVertices(List<Path> files, ArangoGraph graph) {
 
-		// Collect vertex keys to prevent constructing duplicate vertices
+		// Collect vertex keys for each vertex collection to prevent constructing
+		// duplicate vertices in the vertex collection
 		Map<String, Set<String>> vertexKeys = new HashMap<>();
 
 		// Process triples parsed from each file
 		for (Path file : files) {
 			long startTime = System.nanoTime();
 			String oboFNm = file.getFileName().toString();
-			List<Triple> triples = ontologyTripleTypeSets.get(oboFNm).soFNodeTriples;
+			List<Triple> triples = ontologyTripleTypeSets
+					.get(oboFNm.substring(0, oboFNm.lastIndexOf("."))).soFNodeTriples;
 			System.out.println("Constructing vertices using " + triples.size() + " triples from " + oboFNm);
 			int nVertices = 0;
 			for (Triple triple : triples) {

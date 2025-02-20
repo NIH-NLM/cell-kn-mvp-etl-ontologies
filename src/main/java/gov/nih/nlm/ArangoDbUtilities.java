@@ -18,10 +18,10 @@ public class ArangoDbUtilities {
 	/**
 	 * An ArangoDB instance
 	 */
-	private final ArangoDB arangoDB;
+	public final ArangoDB arangoDB;
 
 	/**
-	 * Build the ArangoDB instance specified in the environment.
+	 * Build the ArangoDB instance specified in the system environment.
 	 */
 	public ArangoDbUtilities() {
 		Map<String, String> env = System.getenv();
@@ -54,7 +54,7 @@ public class ArangoDbUtilities {
 	 * @param databaseName Name of the database to delete
 	 */
 	public void deleteDatabase(String databaseName) {
-		// Delete database, if needed
+		// Delete the database, if needed
 		if (arangoDB.db(databaseName).exists()) {
 			System.out.println("Deleting database: " + databaseName);
 			if (!arangoDB.db(databaseName).drop()) {
@@ -71,12 +71,13 @@ public class ArangoDbUtilities {
 	 * @return Named graph
 	 */
 	public ArangoGraph createOrGetGraph(ArangoDatabase db, String graphName) {
-		// Create, or get the graph
+		// Create the graph, if needed
 		if (!db.graph(graphName).exists()) {
 			System.out.println("Creating graph: " + graphName);
 			Collection<EdgeDefinition> edgeDefinitions = new ArrayList<>();
 			db.createGraph(graphName, edgeDefinitions);
 		}
+		// Get the graph
 		System.out.println("Getting graph: " + graphName);
 		return db.graph(graphName);
 	}
@@ -103,11 +104,12 @@ public class ArangoDbUtilities {
 	 * @return Named vertex collection
 	 */
 	public ArangoVertexCollection createOrGetVertexCollection(ArangoGraph graph, String vertexName) {
-		// Create, or get the vertex collection
+		// Create the vertex collection, if needed
 		if (!graph.db().collection(vertexName).exists()) {
 			System.out.println("Creating vertex collection: " + vertexName);
 			graph.addVertexCollection(vertexName);
 		}
+		// Get the vertex collection
 		System.out.println("Getting vertex collection: " + vertexName);
 		return graph.vertexCollection(vertexName);
 	}
@@ -138,7 +140,7 @@ public class ArangoDbUtilities {
 	 */
 	public ArangoEdgeCollection createOrGetEdgeCollection(ArangoGraph graph, String fromVertexName,
 			String toVertexName) {
-		// Create, or get the edge collection
+		// Create edge collection, if needed
 		String collectionName = fromVertexName + "-" + toVertexName;
 		if (!graph.db().collection(collectionName).exists()) {
 			System.out.println("Creating edge collection: " + collectionName);
@@ -146,6 +148,7 @@ public class ArangoDbUtilities {
 					.to(toVertexName);
 			graph.addEdgeDefinition(edgeDefinition);
 		}
+		// Get the edge collection
 		System.out.println("Getting edge collection: " + collectionName);
 		return graph.edgeCollection(collectionName);
 	}
