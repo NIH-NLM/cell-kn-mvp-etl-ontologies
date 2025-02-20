@@ -150,7 +150,7 @@ class TestArangoDB(unittest.TestCase):
             else:
                 self.assertTrue(a_value == e_value)
 
-        # Get the actual macrophage edges to CL terms
+        # Get macrophage edges to CL terms, then assert equal labels
         edge_collection = graph.edge_collection("CL-CL")
         keys = ["0000235-0000113", "0000235-0000145", "0000235-0000766"]
         for key in keys:
@@ -162,14 +162,14 @@ class TestArangoDB(unittest.TestCase):
         edge = edge_collection.get(key)
         self.assertTrue(edge["label"] == "develops from")
 
-        # Get the actual macrophage edges to GO terms
+        # Get macrophage edges to GO terms, then assert equal labels
         edge_collection = graph.edge_collection("CL-GO")
         key = "0000235-0031268"
         self.assertTrue(edge_collection.has(key))
         edge = edge_collection.get(key)
         self.assertTrue(edge["label"] == "capable of")
 
-        # Get the actual macrophage edges to NCBITaxon terms
+        # Get macrophage edges to NCBITaxon terms, then assert equal labels
         edge_collection = graph.edge_collection("CL-NCBITaxon")
         key = "0000235-9606"
         self.assertTrue(edge_collection.has(key))

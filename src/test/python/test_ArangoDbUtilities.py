@@ -25,7 +25,7 @@ class TestArangoDB(unittest.TestCase):
         self.arangodb_dir = Path(__file__).parent / "arangodb"
         os.environ["ARANGO_DB_HOME"] = str(self.arangodb_dir)
         subprocess.run(["./start-arangodb.sh"], cwd=self.sh_dir)
-        
+
         # Connect to ArangoDB
         self.arango_url = "http://localhost:8529"
         self.arango_client = ArangoClient(hosts=self.arango_url)
