@@ -116,14 +116,15 @@ public class OntologyElementParser {
 					String term = Paths.get(uri.getPath()).getFileName().toString();
 					if (term.contains("_")) {
 						String id = term.split("_")[0];
+						// TODO: Add other unneeded terms here
 						if (!id.equals("valid")) {
 							ontologyElementMap.ids.add(id);
 						}
 					}
 
-					// Consider terms with a single "label" element
+					// Consider terms with at least one "label" element
 					NodeList nodeList = element.getElementsByTagName("rdfs:label");
-					if (nodeList.getLength() == 1) {
+					if (nodeList.getLength() > 0) {
 						Element labelElement = (Element) nodeList.item(0);
 						String label = labelElement.getTextContent();
 						ontologyElementMap.terms.put(term, new OntologyElementMap.OntologyTerm(uri, label));
@@ -139,13 +140,13 @@ public class OntologyElementParser {
 	}
 
 	/**
-	 * Parses ontology files to produce ontology terms for all elements with a
-	 * non-empty "about" attribute and single "label" element.
+	 * Parse ontology files to produce ontology terms for all elements with a
+	 * non-empty "about" attribute and at least one "label" element.
 	 *
 	 * @param files Paths to ontology files
-	 * @return Map by ontology term containing ontology term PURLs and labels for *
-	 *         all elements with a non-empty "about" attribute and single "label" *
-	 *         element, and corresponding unique term ids.
+	 * @return Map by ontology term containing ontology term PURLs and labels for
+	 *         all elements with a non-empty "about" attribute and at least one
+	 *         "label" element, and corresponding unique term ids.
 	 */
 	public static Map<String, OntologyElementMap> parseOntologyElements(List<Path> files) {
 		Map<String, OntologyElementMap> ontologyElementMaps = new HashMap<>();
@@ -188,10 +189,10 @@ public class OntologyElementParser {
 	}
 
 	/**
-	 * Identifies ontology files in the data/obo directory, parses each file to
-	 * produce unique term ids, and a mapping of ontology term to ontology term
-	 * PURLs and labels for all elements with a non-empty "about" attribute and
-	 * single "label" element.
+	 * Identify ontology files in the data/obo directory, parse each file to produce
+	 * unique term ids, and a mapping of ontology term to ontology term PURLs and
+	 * labels for all elements with a non-empty "about" attribute and at least one
+	 * "label" element.
 	 *
 	 * @param args (None expected)
 	 */

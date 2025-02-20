@@ -327,7 +327,7 @@ public class OntologyTripleParser {
 			// TODO: Take a another look at the utility of these
 			// collectLinkingBnodeTriples(tripleTypeSets);
 			// linkSBNodeTriples(tripleTypeSets);
-			ontologyTripleTypeSets.put(oboFNm, tripleTypeSets);
+			ontologyTripleTypeSets.put(oboFNm.substring(0, oboFNm.lastIndexOf(".")), tripleTypeSets);
 		}
 		return ontologyTripleTypeSets;
 	}

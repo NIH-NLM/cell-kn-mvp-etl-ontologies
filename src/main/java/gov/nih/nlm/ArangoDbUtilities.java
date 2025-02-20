@@ -2,10 +2,13 @@ package gov.nih.nlm;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 import com.arangodb.*;
 import com.arangodb.entity.EdgeDefinition;
+import com.arangodb.model.EdgeCollectionRemoveOptions;
+import com.arangodb.model.VertexCollectionRemoveOptions;
 
 /**
  * Provides utilities for managing named ArangoDB databases, graphs, vertex
@@ -25,6 +28,16 @@ public class ArangoDbUtilities {
 	 */
 	public ArangoDbUtilities() {
 		Map<String, String> env = System.getenv();
+		arangoDB = new ArangoDB.Builder().host(env.get("ARANGO_DB_HOST"), Integer.parseInt(env.get("ARANGO_DB_PORT")))
+				.user(env.get("ARANGO_DB_USER")).password(env.get("ARANGO_DB_PASSWORD")).build();
+	}
+
+	/**
+	 * Build the ArangoDB instance specified in the provided environment.
+	 * 
+	 * @param env
+	 */
+	public ArangoDbUtilities(Map<String, String> env) {
 		arangoDB = new ArangoDB.Builder().host(env.get("ARANGO_DB_HOST"), Integer.parseInt(env.get("ARANGO_DB_PORT")))
 				.user(env.get("ARANGO_DB_USER")).password(env.get("ARANGO_DB_PASSWORD")).build();
 	}
@@ -124,7 +137,9 @@ public class ArangoDbUtilities {
 		// Delete the vertex collection, if needed
 		if (graph.db().collection(vertexName).exists()) {
 			System.out.println("Deleting vertex collection: " + vertexName);
-			graph.vertexCollection(vertexName).drop();
+			VertexCollectionRemoveOptions options = new VertexCollectionRemoveOptions();
+			options.dropCollection(true);
+			graph.vertexCollection(vertexName).remove(options);
 		}
 	}
 
@@ -163,7 +178,9 @@ public class ArangoDbUtilities {
 		// Delete the edge collection, if needed
 		if (graph.db().collection(edgeName).exists()) {
 			System.out.println("Deleting edge collection: " + edgeName);
-			graph.edgeCollection(edgeName).drop();
+			EdgeCollectionRemoveOptions options = new EdgeCollectionRemoveOptions();
+			options.dropCollections(true);
+			graph.edgeCollection(edgeName).remove(options);
 		}
 	}
 
