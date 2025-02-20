@@ -67,7 +67,7 @@ def update_ontologies():
             print(f"Found current version {version_cur}")
 
             if version_new > version_cur:
-                obo_filepath_old = OBO_DIRPATH / (
+                obo_filepath_old = OBO_DIRPATH / ".archive" / (
                     obo_stem + "-" + version_cur + obo_suffix
                 )
 
