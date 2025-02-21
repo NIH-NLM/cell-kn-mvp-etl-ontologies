@@ -18,7 +18,7 @@ ARANGO_CLIENT = ArangoClient(hosts=ARANGO_URL)
 ARANGO_ROOT_PASSWORD = os.environ["ARANGO_DB_PASSWORD"]
 
 
-class TestArangoDB(unittest.TestCase):
+class OntologyParserLoaderTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -99,8 +99,8 @@ class TestArangoDB(unittest.TestCase):
         opl.main(parameters=["--test"])
 
         # Connect to ArangoDB
-        db = ARANGO_CLIENT.db("cl-test", username="root", password=ARANGO_ROOT_PASSWORD)
-        graph = db.graph("test")
+        db = ARANGO_CLIENT.db("Cell-KN-v1.0", username="root", password=ARANGO_ROOT_PASSWORD)
+        graph = db.graph("CL-Test")
 
         # Get the actual macrophage vertex
         vertex_collection = graph.vertex_collection("CL")

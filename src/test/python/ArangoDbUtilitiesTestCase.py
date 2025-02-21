@@ -13,7 +13,7 @@ print(sys.path)
 import ArangoDbUtilities as adb
 
 
-class TestArangoDB(unittest.TestCase):
+class ArangoDbUtilitiesTestCase(unittest.TestCase):
 
     def setUp(self):
 
