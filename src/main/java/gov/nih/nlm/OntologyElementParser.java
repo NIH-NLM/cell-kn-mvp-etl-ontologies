@@ -45,14 +45,12 @@ public class OntologyElementParser {
 	private static final Pattern p_ensembl = Pattern.compile("/ensembl/ENSG");
 
 	/**
-	 * Parse the specified file in the specified directory, and normalize.
+	 * Parse the specified file, and normalize.
 	 * 
-	 * @param xmlDir Path of directory containing file
-	 * @param xmlFNm XML filename
-	 * @return Document resulting after parsing and normalization
+	 * @param xmlFile File containing XML to parse
+	 * @return Document resulting after parsing, and normalization
 	 */
-	public static final Document parseXmlFile(Path xmlDir, String xmlFNm) {
-		File xmlFile = xmlDir.resolve(xmlFNm).toFile();
+	public static final Document parseXmlFile(File xmlFile) {
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder dBuilder = null;
 		try {
@@ -153,7 +151,7 @@ public class OntologyElementParser {
 		for (Path file : files) {
 			String oboFNm = file.getFileName().toString();
 			System.out.println("Parsing ontology element in " + oboFNm);
-			Document doc = parseXmlFile(oboDir, oboFNm);
+			Document doc = parseXmlFile(file.toFile());
 			OntologyElementMap ontologyElementMap = new OntologyElementMap();
 			// Get title
 			Element titleElement = (Element) doc.getElementsByTagName("dc:title").item(0);

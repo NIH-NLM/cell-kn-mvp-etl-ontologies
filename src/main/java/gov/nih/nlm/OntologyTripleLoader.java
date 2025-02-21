@@ -40,10 +40,10 @@ public class OntologyTripleLoader {
 	// Initialize common collections
 	private static Map<String, OntologyElementMap> ontologyElementMaps = null;
 	private static Map<String, TripleTypeSets> ontologyTripleTypeSets = null;
-	private static Map<String, ArangoVertexCollection> vertexCollections = new HashMap<>();
-	private static Map<String, Map<String, BaseDocument>> vertexDocuments = new HashMap<>();
-	private static Map<String, ArangoEdgeCollection> edgeCollections = new HashMap<>();
-	private static Map<String, Map<String, BaseEdgeDocument>> edgeDocuments = new HashMap<>();
+	private static final Map<String, ArangoVertexCollection> vertexCollections = new HashMap<>();
+	private static final Map<String, Map<String, BaseDocument>> vertexDocuments = new HashMap<>();
+	private static final Map<String, ArangoEdgeCollection> edgeCollections = new HashMap<>();
+	private static final Map<String, Map<String, BaseEdgeDocument>> edgeDocuments = new HashMap<>();
 
 	// Define record describing a vertex
 	private record VTuple(String term, String id, String number, Boolean isValidVertex) {
@@ -329,13 +329,13 @@ public class OntologyTripleLoader {
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
-		String directoryPath = oboDir.toString();
-		String filePattern;
+		String directoryPath;
 		if (args.length > 0) {
-			filePattern = args[0];
+			directoryPath = args[0];
 		} else {
-			filePattern = ".*\\.owl";
+			directoryPath = oboDir.toString();
 		}
+		String filePattern = ".*\\.owl";
 		List<Path> files;
 		try {
 			files = listFilesMatchingPattern(directoryPath, filePattern);
@@ -345,10 +345,6 @@ public class OntologyTripleLoader {
 		if (files.isEmpty()) {
 			System.out.println("No files found matching the pattern.");
 		} else {
-			Path roPath = listFilesMatchingPattern(directoryPath, "ro.owl").get(0);
-			if (!files.contains(roPath)) {
-				files.add(roPath);
-			}
 			ontologyElementMaps = parseOntologyElements(files);
 			ontologyTripleTypeSets = parseOntologyTriples(files);
 		}
@@ -356,9 +352,8 @@ public class OntologyTripleLoader {
 		if (args.length > 1) {
 			databaseName = args[1];
 		} else {
-			databaseName = "Sanger";
+			databaseName = "Cell-KN-v2.0";
 		}
-		arangoDbUtilities.deleteDatabase(databaseName);
 		ArangoDatabase db = arangoDbUtilities.createOrGetDatabase(databaseName);
 		String graphName;
 		if (args.length > 2) {
@@ -366,6 +361,7 @@ public class OntologyTripleLoader {
 		} else {
 			graphName = "Combined";
 		}
+		arangoDbUtilities.deleteGraph(db, graphName);
 		ArangoGraph graph = arangoDbUtilities.createOrGetGraph(db, graphName);
 		constructVertices(files, graph);
 		updateVertices(files);
