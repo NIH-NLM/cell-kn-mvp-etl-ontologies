@@ -26,7 +26,7 @@ URIREF_PATTERN = re.compile(r"/obo/([A-Za-z]*)_([A-Z0-9]*)")
 VALID_VERTICES = set(["UBERON", "CL", "GO", "NCBITaxon", "PR", "PATO", "CHEBI", "CLM"])
 
 LOG_DIRPATH = Path("./log")
-LOG_DIRPATH.mkdir()
+LOG_DIRPATH.mkdir(exist_ok=True)
 
 
 def update_ontologies():
@@ -67,8 +67,10 @@ def update_ontologies():
             print(f"Found current version {version_cur}")
 
             if version_new > version_cur:
-                obo_filepath_old = OBO_DIRPATH / ".archive" / (
-                    obo_stem + "-" + version_cur + obo_suffix
+                obo_filepath_old = (
+                    OBO_DIRPATH
+                    / ".archive"
+                    / (obo_stem + "-" + version_cur + obo_suffix)
                 )
 
                 print(f"Renaming {obo_filepath_cur} to {obo_filepath_old}")
@@ -523,57 +525,15 @@ def get_fnode(s, o):
         return s
 
 
-def load_triples_into_adb_graph(
-    triples, adb_graph, vertex_collections, edge_collections, ro=None
-):
-    """Uses each triple to add vertices, and edges to a graph,
-    additionally adding annotation to vertices.
-
-    Parameters
-    ----------
-    triples : list(tuple)
-        List of tuples which contain each triple
-    adb_graph : arango.graph.Graph
-        An ArangoDB graph instance
-    vertex_collections : dict
-        A dictionary with vertex name keys containing
-        arango.collection.VertexCollection instance values
-    edge_collections : dict
-        A dictionary with edge name keys containing
-        arango.collection.EdgeCollection instance values
-    ro : None | dict
-        A dictionary mapping relationship ontology terms to labels
-
-    Returns
-    -------
-    None
-    """
-    for s, p, o in triples:
-
-        create_or_get_vertices_from_triple(
-            adb_graph, vertex_collections, s, p, o, ro=ro
-        )
-
-        create_or_get_edge_from_triple(
-            adb_graph, vertex_collections, edge_collections, s, p, o, ro=ro
-        )
-
-    for s, p, o in triples:
-
-        update_vertex_from_triple(adb_graph, vertex_collections, s, p, o, ro=ro)
-
-
-def create_or_get_vertices_from_triple(adb_graph, vertex_collections, s, p, o, ro=None):
+def create_or_get_vertices_from_triple(vertex_collections, s, p, o, ro=None):
     """Create, or get vertices defined by the subject and object of
-    the triple, creating vertex collections as needed.
+    the triple, creating Python vertex collections as needed.
 
     Parameters
     ----------
-    adb_graph : arango.graph.Graph
-        An ArangoDB graph instance
     vertex_collections : dict
-        A dictionary with vertex name keys containing
-        arango.collection.VertexCollection instance values
+        A dictionary with vertex name keys containing dictionaries
+        with vertex keys and documents
     s : rdflib.term.BNode|URIRef
         Subject of triple
     p : rdflib.term.URIRef
@@ -604,7 +564,7 @@ def create_or_get_vertices_from_triple(adb_graph, vertex_collections, s, p, o, r
         vertex_term = term
 
         vertex = create_or_get_vertex(
-            adb_graph, vertex_collections, vertex_name, vertex_key, vertex_term
+            vertex_collections, vertex_name, vertex_key, vertex_term
         )
 
         if vertex is None:
@@ -616,19 +576,15 @@ def create_or_get_vertices_from_triple(adb_graph, vertex_collections, s, p, o, r
     return vertices
 
 
-def create_or_get_vertex(
-    adb_graph, vertex_collections, vertex_name, vertex_key, vertex_term
-):
-    """Create, or get the identified vertex, creating vertex
+def create_or_get_vertex(vertex_collections, vertex_name, vertex_key, vertex_term):
+    """Create, or get the identified vertex, creating Python vertex
     collections as needed.
 
     Parameters
     ----------
-    adb_graph : arango.graph.Graph
-        An ArangoDB graph instance
     vertex_collections : dict
-        A dictionary with vertex name keys containing
-        arango.collection.VertexCollection instance values
+        A dictionary with vertex name keys containing dictionaries
+        with vertex keys and documents
     vertex_name : str
         The vertex collection name
     vertex_key : str
@@ -648,39 +604,35 @@ def create_or_get_vertex(
     vertex = {}
 
     if vertex_name not in vertex_collections:
-        vertex_collections[vertex_name] = adb.create_or_get_vertex_collection(
-            adb_graph, vertex_name
-        )
+        vertex_collections[vertex_name] = {}
 
-    if not vertex_collections[vertex_name].has(vertex_key):
+    if vertex_key not in vertex_collections[vertex_name]:
         vertex = {
             "_key": vertex_key,
             "term": vertex_term,
         }
-        vertex_collections[vertex_name].insert(vertex)
+        vertex_collections[vertex_name][vertex_key] = vertex
 
     else:
-        vertex = vertex_collections[vertex_name].get(vertex_key)
+        vertex = vertex_collections[vertex_name][vertex_key]
 
     return vertex
 
 
 def create_or_get_edge_from_triple(
-    adb_graph, vertex_collections, edge_collections, s, p, o, ro=None
+    vertex_collections, edge_collections, s, p, o, ro=None
 ):
     """Create, or get edge defined by the subject, predicate, and
-    object of the triple, creating edge collections as needed.
+    object of the triple, creating Python edge collections as needed.
 
     Parameters
     ----------
-    adb_graph : arango.graph.Graph
-        An ArangoDB graph instance
     vertex_collections : dict
-        A dictionary with vertex name keys containing
-        arango.collection.VertexCollection instance values
+        A dictionary with vertex name keys containing dictionaries
+        with vertex keys and documents
     edge_collections : dict
-        A dictionary with edge name keys containing
-        arango.collection.EdgeCollection instance values
+        A dictionary with edge name keys containing dictionaries with
+        edge keys and documents
     s : rdflib.term.BNode|URIRef
         Subject of triple
     p : rdflib.term.URIRef
@@ -732,7 +684,6 @@ def create_or_get_edge_from_triple(
     to_vertex_term = o_term
 
     edge = create_or_get_edge(
-        adb_graph,
         vertex_collections,
         edge_collections,
         from_vertex_name,
@@ -748,7 +699,6 @@ def create_or_get_edge_from_triple(
 
 
 def create_or_get_edge(
-    adb_graph,
     vertex_collections,
     edge_collections,
     from_vertex_name,
@@ -758,20 +708,18 @@ def create_or_get_edge(
     to_vertex_key,
     to_vertex_term,
     predicate,
-):  #
-    """Create, or get the identified edge, creating edge collections
-    as needed.
+):
+    """Create, or get the identified edge, creating Python edge
+    collections as needed.
 
     Parameters
     ----------
-    adb_graph : arango.graph.Graph
-        An ArangoDB graph instance
     vertex_collections : dict
-        A dictionary with vertex name keys containing
-        arango.collection.VertexCollection instance values
+        A dictionary with vertex name keys containing dictionaries
+        with vertex keys and documents
     edge_collections : dict
-        A dictionary with edge name keys containing
-        arango.collection.EdgeCollection instance values
+        A dictionary with edge name keys containing dictionaries with
+        edge keys and documents
     from_vertex_name : str
         The from vertex collection name
     from_vertex_key : str
@@ -793,7 +741,6 @@ def create_or_get_edge(
         The ArangoDB edge document
     """
     from_vertex = create_or_get_vertex(
-        adb_graph,
         vertex_collections,
         from_vertex_name,
         from_vertex_key,
@@ -805,7 +752,7 @@ def create_or_get_edge(
         return
 
     to_vertex = create_or_get_vertex(
-        adb_graph, vertex_collections, to_vertex_name, to_vertex_key, to_vertex_term
+        vertex_collections, to_vertex_name, to_vertex_key, to_vertex_term
     )
 
     if to_vertex is None:
@@ -818,37 +765,33 @@ def create_or_get_edge(
     edge_key = f"{from_vertex_key}-{to_vertex_key}"
 
     if edge_name not in edge_collections:
-        edge_collections[edge_name] = adb.create_or_get_edge_collection(
-            adb_graph, from_vertex_name, to_vertex_name
-        )[0]
+        edge_collections[edge_name] = {}
 
-    if not edge_collections[edge_name].has(edge_key):
+    if edge_key not in edge_collections[edge_name]:
         edge = {
             "_key": edge_key,
             "_from": f"{from_vertex_name}/{from_vertex_key}",
             "_to": f"{to_vertex_name}/{to_vertex_key}",
             "label": predicate,
         }
-        edge_collections[edge_name].insert(edge)
+        edge_collections[edge_name][edge_key] = edge
 
     else:
-        edge = edge_collections[edge_name].get(edge_key)
+        edge = edge_collections[edge_name][edge_key]
 
     return edge
 
 
-def update_vertex_from_triple(adb_graph, vertex_collections, s, p, o, ro=None):
+def update_vertex_from_triple(vertex_collections, s, p, o, ro=None):
     """Update vertex with annotation defined by the subject,
-    predicate, and object of a triple, creating edge collections as
-    needed.
+    predicate, and object of a triple, creating Python edge
+    collections as needed.
 
     Parameters
     ----------
-    adb_graph : arango.graph.Graph
-        An ArangoDB graph instance
     vertex_collections : dict
-        A dictionary with vertex name keys containing
-        arango.collection.VertexCollection instance values
+        A dictionary with vertex name keys containing dictionaries
+        with vertex keys and documents
     s : rdflib.term.BNode|URIRef
         Subject of triple
     p : rdflib.term.URIRef
@@ -879,7 +822,7 @@ def update_vertex_from_triple(adb_graph, vertex_collections, s, p, o, ro=None):
     vertex_term = s_term
 
     vertex = create_or_get_vertex(
-        adb_graph, vertex_collections, vertex_name, vertex_key, vertex_term
+        vertex_collections, vertex_name, vertex_key, vertex_term
     )
 
     if vertex is None:
@@ -915,13 +858,121 @@ def update_vertex_from_triple(adb_graph, vertex_collections, s, p, o, ro=None):
         if value not in vertex[predicate]:
             vertex[predicate].append(value)
 
-    vertex_collections[vertex_name].update(vertex)
+    vertex_collections[vertex_name][vertex_key] = vertex
 
     return vertex
 
 
-def main(parameters=None):
+def insert_vertices(adb_graph, vertex_collections):
+    """Insert each vertex from each vertex collection, creating
+    ArangoDB vertex collections as needed.
 
+
+    Parameters
+    ----------
+    adb_graph : arango.graph.Graph
+        An ArangoDB graph instance
+    vertex_collections : dict
+        A dictionary with vertex name keys containing dictionaries
+        with vertex keys and documents
+
+    Returns
+    -------
+    None
+    """
+    for vertex_name, vertex_docs in vertex_collections.items():
+
+        vertex_collection = adb.create_or_get_vertex_collection(adb_graph, vertex_name)
+
+        for vertex_doc in vertex_docs.values():
+            vertex_collection.insert(vertex_doc)
+
+
+def insert_edges(adb_graph, edge_collections):
+    """Insert each edge from each edge collection, creating
+    ArangoDB edge collections as needed.
+
+
+    Parameters
+    ----------
+    adb_graph : arango.graph.Graph
+        An ArangoDB graph instance
+    edge_collections : dict
+        A dictionary with edge name keys containing dictionaries with
+        edge keys and documents
+
+    Returns
+    -------
+    None
+    """
+    for edge_name, edge_docs in edge_collections.items():
+        from_vertex_name, to_vertex_name = edge_name.split("-")
+
+        edge_collection = adb.create_or_get_edge_collection(
+            adb_graph, from_vertex_name, to_vertex_name
+        )[0]
+
+        for edge_doc in edge_docs.values():
+            edge_collection.insert(edge_doc)
+
+
+def load_triples_into_adb_graph(
+    triples, adb_graph, vertex_collections, edge_collections, ro=None
+):
+    """Uses each triple to add vertices, and edges to a graph,
+    additionally adding annotation to vertices.
+
+    Parameters
+    ----------
+    triples : list(tuple)
+        List of tuples which contain each triple
+    adb_graph : arango.graph.Graph
+        An ArangoDB graph instance
+    vertex_collections : dict
+        A dictionary with vertex name keys containing dictionaries
+        with vertex keys and documents
+    edge_collections : dict
+        A dictionary with edge name keys containing dictionaries with
+        edge keys and documents
+    ro : None | dict
+        A dictionary mapping relationship ontology terms to labels
+
+    Returns
+    -------
+    None
+    """
+    for s, p, o in triples:
+
+        create_or_get_vertices_from_triple(vertex_collections, s, p, o, ro=ro)
+
+        create_or_get_edge_from_triple(
+            vertex_collections, edge_collections, s, p, o, ro=ro
+        )
+
+    for s, p, o in triples:
+
+        update_vertex_from_triple(vertex_collections, s, p, o, ro=ro)
+
+    insert_vertices(adb_graph, vertex_collections)
+    insert_edges(adb_graph, edge_collections)
+
+
+def main(parameters=None):
+    """Prototype an approach for loading the Cell Ontology into
+    ArangoDB.
+
+    Provide a command line interface for loading a test, slim or full
+    version of the Cell Ontology.
+
+    Note:
+    - Intially this Python prototype created any ArangoDB vertex or
+      edge collection or document whenever encountered in the
+      flow. Porting to Java and profiling highlighted the pefromance
+      loss of this approach. This Python prototype has been refactored
+      to create ArangoDB vertex or edge collection or documents once
+      to improve performance. As a result, the organization remains
+      more convoluted than necessary.
+    """
     parser = argparse.ArgumentParser(description="Load Cell Ontology")
 
     parser.add_argument(
@@ -967,22 +1018,22 @@ def main(parameters=None):
         args = parser.parse_args(remaining)
 
     if args.test:
-        cl_dirpath = Path("../../test/python/data/obo")
+        cl_dirpath = Path("../../test/data/obo")
         cl_filename = "macrophage.owl"
-        db_name = "cl-test"
-        graph_name = "test"
+        db_name = "Cell-KN-v1.0"
+        graph_name = "CL-Test"
 
     if args.slim:
-        cl_dirpath = OBO_DIRPATH
+        cl_dirpath = OBO_DIRPATH / ".archive"
         cl_filename = "general_cell_types_upper_slim.owl"
-        db_name = "cl-slim"
-        graph_name = "slim"
+        db_name = "Cell-KN-v1.0"
+        graph_name = "CL-Slim"
 
     if args.full:
         cl_dirpath = OBO_DIRPATH
         cl_filename = "cl.owl"
-        db_name = "cl-full"
-        graph_name = "full"
+        db_name = "Cell-KN-v1.0"
+        graph_name = "CL-Full"
 
     if args.include_bnodes:
         db_name += "-bnodes"
@@ -1042,7 +1093,6 @@ def main(parameters=None):
     print("Creating ArangoDB database and graph, and loading triples")
     adb.delete_database(db_name)
     db = adb.create_or_get_database(db_name)
-    adb.delete_graph(db, graph_name)
     adb_graph = adb.create_or_get_graph(db, graph_name)
     if args.include_bnodes:
         VALID_VERTICES.update(set(["BNode", "RO"]))
