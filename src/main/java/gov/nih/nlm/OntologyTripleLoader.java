@@ -322,7 +322,7 @@ public class OntologyTripleLoader {
 	}
 
 	/**
-	 * Loads triples parsed from each ontology file in the data/obo directory into a
+	 * Load triples parsed from each ontology file in the data/obo directory into a
 	 * local ArangoDB server instance.
 	 *
 	 * @param args (None expected)

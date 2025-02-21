@@ -17,8 +17,8 @@ import org.apache.jena.riot.RDFParser;
 import org.apache.jena.riot.lang.CollectorStreamTriples;
 
 /**
- * Parses each ontology file in the data/obo directory, parses each file to
- * produce triple sets sorted by the types of nodes the triples contain.
+ * Parses each ontology file in the data/obo directory to produce triple sets
+ * sorted by the types of nodes the triples contain.
  */
 public class OntologyTripleParser {
 
@@ -333,8 +333,8 @@ public class OntologyTripleParser {
 	}
 
 	/**
-	 * Parses each ontology file in the data/obo directory, parses each file to
-	 * produce triple sets sorted by the types of nodes the triples contain.
+	 * Parse each ontology file in the data/obo directory to produce triple sets
+	 * sorted by the types of nodes the triples contain.
 	 * 
 	 * @param args (None expected)
 	 */

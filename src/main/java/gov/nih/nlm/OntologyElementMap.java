@@ -8,7 +8,7 @@ import java.util.Set;
 
 /**
  * Contains ontology terms for all elements with a non-empty "about" attribute
- * and single "label" element.
+ * and at least one "label" element.
  */
 public class OntologyElementMap {
 
@@ -20,8 +20,8 @@ public class OntologyElementMap {
 	public URI purl;
 	/** Ontology version */
 	public URI versionIRI;
-        /** Ontology root term */
-        public URI root;
+	/** Ontology root term */
+	public URI root;
 	/** Unique ontology term ids */
 	public Set<String> ids;
 	/** Mapping from ontology term to PURLs and labels */
