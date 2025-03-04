@@ -20,13 +20,15 @@ OBO_PURLS = [
     "https://purl.obolibrary.org/obo/go/extensions/go-plus.owl",
     "http://purl.obolibrary.org/obo/uberon/uberon-base.owl",
     "http://purl.obolibrary.org/obo/ncbitaxon/subsets/taxslim.owl",
-    "http://purl.obolibrary.org/obo/hancestro/hancestro.owl",
+    # "http://purl.obolibrary.org/obo/hancestro/hancestro.owl",
     "http://purl.obolibrary.org/obo/mondo/mondo-simple.owl",
     "http://purl.obolibrary.org/obo/pato.owl",
     "http://purl.obolibrary.org/obo/mmusdv.owl",
     "http://purl.obolibrary.org/obo/hsapdv.owl",
-    "https://raw.githubusercontent.com/kharchenkolab/cap_ontology/main/capo-base.owl",
-    "https://raw.githubusercontent.com/Cellular-Semantics/CellMark/refs/heads/main/clm-kg.owl",
+    # "https://raw.githubusercontent.com/kharchenkolab/cap_ontology/main/capo-base.owl",
+    # "https://raw.githubusercontent.com/Cellular-Semantics/CellMark/refs/heads/main/clm-kg.owl",
+    "http://purl.obolibrary.org/obo/chebi.owl",
+    "http://purl.obolibrary.org/obo/pr.owl",
 ]
 
 OWL_NS = "{http://www.w3.org/2002/07/owl#}"
@@ -874,6 +876,124 @@ def update_vertex_from_triple(vertex_collections, s, p, o, ro=None):
     return vertex
 
 
+def update_edge_from_quadruple(
+    vertex_collections, edge_collections, from_v, to_v, p, o, ro=None
+):
+    """Update edge with annotation defined by the from and to
+    vertices, predicate, and object of a quadruple, creating Python
+    edge collections as needed.
+
+    Parameters
+    ----------
+    vertex_collections : dict
+        A dictionary with vertex name keys containing dictionaries
+        with vertex keys and documents
+    edge_collections : dict
+        A dictionary with edge name keys containing dictionaries with
+        edge keys and documents
+    from_v : rdflib.term.URIRef
+        From vertex
+    to_v : rdflib.term.URIRef
+        To vertex
+    p : rdflib.term.URIRef
+        Predicate of quadruple
+    o : rdflib.term.Literal
+        Object of quadruple
+    ro : None | dict
+        A dictionary mapping relationship ontology terms to labels
+
+    Returns
+    -------
+    edge : dict
+        The updated ArangoDB edge document
+    """
+
+    if not isinstance(o, Literal):
+        # print(f"Skipping non-literal object in quadruple: {(from, to, p, o)}")
+        return
+
+    from_oid, from_number, from_term, from_fragment, from_term_type = parse_term(
+        from_v, ro=ro
+    )
+
+    if from_term_type != "class":
+        print(f"Skipping invalid from vertex type in quadruple: {(from_v, to_v, p, o)}")
+        return
+
+    from_vertex_name = from_oid
+    from_vertex_key = from_number
+    from_vertex_term = from_term
+
+    from_vertex = create_or_get_vertex(
+        vertex_collections, from_vertex_name, from_vertex_key, from_vertex_term
+    )
+
+    if from_vertex is None:
+        # Message printed in previous function call
+        return
+
+    to_oid, to_number, to_term, to_fragment, to_term_type = parse_term(to_v, ro=ro)
+
+    if to_term_type != "class":
+        print(f"Skipping invalid to vertex type in quadruple: {(from_v, to_v, p, o)}")
+        return
+
+    to_vertex_name = to_oid
+    to_vertex_key = to_number
+    to_vertex_term = to_term
+
+    to_vertex = create_or_get_vertex(
+        vertex_collections, to_vertex_name, to_vertex_key, to_vertex_term
+    )
+
+    if to_vertex is None:
+        # Message printed in previous function call
+        return
+
+    edge_name = f"{from_vertex_name}-{to_vertex_name}"
+    edge_key = f"{from_vertex_key}-{to_vertex_key}"
+
+    if edge_name not in edge_collections or edge_key not in edge_collections[edge_name]:
+        print(f"Skipping invalid edge in quadruple: {(from_v, to_v, p, o)}")
+        return
+
+    else:
+        edge = edge_collections[edge_name][edge_key]
+
+    p_oid, p_number, p_term, p_fragment, p_term_type = parse_term(p, ro=ro)
+
+    if not (
+        p_term_type == "predicate"
+        or (p_term_type == "class" and p_fragment is not None)
+    ):
+        print(f"Skipping invalid predicate type in quadruple: {(from_v, to_v, p, o)}")
+        return
+
+    predicate = p_fragment
+
+    if isinstance(o.value, datetime):
+        # Convert datetime objects created by rdflib to strings
+        value = str(o.value)
+
+    else:
+        value = o.value
+
+    # Use the predicate as the key, and the object as the value in the
+    # edge document
+    if not predicate in edge:
+        edge[predicate] = value
+
+    else:
+        if not isinstance(edge[predicate], list):
+            edge[predicate] = [edge[predicate]]
+        if value not in edge[predicate]:
+            edge[predicate].append(value)
+
+    edge_collections[edge_name][edge_key] = edge
+
+    return edge
+
+
 def insert_vertices(adb_graph, vertex_collections):
     """Insert each vertex from each vertex collection, creating
     ArangoDB vertex collections as needed.
@@ -927,16 +1047,16 @@ def insert_edges(adb_graph, edge_collections):
             edge_collection.insert(edge_doc)
 
 
-def load_triples_into_adb_graph(
-    triples, adb_graph, vertex_collections, edge_collections, ro=None
+def load_tuples_into_adb_graph(
+    tuples, adb_graph, vertex_collections, edge_collections, ro=None
 ):
-    """Uses each triple to add vertices, and edges to a graph,
-    additionally adding annotation to vertices.
+    """Uses each tuple to add vertices, and edges to a graph,
+    additionally adding annotation to vertices and edges.
 
     Parameters
     ----------
-    triples : list(tuple)
-        List of tuples which contain each triple
+    tuples : list(tuple)
+        List of tuples which contain each triple or quadruple
     adb_graph : arango.graph.Graph
         An ArangoDB graph instance
     vertex_collections : dict
@@ -952,7 +1072,10 @@ def load_triples_into_adb_graph(
     -------
     None
     """
-    for s, p, o in triples:
+    for tuple in tuples:
+        if len(tuple) != 3:
+            continue
+        s, p, o = tuple
 
         create_or_get_vertices_from_triple(vertex_collections, s, p, o, ro=ro)
 
@@ -960,9 +1083,18 @@ def load_triples_into_adb_graph(
             vertex_collections, edge_collections, s, p, o, ro=ro
         )
 
-    for s, p, o in triples:
+    for tuple in tuples:
+        if len(tuple) == 3:
+            s, p, o = tuple
 
-        update_vertex_from_triple(vertex_collections, s, p, o, ro=ro)
+            update_vertex_from_triple(vertex_collections, s, p, o, ro=ro)
+
+        elif len(tuple) == 4:
+            from_v, to_v, p, o = tuple
+
+            update_edge_from_quadruple(
+                vertex_collections, edge_collections, from_v, to_v, p, o, ro=ro
+            )
 
     insert_vertices(adb_graph, vertex_collections)
     insert_edges(adb_graph, edge_collections)
@@ -1113,7 +1245,7 @@ def main(parameters=None):
         triples_to_populate.extend(bnode_triples)
     vertex_collections = {}
     edge_collections = {}
-    load_triples_into_adb_graph(
+    load_tuples_into_adb_graph(
         triples_to_populate, adb_graph, vertex_collections, edge_collections, ro=ro
     )
 
