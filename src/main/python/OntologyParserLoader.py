@@ -20,13 +20,13 @@ OBO_PURLS = [
     "https://purl.obolibrary.org/obo/go/extensions/go-plus.owl",
     "http://purl.obolibrary.org/obo/uberon/uberon-base.owl",
     "http://purl.obolibrary.org/obo/ncbitaxon/subsets/taxslim.owl",
-    "http://purl.obolibrary.org/obo/hancestro/hancestro.owl",
+    # "http://purl.obolibrary.org/obo/hancestro/hancestro.owl",
     "http://purl.obolibrary.org/obo/mondo/mondo-simple.owl",
     "http://purl.obolibrary.org/obo/pato.owl",
     "http://purl.obolibrary.org/obo/mmusdv.owl",
     "http://purl.obolibrary.org/obo/hsapdv.owl",
-    "https://raw.githubusercontent.com/kharchenkolab/cap_ontology/main/capo-base.owl",
-    "https://raw.githubusercontent.com/Cellular-Semantics/CellMark/refs/heads/main/clm-kg.owl",
+    # "https://raw.githubusercontent.com/kharchenkolab/cap_ontology/main/capo-base.owl",
+    # "https://raw.githubusercontent.com/Cellular-Semantics/CellMark/refs/heads/main/clm-kg.owl",
 ]
 
 OWL_NS = "{http://www.w3.org/2002/07/owl#}"
