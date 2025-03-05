@@ -1021,7 +1021,7 @@ def update_edge_from_quadruple(
     return edge
 
 
-def insert_vertices(adb_graph, vertex_collections):
+def insert_vertices(adb_graph, vertex_collections, do_update=False):
     """Insert each vertex from each vertex collection, creating
     ArangoDB vertex collections as needed.
 
@@ -1033,6 +1033,8 @@ def insert_vertices(adb_graph, vertex_collections):
     vertex_collections : dict
         A dictionary with vertex name keys containing dictionaries
         with vertex keys and documents
+    do_update : bool
+        Flag to update existing vertices, or not
 
     Returns
     -------
@@ -1043,10 +1045,14 @@ def insert_vertices(adb_graph, vertex_collections):
         vertex_collection = adb.create_or_get_vertex_collection(adb_graph, vertex_name)
 
         for vertex_doc in vertex_docs.values():
-            vertex_collection.insert(vertex_doc)
+            if not vertex_collection.has(vertex_doc):
+                vertex_collection.insert(vertex_doc)
+            elif do_update:
+                vertex_collection.update(vertex_doc)
+            else:
+                print(f"Skipping vertex {vertex_doc}")
 
-
-def insert_edges(adb_graph, edge_collections):
+def insert_edges(adb_graph, edge_collections, do_update=False):
     """Insert each edge from each edge collection, creating
     ArangoDB edge collections as needed.
 
@@ -1058,6 +1064,8 @@ def insert_edges(adb_graph, edge_collections):
     edge_collections : dict
         A dictionary with edge name keys containing dictionaries with
         edge keys and documents
+    do_update : bool
+        Flag to update existing edges, or not
 
     Returns
     -------
@@ -1071,11 +1079,16 @@ def insert_edges(adb_graph, edge_collections):
         )[0]
 
         for edge_doc in edge_docs.values():
-            edge_collection.insert(edge_doc)
+            if not edge_collection.has(edge_doc):
+                edge_collection.insert(edge_doc)
+            elif do_update:
+                edge_collection.update(edge_doc)
+            else:
+                print(f"Skipping edge {edge_doc}")
 
 
 def load_tuples_into_adb_graph(
-    tuples, adb_graph, vertex_collections, edge_collections, ro=None
+    tuples, adb_graph, vertex_collections, edge_collections, ro=None, do_update=False
 ):
     """Uses each tuple to add vertices, and edges to a graph,
     additionally adding annotation to vertices and edges.
@@ -1094,6 +1107,8 @@ def load_tuples_into_adb_graph(
         edge keys and documents
     ro : None | dict
         A dictionary mapping relationship ontology terms to labels
+    do_update : bool
+        Flag to update existing vertices and edges, or not
 
     Returns
     -------
