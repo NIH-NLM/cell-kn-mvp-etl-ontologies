@@ -42,7 +42,7 @@ build/
 .venv/
 .zshenv
 __pycache__/
-data/
+data
 docs/java/
 log/
 results/
