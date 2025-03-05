@@ -42,6 +42,36 @@ LOG_DIRPATH = Path("./log")
 LOG_DIRPATH.mkdir(exist_ok=True)
 
 
+def find_version(obo_filepath):
+    """Parse the ontology XML file to find its version.
+
+    Parameters
+    ----------
+    obo_filepath : Path
+        Path to ontology XML file
+
+    Returns
+    -------
+    version : str | float
+        Version guaranteed to sort
+    """
+    print(f"Parsing {obo_filepath}")
+    root = etree.parse(obo_filepath)
+    try:
+        version_info = root.find(f"{OWL_NS}Ontology/{OWL_NS}versionInfo")
+        version = datetime.strftime(
+            datetime.strptime(version_info.text, "%Y-%m-%d"), "%Y-%m-%d"
+        )
+    except Exception as e:
+        try:
+            version_iri = root.find(f"{OWL_NS}Ontology/{OWL_NS}versionIRI")
+            version = float(version_iri.get(f"{RDF_NS}resource").split("/")[5])
+        except Exception as e:
+            print(f"Could not get version for {obo_filepath}")
+            version = None
+    return version
+
+
 def update_ontologies():
     """Download each specified ontology, parse version information
     from new and current ontology, and replace current with new if new
@@ -67,23 +97,20 @@ def update_ontologies():
         with open(obo_filepath_new, "wb") as f:
             f.write(r.content)
 
-        print(f"Parsing {obo_filepath_new}")
-        root = etree.parse(obo_filepath_new)
-        version_new = root.find(f"{OWL_NS}Ontology/{OWL_NS}versionInfo").text
+        version_new = find_version(obo_filepath_new)
         print(f"Found new version {version_new}")
 
         obo_filepath_cur = OBO_DIRPATH / (obo_stem + obo_suffix)
         if obo_filepath_cur.exists():
-            print(f"Parsing {obo_filepath_cur}")
-            root = etree.parse(obo_filepath_cur)
-            version_cur = root.find(f"{OWL_NS}Ontology/{OWL_NS}versionInfo").text
+
+            version_cur = find_version(obo_filepath_cur)
             print(f"Found current version {version_cur}")
 
             if version_new > version_cur:
                 obo_filepath_old = (
                     OBO_DIRPATH
                     / ".archive"
-                    / (obo_stem + "-" + version_cur + obo_suffix)
+                    / (obo_stem + "-" + str(version_cur) + obo_suffix)
                 )
 
                 print(f"Renaming {obo_filepath_cur} to {obo_filepath_old}")
