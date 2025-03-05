@@ -65,10 +65,15 @@ public class OntologyTripleLoader {
 		if (Paths.get(createURI(n.getURI()).getPath()).getFileName() == null)
 			return vtuple;
 		String term = Paths.get(createURI(n.getURI()).getPath()).getFileName().toString();
+		String[] tokens = null;
+		if (term.contains("_")) {
+			tokens = term.split("_");
+		} else if (term.contains(":")) {
+			tokens = term.split(":");
+		}
 		String id = null;
 		String number = null;
-		if (term.contains("_")) {
-			String[] tokens = term.split("_");
+		if (tokens != null) {
 			id = tokens[0];
 			number = tokens[1];
 		}
