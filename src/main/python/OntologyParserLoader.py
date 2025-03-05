@@ -35,7 +35,7 @@ OWL_NS = "{http://www.w3.org/2002/07/owl#}"
 RDF_NS = "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}"
 RDFS_NS = "{http://www.w3.org/2000/01/rdf-schema#}"
 
-URIREF_PATTERN = re.compile(r"/obo/([A-Za-z]*)_([A-Z0-9]*)")
+URIREF_PATTERN = re.compile(r"/obo/([A-Za-z]*)_([A-Za-z0-9-+]*)")
 VALID_VERTICES = set(["UBERON", "CL", "GO", "NCBITaxon", "PR", "PATO", "CHEBI", "CLM"])
 
 LOG_DIRPATH = Path("./log")
