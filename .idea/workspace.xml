@@ -9,7 +9,8 @@
   <component name="ChangeListManager">
     <list default="true" id="ab62d87a-c49b-4988-979f-f2aad7db4669" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyTripleLoader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyTripleLoader.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyTripleParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyTripleParser.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -90,7 +91,7 @@
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary": "JUnit5",
     "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5": "",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "ralatsdc/update-list-of-ontologies",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "/Users/raymondleclair/Projects/NIH-NLM/Cell-KN/cell-kn-etl-ontologies",
     "node.js.detected.package.eslint": "true",
@@ -147,6 +148,21 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="OntologyTripleLoaderTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="cell-kn-etl-ontologies" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="gov.nih.nlm.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="gov.nih.nlm" />
+      <option name="MAIN_CLASS_NAME" value="gov.nih.nlm.OntologyTripleLoaderTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="OntologyTripleLoaderTest.main" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="cell-kn-etl-ontologies" />
       <extension name="coverage">
@@ -188,6 +204,7 @@
     </configuration>
     <list>
       <item itemvalue="Application.OntologyTripleLoader" />
+      <item itemvalue="JUnit.OntologyTripleLoaderTest" />
       <item itemvalue="JUnit.ArangoDbUtilitiesTest.deleteEdgeCollection" />
       <item itemvalue="JUnit.OntologyTripleLoaderTest.main" />
       <item itemvalue="Python.OntologyParserLoader" />
@@ -195,6 +212,7 @@
     <recent_temporary>
       <list>
         <item itemvalue="Application.OntologyTripleLoader" />
+        <item itemvalue="JUnit.OntologyTripleLoaderTest" />
       </list>
     </recent_temporary>
   </component>
@@ -232,6 +250,8 @@
       <workItem from="1740148677994" duration="366000" />
       <workItem from="1740149052068" duration="45000" />
       <workItem from="1740149101817" duration="21165000" />
+      <workItem from="1741114744824" duration="477000" />
+      <workItem from="1741115990009" duration="14858000" />
     </task>
     <servers />
   </component>
