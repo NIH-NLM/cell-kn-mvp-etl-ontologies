@@ -76,7 +76,7 @@ public class OntologyTripleParser {
 		}
 		// Ensure all triples typed, and assign number of triples
 		if (tripleTypeSets.size() != nTriples) {
-			System.err.println("Warning: tripleTypeSets.size() != nTriples");
+			System.err.println("Warning: populateTripleTypeSets: tripleTypeSets.size() != nTriples");
 		} else {
 			tripleTypeSets.nTriples = nTriples;
 		}
@@ -99,7 +99,7 @@ public class OntologyTripleParser {
 		}
 		// Ensure no triples have been added or removed
 		if (tripleTypeSets.size() != tripleTypeSets.nTriples) {
-			System.err.println("Warning: tripleTypeSets.size() != nTriples");
+			System.err.println("Warning: moveOtoSBNodeTriples: tripleTypeSets.size() != nTriples");
 		}
 	}
 
@@ -259,7 +259,7 @@ public class OntologyTripleParser {
 			}
 			// Ensure no triples have been added or removed
 			if (tripleTypeSets.size() != tripleTypeSets.nTriples) {
-				System.err.println("Warning: tripleTypeSets.size() != nTriples");
+				System.err.println("Warning: flattenSBNodeTriples: tripleTypeSets.size() != nTriples");
 			}
 		}
 	}
@@ -284,7 +284,7 @@ public class OntologyTripleParser {
 
 		// Ensure no triples have been added or removed
 		if (tripleTypeSets.size() != tripleTypeSets.nTriples) {
-			System.err.println("Warning: tripleTypeSets.size() != nTriples");
+			System.err.println("Warning: collectLinkingBnodeTriples: tripleTypeSets.size() != nTriples");
 		}
 	}
 
@@ -303,7 +303,7 @@ public class OntologyTripleParser {
 		}
 		// Ensure no triples have been added or removed
 		if (tripleTypeSets.size() != tripleTypeSets.nTriples) {
-			System.err.println("Warning: tripleTypeSets.size() != nTriples");
+			System.err.println("Warning: linkSBNodeTriples: tripleTypeSets.size() != nTriples");
 		}
 	}
 
