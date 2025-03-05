@@ -32,7 +32,7 @@ public class OntologyTripleLoader {
 
 	// Assign vertices to include in the graph
 	private static final ArrayList<String> validVertices = new ArrayList<>(Arrays.asList("CHEBI", "CL", "ENSG", "GO",
-			"HsapDv", "MONDO", "MmusDv", "NCBITaxon", "PATO", "PCL", "PCLCS", "PR", "SO", "UBERON"));
+			"HsapDv", "MONDO", "MmusDv", "NCBITaxon", "PATO", "PCL", "PCLCS", "PR", "UBERON"));
 
 	// Connect to a local ArangoDB server instance
 	private static final ArangoDbUtilities arangoDbUtilities = new ArangoDbUtilities();
@@ -354,6 +354,7 @@ public class OntologyTripleLoader {
 		} else {
 			databaseName = "Cell-KN-v2.0";
 		}
+		arangoDbUtilities.deleteDatabase(databaseName);
 		ArangoDatabase db = arangoDbUtilities.createOrGetDatabase(databaseName);
 		String graphName;
 		if (args.length > 2) {
