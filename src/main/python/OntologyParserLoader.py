@@ -27,8 +27,8 @@ OBO_PURLS = [
     "http://purl.obolibrary.org/obo/hsapdv.owl",
     # "https://raw.githubusercontent.com/kharchenkolab/cap_ontology/main/capo-base.owl",
     # "https://raw.githubusercontent.com/Cellular-Semantics/CellMark/refs/heads/main/clm-kg.owl",
-    "http://purl.obolibrary.org/obo/chebi.owl",
-    "http://purl.obolibrary.org/obo/pr.owl",
+    # "http://purl.obolibrary.org/obo/chebi.owl",
+    # "http://purl.obolibrary.org/obo/pr.owl",
 ]
 
 OWL_NS = "{http://www.w3.org/2002/07/owl#}"
