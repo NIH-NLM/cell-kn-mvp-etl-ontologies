@@ -1138,15 +1138,15 @@ def load_tuples_into_adb_graph(
                 vertex_collections, edge_collections, from_v, to_v, p, o, ro=ro
             )
 
-    insert_vertices(adb_graph, vertex_collections)
-    insert_edges(adb_graph, edge_collections)
+    insert_vertices(adb_graph, vertex_collections, do_update=do_update)
+    insert_edges(adb_graph, edge_collections, do_update=do_update)
 
 
 def main(parameters=None):
     """Prototype an approach for loading the Cell Ontology into
     ArangoDB.
 
-    Provide a command line interface for loading a test, slim or full
+    Provide a command line interface for loading a test, or full
     version of the Cell Ontology.
 
     Note:
@@ -1181,16 +1181,10 @@ def main(parameters=None):
         default="",
         help="label to add to database_name",
     )
-    parser.add_argument(
-        "--include-bnodes", action="store_true", help="include BNodes when loading"
-    )
     group = parser.add_argument_group("Cell Ontology (CL)", "Version of the CL to load")
     exclusive_group = group.add_mutually_exclusive_group(required=True)
     exclusive_group.add_argument(
         "--test", action="store_true", help="load the test ontology"
-    )
-    exclusive_group.add_argument(
-        "--slim", action="store_true", help="load the slim ontology"
     )
     exclusive_group.add_argument(
         "--full", action="store_true", help="load the full ontology"
@@ -1203,26 +1197,14 @@ def main(parameters=None):
         args = parser.parse_args(remaining)
 
     if args.test:
-        cl_dirpath = Path("../../test/data/obo")
         cl_filename = "macrophage.owl"
-        db_name = "Cell-KN-v1.0"
+        db_name = "Cell-KN-v1.5"
         graph_name = "CL-Test"
 
-    if args.slim:
-        cl_dirpath = OBO_DIRPATH / ".archive"
-        cl_filename = "general_cell_types_upper_slim.owl"
-        db_name = "Cell-KN-v1.0"
-        graph_name = "CL-Slim"
-
     if args.full:
-        cl_dirpath = OBO_DIRPATH
         cl_filename = "cl.owl"
-        db_name = "Cell-KN-v1.0"
+        db_name = "Cell-KN-v1.5"
         graph_name = "CL-Full"
-
-    if args.include_bnodes:
-        db_name += "-bnodes"
-        graph_name += "-bnodes"
 
     if args.label:
         db_name += f"-{args.label}"
@@ -1230,12 +1212,12 @@ def main(parameters=None):
     ro_filename = "ro.owl"
     log_filename = f"{graph_name}.log"
 
-    print(f"Parsing {cl_dirpath / cl_filename} to populate rdflib graph")
+    print(f"Parsing {OBO_DIRPATH / cl_filename} to populate rdflib graph")
     rdf_graph = Graph()
-    rdf_graph.parse(cl_dirpath / cl_filename)
+    rdf_graph.parse(OBO_DIRPATH / cl_filename)
 
-    print(f"Parsing {cl_dirpath / cl_filename} to identify ids")
-    _, _, ids = parse_obo(cl_dirpath, cl_filename)
+    print(f"Parsing {OBO_DIRPATH / cl_filename} to identify ids")
+    _, _, ids = parse_obo(OBO_DIRPATH, cl_filename)
     print(ids)
 
     print("Counting triple types in rdflib graph")
@@ -1279,12 +1261,8 @@ def main(parameters=None):
     adb.delete_database(db_name)
     db = adb.create_or_get_database(db_name)
     adb_graph = adb.create_or_get_graph(db, graph_name)
-    if args.include_bnodes:
-        VALID_VERTICES.update(set(["BNode", "RO"]))
-        triples_to_populate = triples
-    else:
-        triples_to_populate = fnode_triples.copy()
-        triples_to_populate.extend(bnode_triples)
+    triples_to_populate = fnode_triples.copy()
+    triples_to_populate.extend(bnode_triples)
     vertex_collections = {}
     edge_collections = {}
     load_tuples_into_adb_graph(
