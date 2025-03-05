@@ -123,6 +123,8 @@ public class OntologyTripleLoader {
 		for (Path file : files) {
 			long startTime = System.nanoTime();
 			String oboFNm = file.getFileName().toString();
+			if (oboFNm.equals("ro.owl"))
+				continue;
 			List<Triple> triples = ontologyTripleTypeSets
 					.get(oboFNm.substring(0, oboFNm.lastIndexOf("."))).soFNodeTriples;
 			System.out.println("Constructing vertices using " + triples.size() + " triples from " + oboFNm);
@@ -173,6 +175,8 @@ public class OntologyTripleLoader {
 		for (Path file : files) {
 			long startTime = System.nanoTime();
 			String oboFNm = file.getFileName().toString();
+			if (oboFNm.equals("ro.owl"))
+				continue;
 			List<Triple> triples = ontologyTripleTypeSets
 					.get(oboFNm.substring(0, oboFNm.lastIndexOf("."))).soFNodeTriples;
 			System.out.println("Updating vertices using " + triples.size() + " triples from " + oboFNm);
@@ -262,6 +266,8 @@ public class OntologyTripleLoader {
 		for (Path file : files) {
 			long startTime = System.nanoTime();
 			String oboFNm = file.getFileName().toString();
+			if (oboFNm.equals("ro.owl"))
+				continue;
 			List<Triple> triples = ontologyTripleTypeSets
 					.get(oboFNm.substring(0, oboFNm.lastIndexOf("."))).soFNodeTriples;
 			System.out.println("Constructing edges using " + triples.size() + " triples from " + oboFNm);

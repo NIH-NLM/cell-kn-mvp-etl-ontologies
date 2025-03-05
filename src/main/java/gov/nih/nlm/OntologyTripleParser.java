@@ -319,6 +319,8 @@ public class OntologyTripleParser {
 		Map<String, TripleTypeSets> ontologyTripleTypeSets = new HashMap<>();
 		for (Path file : files) {
 			String oboFNm = file.getFileName().toString();
+			if (oboFNm.equals("ro.owl"))
+				continue;
 			System.out.println("Parsing ontology triples in " + oboFNm);
 			TripleTypeSets tripleTypeSets = new TripleTypeSets();
 			populateTripleTypeSets(file, tripleTypeSets);
