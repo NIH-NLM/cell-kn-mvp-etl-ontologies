@@ -55,7 +55,7 @@ public class OntologyTripleLoader {
 		URI uri;
 		try {
 			uri = createURI(n.getURI());
-		} catch (URISyntaxException e) {
+		} catch (RuntimeException e) {
 			return vtuple;
 		}
 		String path = uri.getPath();
@@ -90,7 +90,7 @@ public class OntologyTripleLoader {
 	 * @return Label resulting from parsing the node
 	 */
 	public static String parsePredicate(Map<String, OntologyElementMap> ontologyElementMaps, Node p)
-			throws URISyntaxException {
+			throws RuntimeException {
 		String label = null;
 		if (p.isURI()) { // Always true for predicates
 			label = createURI(p.getURI()).getFragment();
@@ -186,7 +186,7 @@ public class OntologyTripleLoader {
 	 */
 	public static void updateVertices(List<Path> files, Map<String, OntologyElementMap> ontologyElementMaps,
 			Map<String, TripleTypeSets> ontologyTripleTypeSets, Map<String, Map<String, BaseDocument>> vertexDocuments)
-			throws URISyntaxException {
+			throws RuntimeException {
 
 		// Process triples parsed from each file
 		for (Path file : files) {
@@ -284,7 +284,7 @@ public class OntologyTripleLoader {
 	public static void constructEdges(List<Path> files, Map<String, OntologyElementMap> ontologyElementMaps,
 			Map<String, TripleTypeSets> ontologyTripleTypeSets, ArangoDbUtilities arangoDbUtilities, ArangoGraph graph,
 			Map<String, ArangoEdgeCollection> edgeCollections, Map<String, Map<String, BaseEdgeDocument>> edgeDocuments)
-			throws URISyntaxException {
+			throws RuntimeException {
 
 		// Collect edge keys in each edge collection to prevent constructing duplicate
 		// edges in the edge collection
@@ -430,7 +430,7 @@ public class OntologyTripleLoader {
 		constructVertices(files, ontologyTripleTypeSets, arangoDbUtilities, graph, vertexCollections, vertexDocuments);
 		try {
 			updateVertices(files, ontologyElementMaps, ontologyTripleTypeSets, vertexDocuments);
-		} catch (URISyntaxException e) {
+		} catch (RuntimeException e) {
 			throw new RuntimeException(e);
 		}
 		insertVertices(vertexCollections, vertexDocuments);
@@ -441,7 +441,7 @@ public class OntologyTripleLoader {
 		try {
 			constructEdges(files, ontologyElementMaps, ontologyTripleTypeSets, arangoDbUtilities, graph,
 					edgeCollections, edgeDocuments);
-		} catch (URISyntaxException e) {
+		} catch (RuntimeException e) {
 			throw new RuntimeException(e);
 		}
 		insertEdges(edgeCollections, edgeDocuments);

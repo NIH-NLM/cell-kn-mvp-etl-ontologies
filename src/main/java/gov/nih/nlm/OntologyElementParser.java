@@ -5,7 +5,6 @@ import static gov.nih.nlm.PathUtilities.listFilesMatchingPattern;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -76,7 +75,7 @@ public class OntologyElementParser {
 	 * @param uri String from which to create URI
 	 * @return URI created
 	 */
-	public static URI createURI(String uri) throws URISyntaxException {
+	public static URI createURI(String uri) throws RuntimeException {
 		Matcher m_pcl = p_pcl.matcher(uri);
 		if (m_pcl.find()) {
 			return URI.create(m_pcl.replaceFirst("/PCLCS_"));
@@ -96,7 +95,7 @@ public class OntologyElementParser {
 	 * @param node               A triple node
 	 * @param ontologyElementMap Maps terms and labels
 	 */
-	public static void parseOntologyNode(Node node, OntologyElementMap ontologyElementMap) throws URISyntaxException {
+	public static void parseOntologyNode(Node node, OntologyElementMap ontologyElementMap) throws RuntimeException {
 		// Consider element nodes
 		if (node.getNodeType() == Node.ELEMENT_NODE) {
 			Element element = (Element) node;
@@ -145,7 +144,7 @@ public class OntologyElementParser {
 	 *         all elements with a non-empty "about" attribute and at least one
 	 *         "label" element, and corresponding unique term ids.
 	 */
-	public static Map<String, OntologyElementMap> parseOntologyElements(List<Path> files) throws URISyntaxException {
+	public static Map<String, OntologyElementMap> parseOntologyElements(List<Path> files) throws RuntimeException {
 		Map<String, OntologyElementMap> ontologyElementMaps = new HashMap<>();
 		for (Path file : files) {
 			String oboFNm = file.getFileName().toString();
@@ -205,11 +204,7 @@ public class OntologyElementParser {
 		if (files.isEmpty()) {
 			System.out.println("No files found matching the pattern.");
 		} else {
-			try {
-				parseOntologyElements(files);
-			} catch (URISyntaxException e) {
-				throw new RuntimeException(e);
-			}
+			parseOntologyElements(files);
 		}
 		System.out.println("Parsed ontology elements from " + files.size() + " files.");
 	}
