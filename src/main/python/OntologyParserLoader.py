@@ -36,7 +36,8 @@ RDF_NS = "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}"
 RDFS_NS = "{http://www.w3.org/2000/01/rdf-schema#}"
 
 URIREF_PATTERN = re.compile(r"/obo/([A-Za-z]*)_([A-Za-z0-9-+]*)")
-VALID_VERTICES = set(["UBERON", "CL", "GO", "NCBITaxon", "PR", "PATO", "CHEBI", "CLM"])
+VALID_VERTICES = set(["CHEBI", "CL", "CLM", "GO", "MONDO", "NCBITaxon", "PATO", "PR", "UBERON"])
+SKIPPED_VERTICES = set()
 
 LOG_DIRPATH = Path("./log")
 LOG_DIRPATH.mkdir(exist_ok=True)
@@ -638,7 +639,8 @@ def create_or_get_vertex(vertex_collections, vertex_name, vertex_key, vertex_ter
         The ArangoDB vertex document
     """
     if vertex_name not in VALID_VERTICES:
-        print(f"Skipping invalid vertex name: {vertex_name}")
+        # print(f"Skipping invalid vertex name: {vertex_name}")
+        SKIPPED_VERTICES.add(vertex_name)
         return
 
     vertex = {}
@@ -1114,6 +1116,7 @@ def load_tuples_into_adb_graph(
     -------
     None
     """
+    print("Creating vertices and edges")
     for tuple in tuples:
         if len(tuple) != 3:
             continue
@@ -1124,7 +1127,9 @@ def load_tuples_into_adb_graph(
         create_or_get_edge_from_triple(
             vertex_collections, edge_collections, s, p, o, ro=ro
         )
+    print(f"Skipped vertices: {SKIPPED_VERTICES}")
 
+    print("Updating vertices and edges")
     for tuple in tuples:
         if len(tuple) == 3:
             s, p, o = tuple
@@ -1138,8 +1143,10 @@ def load_tuples_into_adb_graph(
                 vertex_collections, edge_collections, from_v, to_v, p, o, ro=ro
             )
 
+    print("Inserting vertices and edges")
     insert_vertices(adb_graph, vertex_collections, do_update=do_update)
     insert_edges(adb_graph, edge_collections, do_update=do_update)
+
 
 
 def main(parameters=None):
@@ -1268,7 +1275,6 @@ def main(parameters=None):
     load_tuples_into_adb_graph(
         triples_to_populate, adb_graph, vertex_collections, edge_collections, ro=ro
     )
-
 
 if __name__ == "__main__":
     main()
