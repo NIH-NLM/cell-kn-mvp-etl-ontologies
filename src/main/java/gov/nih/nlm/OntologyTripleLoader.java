@@ -7,7 +7,6 @@ import static gov.nih.nlm.PathUtilities.listFilesMatchingPattern;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -393,12 +392,8 @@ public class OntologyTripleLoader {
 		if (files.isEmpty()) {
 			System.out.println("No files found matching the pattern.");
 		} else {
-			try {
-				ontologyElementMaps = parseOntologyElements(files);
-				ontologyTripleTypeSets = parseOntologyTriples(files);
-			} catch (URISyntaxException e) {
-				throw new RuntimeException(e);
-			}
+			ontologyElementMaps = parseOntologyElements(files);
+			ontologyTripleTypeSets = parseOntologyTriples(files);
 		}
 
 		// Connect to a local ArangoDB server instance

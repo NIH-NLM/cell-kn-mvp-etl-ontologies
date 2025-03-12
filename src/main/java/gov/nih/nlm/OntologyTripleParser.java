@@ -4,7 +4,6 @@ import static gov.nih.nlm.OntologyElementParser.createURI;
 import static gov.nih.nlm.PathUtilities.listFilesMatchingPattern;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -136,7 +135,7 @@ public class OntologyTripleParser {
 	 * @param key            Node identifying triple lists containing the same blank
 	 *                       node
 	 */
-	public static void flattenAxiomTripleSets(TripleTypeSets tripleTypeSets, Node key) throws URISyntaxException {
+	public static void flattenAxiomTripleSets(TripleTypeSets tripleTypeSets, Node key) throws RuntimeException {
 		Node flattened_s = null;
 		Node flattened_p = null;
 		Node flattened_o = null;
@@ -196,7 +195,7 @@ public class OntologyTripleParser {
 	 * @param key            Node identifying triple lists containing the same blank
 	 *                       node
 	 */
-	public static void flattenRestrictionTripleSets(TripleTypeSets tripleTypeSets, Node key) throws URISyntaxException {
+	public static void flattenRestrictionTripleSets(TripleTypeSets tripleTypeSets, Node key) throws RuntimeException {
 		Node flattened_s = null;
 		Node flattened_p = null;
 		Node flattened_o = null;
@@ -236,7 +235,7 @@ public class OntologyTripleParser {
 	 * @param tripleTypeSets Triple sets sorted by the types of nodes the triples
 	 *                       contain
 	 */
-	public static void flattenSBNodeTriples(TripleTypeSets tripleTypeSets) throws URISyntaxException {
+	public static void flattenSBNodeTriples(TripleTypeSets tripleTypeSets) throws RuntimeException {
 		// Process each triple list containing the same blank node successively without
 		// assuming Axiom and Restriction triple sets are not contained in the same list
 		String[] fragments = { "Axiom", "Restriction" };
@@ -316,7 +315,7 @@ public class OntologyTripleParser {
 	 * @return Map by ontology file name containing triple sets sorted by the types
 	 *         of nodes the triples contain
 	 */
-	public static Map<String, TripleTypeSets> parseOntologyTriples(List<Path> files) throws URISyntaxException {
+	public static Map<String, TripleTypeSets> parseOntologyTriples(List<Path> files) throws RuntimeException {
 		Map<String, TripleTypeSets> ontologyTripleTypeSets = new HashMap<>();
 		for (Path file : files) {
 			String oboFNm = file.getFileName().toString();
@@ -353,12 +352,8 @@ public class OntologyTripleParser {
 		if (files.isEmpty()) {
 			System.out.println("No files found matching the pattern.");
 		} else {
-            try {
-                parseOntologyTriples(files);
-            } catch (URISyntaxException e) {
-				throw new RuntimeException(e);
-            }
-        }
+			parseOntologyTriples(files);
+		}
 		System.out.println("Parsed ontology triples from " + files.size() + " files.");
 	}
 }
