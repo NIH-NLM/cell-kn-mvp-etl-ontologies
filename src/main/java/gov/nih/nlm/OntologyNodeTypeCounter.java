@@ -30,7 +30,7 @@ public class OntologyNodeTypeCounter {
 	 * @param oboPth        Path to ontology file
 	 * @param writer        Writer with which to write results
 	 * @param doPrintHeader Flag to print header, or not
-	 * @throws IOException
+	 * @throws IOException On write
 	 */
 	public static void countNodeTypesForOntology(Path oboPth, BufferedWriter writer, Boolean doPrintHeader)
 			throws IOException {
@@ -71,7 +71,7 @@ public class OntologyNodeTypeCounter {
 		// List ontology OWL files
 		String directoryPath = oboDir.toString();
 		String filePattern = ".*\\.owl";
-		List<Path> files = null;
+		List<Path> files;
 		try {
 			files = listFilesMatchingPattern(directoryPath, filePattern);
 		} catch (IOException e) {

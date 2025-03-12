@@ -2,7 +2,6 @@ package gov.nih.nlm;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
 import com.arangodb.*;
@@ -35,7 +34,7 @@ public class ArangoDbUtilities {
 	/**
 	 * Build the ArangoDB instance specified in the provided environment.
 	 * 
-	 * @param env
+	 * @param env Environment map
 	 */
 	public ArangoDbUtilities(Map<String, String> env) {
 		arangoDB = new ArangoDB.Builder().host(env.get("ARANGO_DB_HOST"), Integer.parseInt(env.get("ARANGO_DB_PORT")))

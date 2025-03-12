@@ -4,6 +4,7 @@ import static gov.nih.nlm.OntologyElementParser.createURI;
 import static gov.nih.nlm.PathUtilities.listFilesMatchingPattern;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -51,7 +52,6 @@ public class OntologyTripleParser {
 		for (Triple triple : inputStream.getCollected()) {
 			nTriples++;
 			Node s = triple.getSubject();
-			Node p = triple.getPredicate();
 			Node o = triple.getObject();
 			if (!s.isBlank() && !o.isBlank()) {
 				// Collect filled node triples
@@ -136,7 +136,7 @@ public class OntologyTripleParser {
 	 * @param key            Node identifying triple lists containing the same blank
 	 *                       node
 	 */
-	public static void flattenAxiomTripleSets(TripleTypeSets tripleTypeSets, Node key) {
+	public static void flattenAxiomTripleSets(TripleTypeSets tripleTypeSets, Node key) throws URISyntaxException {
 		Node flattened_s = null;
 		Node flattened_p = null;
 		Node flattened_o = null;
@@ -196,12 +196,12 @@ public class OntologyTripleParser {
 	 * @param key            Node identifying triple lists containing the same blank
 	 *                       node
 	 */
-	public static void flattenRestrictionTripleSets(TripleTypeSets tripleTypeSets, Node key) {
+	public static void flattenRestrictionTripleSets(TripleTypeSets tripleTypeSets, Node key) throws URISyntaxException {
 		Node flattened_s = null;
 		Node flattened_p = null;
 		Node flattened_o = null;
 		ArrayList<Triple> flattenedTriples = new ArrayList<>();
-		ArrayList<Triple> remainingTriples = new ArrayList<>();
+		ArrayList<Triple> remainingTriples = new ArrayList<>(); // For debugging
 		for (Triple triple : tripleTypeSets.sBNodeTriples.get(key)) {
 			String p_fragment = createURI(triple.getPredicate().getURI()).getFragment();
 			// Identify components of the Restriction triple
@@ -236,7 +236,7 @@ public class OntologyTripleParser {
 	 * @param tripleTypeSets Triple sets sorted by the types of nodes the triples
 	 *                       contain
 	 */
-	public static void flattenSBNodeTriples(TripleTypeSets tripleTypeSets) {
+	public static void flattenSBNodeTriples(TripleTypeSets tripleTypeSets) throws URISyntaxException {
 		// Process each triple list containing the same blank node successively without
 		// assuming Axiom and Restriction triple sets are not contained in the same list
 		String[] fragments = { "Axiom", "Restriction" };
@@ -272,7 +272,7 @@ public class OntologyTripleParser {
 	 * @param tripleTypeSets Triple sets sorted by the types of nodes the triples
 	 *                       contain
 	 */
-	public static void collectLinkingBnodeTriples(TripleTypeSets tripleTypeSets) {
+	public static void collectLinkingBNodeTriples(TripleTypeSets tripleTypeSets) {
 		for (Triple triple : tripleTypeSets.soBNodeTriples.toArray(new Triple[0])) {
 			Node s = triple.getSubject();
 			Node o = triple.getObject();
@@ -284,15 +284,16 @@ public class OntologyTripleParser {
 
 		// Ensure no triples have been added or removed
 		if (tripleTypeSets.size() != tripleTypeSets.nTriples) {
-			System.err.println("Warning: collectLinkingBnodeTriples: tripleTypeSets.size() != nTriples");
+			System.err.println("Warning: collectLinkingBNodeTriples: tripleTypeSets.size() != nTriples");
 		}
 	}
 
 	/**
 	 * Combine subject blank node triple sets linked by triple with blank subject
 	 * and object nodes.
-	 * 
-	 * @param tripleTypeSets
+	 *
+	 * @param tripleTypeSets Triple sets sorted by the types of nodes the triples
+	 *                       contain
 	 */
 	public static void linkSBNodeTriples(TripleTypeSets tripleTypeSets) {
 		for (Triple triple : tripleTypeSets.linkingBNodeTriples.toArray(new Triple[0])) {
@@ -315,7 +316,7 @@ public class OntologyTripleParser {
 	 * @return Map by ontology file name containing triple sets sorted by the types
 	 *         of nodes the triples contain
 	 */
-	public static Map<String, TripleTypeSets> parseOntologyTriples(List<Path> files) {
+	public static Map<String, TripleTypeSets> parseOntologyTriples(List<Path> files) throws URISyntaxException {
 		Map<String, TripleTypeSets> ontologyTripleTypeSets = new HashMap<>();
 		for (Path file : files) {
 			String oboFNm = file.getFileName().toString();
@@ -327,7 +328,7 @@ public class OntologyTripleParser {
 			moveOtoSBNodeTriples(tripleTypeSets);
 			flattenSBNodeTriples(tripleTypeSets);
 			// TODO: Take a another look at the utility of these
-			// collectLinkingBnodeTriples(tripleTypeSets);
+			// collectLinkingBNodeTriples(tripleTypeSets);
 			// linkSBNodeTriples(tripleTypeSets);
 			ontologyTripleTypeSets.put(oboFNm.substring(0, oboFNm.lastIndexOf(".")), tripleTypeSets);
 		}
@@ -343,18 +344,21 @@ public class OntologyTripleParser {
 	public static void main(String[] args) {
 		String directoryPath = oboDir.toString();
 		String filePattern = ".*\\.owl";
-		List<Path> files = null;
+		List<Path> files;
 		try {
 			files = listFilesMatchingPattern(directoryPath, filePattern);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-		Map<String, TripleTypeSets> ontologyTripleTypeSets = null;
 		if (files.isEmpty()) {
 			System.out.println("No files found matching the pattern.");
 		} else {
-			ontologyTripleTypeSets = parseOntologyTriples(files);
-		}
+            try {
+                parseOntologyTriples(files);
+            } catch (URISyntaxException e) {
+				throw new RuntimeException(e);
+            }
+        }
 		System.out.println("Parsed ontology triples from " + files.size() + " files.");
 	}
 }

@@ -19,7 +19,7 @@ public class PathUtilities {
 	 * @param directoryPath Directory containing the files
 	 * @param filePattern   Pattern for matching to files
 	 * @return List of matching files
-	 * @throws IOException
+	 * @throws IOException On read
 	 */
 	public static List<Path> listFilesMatchingPattern(String directoryPath, String filePattern) throws IOException {
 		Pattern pattern = Pattern.compile(filePattern);

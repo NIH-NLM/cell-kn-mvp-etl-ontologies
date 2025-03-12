@@ -5,6 +5,7 @@ import static gov.nih.nlm.PathUtilities.listFilesMatchingPattern;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -50,20 +51,18 @@ public class OntologyElementParser {
 	 * @param xmlFile File containing XML to parse
 	 * @return Document resulting after parsing, and normalization
 	 */
-	public static final Document parseXmlFile(File xmlFile) {
+	public static Document parseXmlFile(File xmlFile) {
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder dBuilder = null;
+		DocumentBuilder dBuilder;
 		try {
 			dBuilder = dbFactory.newDocumentBuilder();
 		} catch (ParserConfigurationException e) {
 			throw new RuntimeException(e);
 		}
-		Document doc = null;
+		Document doc;
 		try {
 			doc = dBuilder.parse(xmlFile);
-		} catch (SAXException e) {
-			throw new RuntimeException(e);
-		} catch (IOException e) {
+		} catch (SAXException | IOException e) {
 			throw new RuntimeException(e);
 		}
 		doc.getDocumentElement().normalize();
@@ -77,7 +76,7 @@ public class OntologyElementParser {
 	 * @param uri String from which to create URI
 	 * @return URI created
 	 */
-	public static URI createURI(String uri) {
+	public static URI createURI(String uri) throws URISyntaxException {
 		Matcher m_pcl = p_pcl.matcher(uri);
 		if (m_pcl.find()) {
 			return URI.create(m_pcl.replaceFirst("/PCLCS_"));
@@ -94,10 +93,10 @@ public class OntologyElementParser {
 	 * contain a non-empty "about" attribute, and at least one "label" element. Also
 	 * collect resulting unique ontology term ids.
 	 * 
-	 * @param node
-	 * @param ontologyElementMap
+	 * @param node               A triple node
+	 * @param ontologyElementMap Maps terms and labels
 	 */
-	public static void parseOntologyNode(Node node, OntologyElementMap ontologyElementMap) {
+	public static void parseOntologyNode(Node node, OntologyElementMap ontologyElementMap) throws URISyntaxException {
 		// Consider element nodes
 		if (node.getNodeType() == Node.ELEMENT_NODE) {
 			Element element = (Element) node;
@@ -107,7 +106,7 @@ public class OntologyElementParser {
 
 				// Consider elements with a non-empty "about" attribute
 				String about = element.getAttribute("rdf:about");
-				if (!about.equals("")) {
+				if (!about.isEmpty()) {
 
 					// Consider terms containing an underscore
 					URI uri = createURI(about);
@@ -146,7 +145,7 @@ public class OntologyElementParser {
 	 *         all elements with a non-empty "about" attribute and at least one
 	 *         "label" element, and corresponding unique term ids.
 	 */
-	public static Map<String, OntologyElementMap> parseOntologyElements(List<Path> files) {
+	public static Map<String, OntologyElementMap> parseOntologyElements(List<Path> files) throws URISyntaxException {
 		Map<String, OntologyElementMap> ontologyElementMaps = new HashMap<>();
 		for (Path file : files) {
 			String oboFNm = file.getFileName().toString();
@@ -167,11 +166,11 @@ public class OntologyElementParser {
 			Element purlElement = (Element) doc.getElementsByTagName("owl:Ontology").item(0);
 			if (purlElement != null) {
 				ontologyElementMap.purl = URI.create(purlElement.getAttribute("rdf:about"));
-			}
-			// Get version
-			Element versionElement = (Element) purlElement.getElementsByTagName("owl:versionIRI").item(0);
-			if (versionElement != null) {
-				ontologyElementMap.versionIRI = URI.create(versionElement.getAttribute("rdf:resource"));
+				// Get version
+				Element versionElement = (Element) purlElement.getElementsByTagName("owl:versionIRI").item(0);
+				if (versionElement != null) {
+					ontologyElementMap.versionIRI = URI.create(versionElement.getAttribute("rdf:resource"));
+				}
 			}
 			// Get root
 			Element rootElement = (Element) doc.getElementsByTagName("obo:IAO_0000700").item(0);
@@ -197,17 +196,20 @@ public class OntologyElementParser {
 	public static void main(String[] args) {
 		String directoryPath = oboDir.toString();
 		String filePattern = ".*\\.owl";
-		List<Path> files = null;
+		List<Path> files;
 		try {
 			files = listFilesMatchingPattern(directoryPath, filePattern);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-		Map<String, OntologyElementMap> ontologyElementMaps = null;
 		if (files.isEmpty()) {
 			System.out.println("No files found matching the pattern.");
 		} else {
-			ontologyElementMaps = parseOntologyElements(files);
+			try {
+				parseOntologyElements(files);
+			} catch (URISyntaxException e) {
+				throw new RuntimeException(e);
+			}
 		}
 		System.out.println("Parsed ontology elements from " + files.size() + " files.");
 	}

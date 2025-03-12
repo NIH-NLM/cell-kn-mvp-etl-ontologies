@@ -6,6 +6,8 @@ import static gov.nih.nlm.OntologyTripleParser.parseOntologyTriples;
 import static gov.nih.nlm.PathUtilities.listFilesMatchingPattern;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -28,25 +30,15 @@ public class OntologyTripleLoader {
 
 	// Assign location of ontology files
 	private static final Path usrDir = Paths.get(System.getProperty("user.dir"));
-	private static final Path oboDir = usrDir.resolve("data/obo");
+	public static final Path oboDir = usrDir.resolve("data/obo");
 
 	// Assign vertices to include in the graph
-	private static final ArrayList<String> validVertices = new ArrayList<>(Arrays.asList("CHEBI", "CL", "ENSG", "GO",
-			"HsapDv", "MONDO", "MmusDv", "NCBITaxon", "PATO", "PCL", "PCLCS", "PR", "UBERON"));
+	private static final ArrayList<String> validVertices = new ArrayList<>(
+			Arrays.asList("CHEBI", "CL", "ENSG", "GO", "HsapDv", "MONDO", "MmusDv", "NCBITaxon", "PATO", "PCL", "PCLCS",
+					"PR", "UBERON", "BMC", "CHEMBL", "CS", "CSD", "DS", "GS", "PUB", "SO"));
 
-	// Connect to a local ArangoDB server instance
-	private static final ArangoDbUtilities arangoDbUtilities = new ArangoDbUtilities();
-
-	// Initialize common collections
-	private static Map<String, OntologyElementMap> ontologyElementMaps = null;
-	private static Map<String, TripleTypeSets> ontologyTripleTypeSets = null;
-	private static final Map<String, ArangoVertexCollection> vertexCollections = new HashMap<>();
-	private static final Map<String, Map<String, BaseDocument>> vertexDocuments = new HashMap<>();
-	private static final Map<String, ArangoEdgeCollection> edgeCollections = new HashMap<>();
-	private static final Map<String, Map<String, BaseEdgeDocument>> edgeDocuments = new HashMap<>();
-
-	// Define record describing a vertex
-	private record VTuple(String term, String id, String number, Boolean isValidVertex) {
+	// Define a record describing a vertex
+	public record VTuple(String term, String id, String number, Boolean isValidVertex) {
 	}
 
 	/**
@@ -60,11 +52,19 @@ public class OntologyTripleLoader {
 		VTuple vtuple = new VTuple(null, null, null, false);
 		if (!n.isURI())
 			return vtuple;
-		if (createURI(n.getURI()).getPath() == null)
+		URI uri;
+		try {
+			uri = createURI(n.getURI());
+		} catch (URISyntaxException e) {
 			return vtuple;
-		if (Paths.get(createURI(n.getURI()).getPath()).getFileName() == null)
+		}
+		String path = uri.getPath();
+		if (path == null)
 			return vtuple;
-		String term = Paths.get(createURI(n.getURI()).getPath()).getFileName().toString();
+		Path fileName = Paths.get(path).getFileName();
+		if (fileName == null)
+			return vtuple;
+		String term = fileName.toString();
 		String[] tokens = null;
 		if (term.contains("_")) {
 			tokens = term.split("_");
@@ -84,11 +84,13 @@ public class OntologyTripleLoader {
 	/**
 	 * Parse a URI node to obtain the fragment or last element of the path. Useful
 	 * only for predicate nodes.
-	 * 
-	 * @param p Predicate node to parse
+	 *
+	 * @param ontologyElementMaps Maps terms and labels
+	 * @param p                   Predicate node to parse
 	 * @return Label resulting from parsing the node
 	 */
-	public static String parsePredicate(Node p) {
+	public static String parsePredicate(Map<String, OntologyElementMap> ontologyElementMaps, Node p)
+			throws URISyntaxException {
 		String label = null;
 		if (p.isURI()) { // Always true for predicates
 			label = createURI(p.getURI()).getFragment();
@@ -110,10 +112,19 @@ public class OntologyTripleLoader {
 	 * contain a filled subject and object which contain an ontology ID contained in
 	 * the valid vertices collection.
 	 *
-	 * @param files Paths to ontology files
-	 * @param graph ArangoDB graph in which to create vertex collections
+	 * @param files                  Paths to ontology files
+	 * @param ontologyTripleTypeSets Triple sets sorted by the types of nodes the
+	 *                               triples contain
+	 * @param arangoDbUtilities      Utilities for accessing ArangoDB
+	 * @param graph                  ArangoDB graph in which to create vertex
+	 *                               collections
+	 * @param vertexCollections      ArangoDB vertex collections
+	 * @param vertexDocuments        ArangoDB vertex documents
 	 */
-	public static void constructVertices(List<Path> files, ArangoGraph graph) {
+	public static void constructVertices(List<Path> files, Map<String, TripleTypeSets> ontologyTripleTypeSets,
+			ArangoDbUtilities arangoDbUtilities, ArangoGraph graph,
+			Map<String, ArangoVertexCollection> vertexCollections,
+			Map<String, Map<String, BaseDocument>> vertexDocuments) {
 
 		// Collect vertex keys for each vertex collection to prevent constructing
 		// duplicate vertices in the vertex collection
@@ -167,9 +178,15 @@ public class OntologyTripleLoader {
 	 * contain a filled subject which contains an ontology ID contained in the valid
 	 * vertices collection, and a filled object literal.
 	 *
-	 * @param files Paths to ontology files
+	 * @param files                  Paths to ontology files
+	 * @param ontologyElementMaps    Maps terms and labels
+	 * @param ontologyTripleTypeSets Triple sets sorted by the types of nodes the
+	 *                               triples contain
+	 * @param vertexDocuments        ArangoDB vertex documents
 	 */
-	public static void updateVertices(List<Path> files) {
+	public static void updateVertices(List<Path> files, Map<String, OntologyElementMap> ontologyElementMaps,
+			Map<String, TripleTypeSets> ontologyTripleTypeSets, Map<String, Map<String, BaseDocument>> vertexDocuments)
+			throws URISyntaxException {
 
 		// Process triples parsed from each file
 		for (Path file : files) {
@@ -194,7 +211,7 @@ public class OntologyTripleLoader {
 				if (vtuple.isValidVertex) {
 
 					// Parse the predicate
-					String attribute = parsePredicate(triple.getPredicate());
+					String attribute = parsePredicate(ontologyElementMaps, triple.getPredicate());
 
 					// Parse the object
 					String literal = o.getLiteralValue().toString();
@@ -221,8 +238,12 @@ public class OntologyTripleLoader {
 	/**
 	 * Insert all vertices after they have been constructed and updated to improve
 	 * performance.
+	 *
+	 * @param vertexCollections ArangoDB vertex collections
+	 * @param vertexDocuments   ArangoDB vertex documents
 	 */
-	public static void insertVertices() {
+	public static void insertVertices(Map<String, ArangoVertexCollection> vertexCollections,
+			Map<String, Map<String, BaseDocument>> vertexDocuments) {
 		System.out.println("Insert vertices");
 		long startTime = System.nanoTime();
 		int nVertices = 0;
@@ -241,7 +262,11 @@ public class OntologyTripleLoader {
 						doc.updateAttribute(attribute, literals.toArray()[0]);
 					}
 				}
-				vertexCollection.insertVertex(doc);
+				try {
+					vertexCollection.insertVertex(doc);
+				} catch (Exception e) {
+					vertexCollection.updateVertex(doc.getKey(), doc);
+				}
 			}
 		}
 		long stopTime = System.nanoTime();
@@ -252,11 +277,14 @@ public class OntologyTripleLoader {
 	 * Construct edges using triples parsed from specified ontology files that
 	 * contain a filled subject and object which contain an ontology ID contained in
 	 * the valid vertices collection.
-	 * 
-	 * @param files
-	 * @param graph
+	 *
+	 * @param files Paths to ontology files
+	 * @param graph ArangoDB graph in which to create vertex collections
 	 */
-	public static void constructEdges(List<Path> files, ArangoGraph graph) {
+	public static void constructEdges(List<Path> files, Map<String, OntologyElementMap> ontologyElementMaps,
+			Map<String, TripleTypeSets> ontologyTripleTypeSets, ArangoDbUtilities arangoDbUtilities, ArangoGraph graph,
+			Map<String, ArangoEdgeCollection> edgeCollections, Map<String, Map<String, BaseEdgeDocument>> edgeDocuments)
+			throws URISyntaxException {
 
 		// Collect edge keys in each edge collection to prevent constructing duplicate
 		// edges in the edge collection
@@ -285,7 +313,7 @@ public class OntologyTripleLoader {
 					continue;
 
 				// Parse the predicate
-				String label = parsePredicate(triple.getPredicate());
+				String label = parsePredicate(ontologyElementMaps, triple.getPredicate());
 
 				// Create an edge collection, if needed
 				String idPair = s_vtuple.id + "-" + o_vtuple.id;
@@ -315,8 +343,12 @@ public class OntologyTripleLoader {
 
 	/**
 	 * Insert all edges after they have been constructed to improve performance.
+	 *
+	 * @param edgeCollections ArangoDB edge collections
+	 * @param edgeDocuments   ArangoDB edge documents
 	 */
-	public static void insertEdges() {
+	public static void insertEdges(Map<String, ArangoEdgeCollection> edgeCollections,
+			Map<String, Map<String, BaseEdgeDocument>> edgeDocuments) {
 		System.out.println("Inserting edges");
 		long startTime = System.nanoTime();
 		int nEdges = 0;
@@ -325,7 +357,11 @@ public class OntologyTripleLoader {
 			for (String key : edgeDocuments.get(idPair).keySet()) {
 				nEdges++;
 				BaseDocument doc = edgeDocuments.get(idPair).get(key);
-				edgeCollection.insertEdge(doc);
+				try {
+					edgeCollection.insertEdge(doc);
+				} catch (Exception e) {
+					edgeCollection.updateEdge(doc.getKey(), doc);
+				}
 			}
 		}
 		long stopTime = System.nanoTime();
@@ -337,9 +373,8 @@ public class OntologyTripleLoader {
 	 * local ArangoDB server instance.
 	 *
 	 * @param args (None expected)
-	 * @throws Exception
 	 */
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) {
 		String directoryPath;
 		if (args.length > 0) {
 			directoryPath = args[0];
@@ -353,20 +388,33 @@ public class OntologyTripleLoader {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+		Map<String, OntologyElementMap> ontologyElementMaps = null;
+		Map<String, TripleTypeSets> ontologyTripleTypeSets = null;
 		if (files.isEmpty()) {
 			System.out.println("No files found matching the pattern.");
 		} else {
-			ontologyElementMaps = parseOntologyElements(files);
-			ontologyTripleTypeSets = parseOntologyTriples(files);
+			try {
+				ontologyElementMaps = parseOntologyElements(files);
+				ontologyTripleTypeSets = parseOntologyTriples(files);
+			} catch (URISyntaxException e) {
+				throw new RuntimeException(e);
+			}
 		}
+
+		// Connect to a local ArangoDB server instance
+		ArangoDbUtilities arangoDbUtilities = new ArangoDbUtilities();
 		String databaseName;
 		if (args.length > 1) {
 			databaseName = args[1];
 		} else {
 			databaseName = "Cell-KN-v2.0";
 		}
+
+		// Always recreate the database
 		arangoDbUtilities.deleteDatabase(databaseName);
 		ArangoDatabase db = arangoDbUtilities.createOrGetDatabase(databaseName);
+
+		// Always recreate the graph
 		String graphName;
 		if (args.length > 2) {
 			graphName = args[2];
@@ -375,10 +423,27 @@ public class OntologyTripleLoader {
 		}
 		arangoDbUtilities.deleteGraph(db, graphName);
 		ArangoGraph graph = arangoDbUtilities.createOrGetGraph(db, graphName);
-		constructVertices(files, graph);
-		updateVertices(files);
-		insertVertices();
-		constructEdges(files, graph);
-		insertEdges();
+
+		// Create, update, and insert the vertices
+		Map<String, ArangoVertexCollection> vertexCollections = new HashMap<>();
+		Map<String, Map<String, BaseDocument>> vertexDocuments = new HashMap<>();
+		constructVertices(files, ontologyTripleTypeSets, arangoDbUtilities, graph, vertexCollections, vertexDocuments);
+		try {
+			updateVertices(files, ontologyElementMaps, ontologyTripleTypeSets, vertexDocuments);
+		} catch (URISyntaxException e) {
+			throw new RuntimeException(e);
+		}
+		insertVertices(vertexCollections, vertexDocuments);
+
+		// Create, and insert the edges
+		Map<String, ArangoEdgeCollection> edgeCollections = new HashMap<>();
+		Map<String, Map<String, BaseEdgeDocument>> edgeDocuments = new HashMap<>();
+		try {
+			constructEdges(files, ontologyElementMaps, ontologyTripleTypeSets, arangoDbUtilities, graph,
+					edgeCollections, edgeDocuments);
+		} catch (URISyntaxException e) {
+			throw new RuntimeException(e);
+		}
+		insertEdges(edgeCollections, edgeDocuments);
 	}
 }
