@@ -402,7 +402,7 @@ public class OntologyTripleLoader {
 		if (args.length > 1) {
 			databaseName = args[1];
 		} else {
-			databaseName = "Cell-KN-v2.0";
+			databaseName = "Cell-KN";
 		}
 
 		// Always recreate the database
@@ -414,7 +414,7 @@ public class OntologyTripleLoader {
 		if (args.length > 2) {
 			graphName = args[2];
 		} else {
-			graphName = "Combined";
+			graphName = "KN-v2.0";
 		}
 		arangoDbUtilities.deleteGraph(db, graphName);
 		ArangoGraph graph = arangoDbUtilities.createOrGetGraph(db, graphName);
