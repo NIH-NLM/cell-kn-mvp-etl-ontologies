@@ -2,6 +2,7 @@ package gov.nih.nlm;
 
 import static gov.nih.nlm.OntologyElementParser.createURI;
 import static gov.nih.nlm.OntologyElementParser.parseOntologyElements;
+import static gov.nih.nlm.OntologyTripleParser.collectUniqueSOFNodeTriples;
 import static gov.nih.nlm.OntologyTripleParser.parseOntologyTriples;
 import static gov.nih.nlm.PathUtilities.listFilesMatchingPattern;
 
@@ -10,6 +11,8 @@ import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
@@ -35,6 +38,8 @@ public class OntologyTripleLoader {
 	private static final ArrayList<String> validVertices = new ArrayList<>(
 			Arrays.asList("CHEBI", "CL", "ENSG", "GO", "HsapDv", "MONDO", "MmusDv", "NCBITaxon", "PATO", "PCL", "PCLCS",
 					"PR", "UBERON", "BMC", "CHEMBL", "CS", "CSD", "DS", "GS", "PUB", "SO"));
+
+	private static final Pattern parenPattern = Pattern.compile("(.*) (\\(.*\\))$");
 
 	// Define a record describing a vertex
 	public record VTuple(String term, String id, String number, Boolean isValidVertex) {
@@ -90,8 +95,8 @@ public class OntologyTripleLoader {
 	 */
 	public static String parsePredicate(Map<String, OntologyElementMap> ontologyElementMaps, Node p)
 			throws RuntimeException {
-		String label = null;
-		if (p.isURI()) { // Always true for predicates
+		String label;
+		if (p.isURI()) {
 			label = createURI(p.getURI()).getFragment();
 			if (label == null) {
 				label = createURI(p.getURI()).getPath();
@@ -102,6 +107,8 @@ public class OntologyTripleLoader {
 					}
 				}
 			}
+		} else {
+			throw new RuntimeException("Unexpected predicate " + p);
 		}
 		return label;
 	}
@@ -111,65 +118,55 @@ public class OntologyTripleLoader {
 	 * contain a filled subject and object which contain an ontology ID contained in
 	 * the valid vertices collection.
 	 *
-	 * @param files                  Paths to ontology files
-	 * @param ontologyTripleTypeSets Triple sets sorted by the types of nodes the
-	 *                               triples contain
-	 * @param arangoDbUtilities      Utilities for accessing ArangoDB
-	 * @param graph                  ArangoDB graph in which to create vertex
-	 *                               collections
-	 * @param vertexCollections      ArangoDB vertex collections
-	 * @param vertexDocuments        ArangoDB vertex documents
+	 * @param uniqueTriples     Unique triples with which to construct vertices
+	 * @param arangoDbUtilities Utilities for accessing ArangoDB
+	 * @param graph             ArangoDB graph in which to create vertex collections
+	 * @param vertexCollections ArangoDB vertex collections
+	 * @param vertexDocuments   ArangoDB vertex documents
 	 */
-	public static void constructVertices(List<Path> files, Map<String, TripleTypeSets> ontologyTripleTypeSets,
-			ArangoDbUtilities arangoDbUtilities, ArangoGraph graph,
-			Map<String, ArangoVertexCollection> vertexCollections,
+	public static void constructVertices(HashSet<Triple> uniqueTriples, ArangoDbUtilities arangoDbUtilities,
+			ArangoGraph graph, Map<String, ArangoVertexCollection> vertexCollections,
 			Map<String, Map<String, BaseDocument>> vertexDocuments) {
 
 		// Collect vertex keys for each vertex collection to prevent constructing
 		// duplicate vertices in the vertex collection
 		Map<String, Set<String>> vertexKeys = new HashMap<>();
 
-		// Process triples parsed from each file
-		for (Path file : files) {
-			long startTime = System.nanoTime();
-			String oboFNm = file.getFileName().toString();
-			if (oboFNm.equals("ro.owl"))
-				continue;
-			List<Triple> triples = ontologyTripleTypeSets
-					.get(oboFNm.substring(0, oboFNm.lastIndexOf("."))).soFNodeTriples;
-			System.out.println("Constructing vertices using " + triples.size() + " triples from " + oboFNm);
-			int nVertices = 0;
-			for (Triple triple : triples) {
+		// Process triples
+		long startTime = System.nanoTime();
+		System.out.println("Constructing vertices using " + uniqueTriples.size() + " triples");
+		int nVertices = 0;
+		for (Triple triple : uniqueTriples) {
 
-				// Consider the subject and object nodes
-				ArrayList<Node> nodes = new ArrayList<>(Arrays.asList(triple.getSubject(), triple.getObject()));
-				for (Node n : nodes) {
-					// Construct a vertex from the current node, if it contains a valid id
-					VTuple vtuple = createVTuple(n);
-					if (vtuple.isValidVertex) {
+			// Consider the subject and object nodes
+			ArrayList<Node> nodes = new ArrayList<>(Arrays.asList(triple.getSubject(), triple.getObject()));
+			for (Node n : nodes) {
 
-						// Create a vertex collection, if needed
-						if (!vertexCollections.containsKey(vtuple.id)) {
-							vertexCollections.put(vtuple.id,
-									arangoDbUtilities.createOrGetVertexCollection(graph, vtuple.id));
-							vertexDocuments.put(vtuple.id, new HashMap<>());
-							vertexKeys.put(vtuple.id, new HashSet<>());
-						}
+				// Construct a vertex from the current node, if it contains a valid id
+				VTuple vtuple = createVTuple(n);
+				if (vtuple.isValidVertex) {
 
-						// Construct the vertex, if needed
-						if (!vertexKeys.get(vtuple.id).contains(vtuple.number)) {
-							nVertices++;
-							BaseDocument doc = new BaseDocument(vtuple.number);
-							vertexDocuments.get(vtuple.id).put(vtuple.number, doc);
-							vertexKeys.get(vtuple.id).add(vtuple.number);
-						}
+					// Create a vertex collection, if needed
+					if (!vertexCollections.containsKey(vtuple.id)) {
+						vertexCollections.put(vtuple.id,
+								arangoDbUtilities.createOrGetVertexCollection(graph, vtuple.id));
+						vertexDocuments.put(vtuple.id, new HashMap<>());
+						vertexKeys.put(vtuple.id, new HashSet<>());
+					}
+
+					// Construct the vertex, if needed
+					if (!vertexKeys.get(vtuple.id).contains(vtuple.number)) {
+						nVertices++;
+						BaseDocument doc = new BaseDocument(vtuple.number);
+						vertexDocuments.get(vtuple.id).put(vtuple.number, doc);
+						vertexKeys.get(vtuple.id).add(vtuple.number);
 					}
 				}
 			}
-			long stopTime = System.nanoTime();
-			System.out.println("Constructed " + nVertices + " vertices from " + oboFNm + " in "
-					+ (stopTime - startTime) / 1e9 + " s");
 		}
+		long stopTime = System.nanoTime();
+		System.out.println("Constructed " + nVertices + " vertices using " + uniqueTriples.size() + " triples in "
+				+ (stopTime - startTime) / 1e9 + " s");
 	}
 
 	/**
@@ -177,61 +174,78 @@ public class OntologyTripleLoader {
 	 * contain a filled subject which contains an ontology ID contained in the valid
 	 * vertices collection, and a filled object literal.
 	 *
-	 * @param files                  Paths to ontology files
-	 * @param ontologyElementMaps    Maps terms and labels
-	 * @param ontologyTripleTypeSets Triple sets sorted by the types of nodes the
-	 *                               triples contain
-	 * @param vertexDocuments        ArangoDB vertex documents
+	 * @param uniqueTriples       Unique triples with which to construct vertices
+	 * @param ontologyElementMaps Maps terms and labels
+	 * @param vertexDocuments     ArangoDB vertex documents
 	 */
-	public static void updateVertices(List<Path> files, Map<String, OntologyElementMap> ontologyElementMaps,
-			Map<String, TripleTypeSets> ontologyTripleTypeSets, Map<String, Map<String, BaseDocument>> vertexDocuments)
+	public static void updateVertices(HashSet<Triple> uniqueTriples,
+			Map<String, OntologyElementMap> ontologyElementMaps, Map<String, Map<String, BaseDocument>> vertexDocuments)
 			throws RuntimeException {
 
-		// Process triples parsed from each file
-		for (Path file : files) {
-			long startTime = System.nanoTime();
-			String oboFNm = file.getFileName().toString();
-			if (oboFNm.equals("ro.owl"))
+		// Process triples
+		long startTime = System.nanoTime();
+		System.out.println("Updating vertices using " + uniqueTriples.size() + " triples");
+		Set<String> updatedVertices = new HashSet<>(); // For counting only
+		for (Triple triple : uniqueTriples) {
+
+			// Ensure the object contains a literal
+			Node o = triple.getObject();
+			if (!o.isLiteral()) {
 				continue;
-			List<Triple> triples = ontologyTripleTypeSets
-					.get(oboFNm.substring(0, oboFNm.lastIndexOf("."))).soFNodeTriples;
-			System.out.println("Updating vertices using " + triples.size() + " triples from " + oboFNm);
-			Set<String> updatedVertices = new HashSet<>(); // For counting only
-			for (Triple triple : triples) {
+			}
 
-				// Ensure the object contains a literal
-				Node o = triple.getObject();
-				if (!o.isLiteral()) {
-					continue;
-				}
+			// Ensure the subject contains a valid ontology ID
+			VTuple vtuple = createVTuple(triple.getSubject());
+			if (vtuple.isValidVertex) {
 
-				// Ensure the subject contains a valid ontology ID
-				VTuple vtuple = createVTuple(triple.getSubject());
-				if (vtuple.isValidVertex) {
+				// Parse the predicate
+				String attribute = parsePredicate(ontologyElementMaps, triple.getPredicate());
 
-					// Parse the predicate
-					String attribute = parsePredicate(ontologyElementMaps, triple.getPredicate());
+				// Parse the object
+				String literal = o.getLiteralValue().toString();
 
-					// Parse the object
-					String literal = o.getLiteralValue().toString();
+				// Get the vertex to update
+				updatedVertices.add(vtuple.id + "-" + vtuple.number);
+				BaseDocument doc = vertexDocuments.get(vtuple.id).get(vtuple.number);
 
-					// Update the corresponding vertex
-					updatedVertices.add(vtuple.id + "-" + vtuple.number);
-					BaseDocument doc = vertexDocuments.get(vtuple.id).get(vtuple.number);
-					Set<String> literals;
-					if (doc.getAttribute(attribute) == null) {
-						literals = new HashSet<>();
-						doc.addAttribute(attribute, literals);
-					} else {
-						literals = (HashSet<String>) doc.getAttribute(attribute);
+				// Handle each attribute as a set of literal values
+				Matcher parenMatcher;
+				HashSet<String> literals;
+				HashSet<String> strippedLiterals = new HashSet<>();
+				if (doc.getAttribute(attribute) == null) {
+					// Initialize the set of literal values
+					literals = new HashSet<>();
+					doc.addAttribute(attribute, literals);
+				} else {
+					// Get the set of literal values
+					literals = (HashSet<String>) doc.getAttribute(attribute);
+
+					// Create a set of literal values stripped of ending parentheticals
+					for (String l : literals) {
+						parenMatcher = parenPattern.matcher(l);
+						if (parenMatcher.matches()) {
+							strippedLiterals.add(parenMatcher.group(1));
+						} else {
+							strippedLiterals.add(l);
+						}
 					}
+				}
+				// Remove a literal value in the set if it equals the current literal value
+				// stripped of an ending parenthetical
+				parenMatcher = parenPattern.matcher(literal);
+				if (parenMatcher.matches()) {
+					literals.remove(parenMatcher.group(1));
+				}
+				// Only add the current literal value if it is not in the set of literal values
+				// tripped of ending parentheticals
+				if (!strippedLiterals.contains(literal)) {
 					literals.add(literal);
 				}
 			}
-			long stopTime = System.nanoTime();
-			System.out.println("Updated " + updatedVertices.size() + " vertices from " + oboFNm + " in "
-					+ (stopTime - startTime) / 1e9 + " s");
 		}
+		long stopTime = System.nanoTime();
+		System.out.println("Updated " + updatedVertices.size() + " vertices using " + uniqueTriples.size()
+				+ " triples in " + (stopTime - startTime) / 1e9 + " s");
 	}
 
 	/**
@@ -277,11 +291,15 @@ public class OntologyTripleLoader {
 	 * contain a filled subject and object which contain an ontology ID contained in
 	 * the valid vertices collection.
 	 *
-	 * @param files Paths to ontology files
-	 * @param graph ArangoDB graph in which to create vertex collections
+	 * @param uniqueTriples       Unique triples with which to construct vertices
+	 * @param ontologyElementMaps Maps terms and labels
+	 * @param graph               ArangoDB graph in which to create vertex
+	 *                            collections
+	 * @param edgeCollections     ArangoDB edge collections
+	 * @param edgeDocuments       ArangoDB edge documents
 	 */
-	public static void constructEdges(List<Path> files, Map<String, OntologyElementMap> ontologyElementMaps,
-			Map<String, TripleTypeSets> ontologyTripleTypeSets, ArangoDbUtilities arangoDbUtilities, ArangoGraph graph,
+	public static void constructEdges(HashSet<Triple> uniqueTriples,
+			Map<String, OntologyElementMap> ontologyElementMaps, ArangoDbUtilities arangoDbUtilities, ArangoGraph graph,
 			Map<String, ArangoEdgeCollection> edgeCollections, Map<String, Map<String, BaseEdgeDocument>> edgeDocuments)
 			throws RuntimeException {
 
@@ -289,55 +307,48 @@ public class OntologyTripleLoader {
 		// edges in the edge collection
 		Map<String, Set<String>> edgeKeys = new HashMap<>();
 
-		// Process triples parsed from each file
-		for (Path file : files) {
-			long startTime = System.nanoTime();
-			String oboFNm = file.getFileName().toString();
-			if (oboFNm.equals("ro.owl"))
+		// Process triples
+		long startTime = System.nanoTime();
+		System.out.println("Constructing edges using " + uniqueTriples.size() + " triples");
+		int nEdges = 0;
+		for (Triple triple : uniqueTriples) {
+
+			// Ensure the subject contains a valid ontology ID
+			VTuple subjectVTuple = createVTuple(triple.getSubject());
+			if (!subjectVTuple.isValidVertex)
 				continue;
-			List<Triple> triples = ontologyTripleTypeSets
-					.get(oboFNm.substring(0, oboFNm.lastIndexOf("."))).soFNodeTriples;
-			System.out.println("Constructing edges using " + triples.size() + " triples from " + oboFNm);
-			int nEdges = 0;
-			for (Triple triple : triples) {
 
-				// Ensure the subject contains a valid ontology ID
-				VTuple s_vtuple = createVTuple(triple.getSubject());
-				if (!s_vtuple.isValidVertex)
-					continue;
+			// Ensure the object contains a valid ontology ID
+			VTuple objectVTuple = createVTuple(triple.getObject());
+			if (!objectVTuple.isValidVertex)
+				continue;
 
-				// Ensure the object contains a valid ontology ID
-				VTuple o_vtuple = createVTuple(triple.getObject());
-				if (!o_vtuple.isValidVertex)
-					continue;
+			// Parse the predicate
+			String label = parsePredicate(ontologyElementMaps, triple.getPredicate());
 
-				// Parse the predicate
-				String label = parsePredicate(ontologyElementMaps, triple.getPredicate());
-
-				// Create an edge collection, if needed
-				String idPair = s_vtuple.id + "-" + o_vtuple.id;
-				if (!edgeCollections.containsKey(idPair)) {
-					edgeCollections.put(idPair,
-							arangoDbUtilities.createOrGetEdgeCollection(graph, s_vtuple.id, o_vtuple.id));
-					edgeDocuments.put(idPair, new HashMap<>());
-					edgeKeys.put(idPair, new HashSet<>());
-				}
-
-				// Construct the edge, if needed
-				String key = s_vtuple.number + "-" + o_vtuple.number;
-				if (!edgeKeys.get(idPair).contains(key)) {
-					nEdges++;
-					BaseEdgeDocument doc = new BaseEdgeDocument(key, s_vtuple.id + "/" + s_vtuple.number,
-							o_vtuple.id + "/" + o_vtuple.number);
-					doc.addAttribute("label", label);
-					edgeDocuments.get(idPair).put(key, doc);
-					edgeKeys.get(idPair).add(key);
-				}
+			// Create an edge collection, if needed
+			String idPair = subjectVTuple.id + "-" + objectVTuple.id;
+			if (!edgeCollections.containsKey(idPair)) {
+				edgeCollections.put(idPair,
+						arangoDbUtilities.createOrGetEdgeCollection(graph, subjectVTuple.id, objectVTuple.id));
+				edgeDocuments.put(idPair, new HashMap<>());
+				edgeKeys.put(idPair, new HashSet<>());
 			}
-			long stopTime = System.nanoTime();
-			System.out.println(
-					"Constructed " + nEdges + " edges from " + oboFNm + " in " + (stopTime - startTime) / 1e9 + " s");
+
+			// Construct the edge, if needed
+			String key = subjectVTuple.number + "-" + objectVTuple.number;
+			if (!edgeKeys.get(idPair).contains(key)) {
+				nEdges++;
+				BaseEdgeDocument doc = new BaseEdgeDocument(key, subjectVTuple.id + "/" + subjectVTuple.number,
+						objectVTuple.id + "/" + objectVTuple.number);
+				doc.addAttribute("label", label);
+				edgeDocuments.get(idPair).put(key, doc);
+				edgeKeys.get(idPair).add(key);
+			}
 		}
+		long stopTime = System.nanoTime();
+		System.out.println("Constructed " + nEdges + " edges from " + uniqueTriples.size() + " triples in "
+				+ (stopTime - startTime) / 1e9 + " s");
 	}
 
 	/**
@@ -374,27 +385,30 @@ public class OntologyTripleLoader {
 	 * @param args (None expected)
 	 */
 	public static void main(String[] args) {
-		String directoryPath;
+
+		// List ontology files
+		String oboPath;
 		if (args.length > 0) {
-			directoryPath = args[0];
+			oboPath = args[0];
 		} else {
-			directoryPath = oboDir.toString();
+			oboPath = oboDir.toString();
 		}
-		String filePattern = ".*\\.owl";
-		List<Path> files;
+		String oboPattern = ".*\\.owl";
+		List<Path> oboFiles;
 		try {
-			files = listFilesMatchingPattern(directoryPath, filePattern);
+			oboFiles = listFilesMatchingPattern(oboPath, oboPattern);
+			if (oboFiles.isEmpty()) {
+				System.out.println("No OBO files found matching the pattern " + oboPattern);
+				System.exit(1);
+			}
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-		Map<String, OntologyElementMap> ontologyElementMaps = null;
-		Map<String, TripleTypeSets> ontologyTripleTypeSets = null;
-		if (files.isEmpty()) {
-			System.out.println("No files found matching the pattern.");
-		} else {
-			ontologyElementMaps = parseOntologyElements(files);
-			ontologyTripleTypeSets = parseOntologyTriples(files);
-		}
+
+		// Parse ontology elements and triples, and connect unique triples
+		Map<String, OntologyElementMap> ontologyElementMaps = parseOntologyElements(oboFiles);
+		Map<String, TripleTypeSets> ontologyTripleTypeSets = parseOntologyTriples(oboFiles, ontologyElementMaps);
+		HashSet<Triple> uniqueTriples = collectUniqueSOFNodeTriples(oboFiles, ontologyTripleTypeSets);
 
 		// Connect to a local ArangoDB server instance
 		ArangoDbUtilities arangoDbUtilities = new ArangoDbUtilities();
@@ -422,9 +436,9 @@ public class OntologyTripleLoader {
 		// Create, update, and insert the vertices
 		Map<String, ArangoVertexCollection> vertexCollections = new HashMap<>();
 		Map<String, Map<String, BaseDocument>> vertexDocuments = new HashMap<>();
-		constructVertices(files, ontologyTripleTypeSets, arangoDbUtilities, graph, vertexCollections, vertexDocuments);
+		constructVertices(uniqueTriples, arangoDbUtilities, graph, vertexCollections, vertexDocuments);
 		try {
-			updateVertices(files, ontologyElementMaps, ontologyTripleTypeSets, vertexDocuments);
+			updateVertices(uniqueTriples, ontologyElementMaps, vertexDocuments);
 		} catch (RuntimeException e) {
 			throw new RuntimeException(e);
 		}
@@ -434,8 +448,8 @@ public class OntologyTripleLoader {
 		Map<String, ArangoEdgeCollection> edgeCollections = new HashMap<>();
 		Map<String, Map<String, BaseEdgeDocument>> edgeDocuments = new HashMap<>();
 		try {
-			constructEdges(files, ontologyElementMaps, ontologyTripleTypeSets, arangoDbUtilities, graph,
-					edgeCollections, edgeDocuments);
+			constructEdges(uniqueTriples, ontologyElementMaps, arangoDbUtilities, graph, edgeCollections,
+					edgeDocuments);
 		} catch (RuntimeException e) {
 			throw new RuntimeException(e);
 		}

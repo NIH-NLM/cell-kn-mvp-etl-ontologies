@@ -36,13 +36,13 @@ public class OntologyElementParser {
 	private static final Path oboDir = usrDir.resolve("data/obo");
 
 	// Assign pattern for matching to required elements
-	private static final Pattern p_owl = Pattern.compile("^owl:");
+	private static final Pattern owlPattern = Pattern.compile("^owl:");
 
 	// Assign pattern for matching to pcl/CS terms
-	private static final Pattern p_pcl = Pattern.compile("/pcl/CS");
+	private static final Pattern pclPattern = Pattern.compile("/pcl/CS");
 
 	// Assign pattern for matching to ensembl/ENSG terms
-	private static final Pattern p_ensembl = Pattern.compile("/ensembl/ENSG");
+	private static final Pattern ensemblPattern = Pattern.compile("/ensembl/ENSG");
 
 	/**
 	 * Parse the specified file, and normalize.
@@ -76,13 +76,13 @@ public class OntologyElementParser {
 	 * @return URI created
 	 */
 	public static URI createURI(String uri) throws RuntimeException {
-		Matcher m_pcl = p_pcl.matcher(uri);
-		if (m_pcl.find()) {
-			return URI.create(m_pcl.replaceFirst("/PCLCS_"));
+		Matcher pclMatcher = pclPattern.matcher(uri);
+		if (pclMatcher.find()) {
+			return URI.create(pclMatcher.replaceFirst("/PCLCS_"));
 		}
-		Matcher m_ensembl = p_ensembl.matcher(uri);
-		if (m_ensembl.find()) {
-			return URI.create(m_ensembl.replaceFirst("/ENSG_"));
+		Matcher ensembleMatcher = ensemblPattern.matcher(uri);
+		if (ensembleMatcher.find()) {
+			return URI.create(ensembleMatcher.replaceFirst("/ENSG_"));
 		}
 		return URI.create(uri);
 	}
@@ -101,7 +101,7 @@ public class OntologyElementParser {
 			Element element = (Element) node;
 
 			// Consider elements with tags in the "owl" namespace
-			if (p_owl.matcher(element.getTagName()).find()) {
+			if (owlPattern.matcher(element.getTagName()).find()) {
 
 				// Consider elements with a non-empty "about" attribute
 				String about = element.getAttribute("rdf:about");
