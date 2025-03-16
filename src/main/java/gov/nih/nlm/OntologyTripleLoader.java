@@ -237,7 +237,7 @@ public class OntologyTripleLoader {
 					literals.remove(parenMatcher.group(1));
 				}
 				// Only add the current literal value if it is not in the set of literal values
-				// tripped of ending parentheticals
+				// stripped of ending parentheticals
 				if (!strippedLiterals.contains(literal)) {
 					literals.add(literal);
 				}
