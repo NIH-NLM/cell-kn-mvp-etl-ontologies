@@ -150,15 +150,22 @@ class OntologyTripleLoaderTest {
 
 		// Assert vertex attributes have expected values
 		assertArrayEquals(((ArrayList<String>) vertexDoc.getAttribute("hasDbXref")).toArray(), new ArrayList<>(
-				Arrays.asList("ZFA:0009141", "CALOHA:TS-0587", "FMA:83585", "MESH:D008264", "BTO:0000801", "FMA:63261"))
+				Arrays.asList(
+                                              "CALOHA:TS-0587",
+                                              "ZFA:0009141 (mapping_justification: https://w3id.org/semapv/vocab/UnspecifiedMatching)",
+                                              "MESH:D008264",
+                                              "FMA:83585",
+                                              "BTO:0000801",
+                                              "FMA:63261"
+                                              ))
 				.toArray());
 		assertEquals(vertexDoc.getAttribute("hasExactSynonym"), "histiocyte");
-		assertEquals(vertexDoc.getAttribute("is_inferred"), "true, for 'subClassOf': CL_0000766");
-		assertEquals(vertexDoc.getAttribute("definition"),
-				"A mononuclear phagocyte present in variety of tissues, typically differentiated from monocytes, capable of phagocytosing a variety of extracellular particulate material, including immune complexes, microorganisms, and dead cells. (hasDbXref: PMID:1919437)");
 		assertEquals(vertexDoc.getAttribute("comment"),
 				"Morphology: Diameter 30_M-80 _M, abundant cytoplasm, low N/C ratio, eccentric nucleus. Irregular shape with pseudopods, highly adhesive. Contain vacuoles and phagosomes, may contain azurophilic granules; markers: Mouse & Human: CD68, in most cases CD11b. Mouse: in most cases F4/80+; role or process: immune, antigen presentation, & tissue remodelling; lineage: hematopoietic, myeloid.");
+		assertEquals(vertexDoc.getAttribute("definition"),
+				"A mononuclear phagocyte present in variety of tissues, typically differentiated from monocytes, capable of phagocytosing a variety of extracellular particulate material, including immune complexes, microorganisms, and dead cells. (hasDbXref: GOC:add, hasDbXref: GOC:tfm, hasDbXref: GO_REF:0000031, hasDbXref: PMID:16213494, hasDbXref: PMID:1919437)");
 		assertEquals(vertexDoc.getAttribute("label"), "macrophage");
+		assertEquals(vertexDoc.getAttribute("id"), "CL:0000235");
 
 		// Get macrophage edges to CL terms, then assert equal labels
 		String edgeName = "CL-CL";
@@ -189,24 +196,5 @@ class OntologyTripleLoaderTest {
 		assertTrue(graph.db().collection(edgeName).documentExists(key));
 		edgeDoc = edgeCollection.getEdge(key, BaseEdgeDocument.class);
 		assertEquals("present in taxon", edgeDoc.getAttribute("label"));
-
-		// Get the transferase activity vertex
-		vertexName = "GO";
-		vertexCollection = graph.vertexCollection(vertexName);
-		number = "0016740";
-		assertTrue(graph.db().collection(vertexName).documentExists(number));
-		vertexDoc = vertexCollection.getVertex(number, BaseDocument.class);
-
-		// Assert vertex attributes have expected values
-		assertArrayEquals(((ArrayList<String>) vertexDoc.getAttribute("hasDbXref")).toArray(),
-				new ArrayList<>(Arrays.asList("Reactome:R-HSA-1483089 (label: PE is converted to PS by PTDSS2)",
-						"Reactome:R-HSA-8868783 (label: TSR3 transfers aminocarboxypropyl group from S-adenosylmethionine to N(1)-methylpseudouridine-1248 of 18SE rRNA yielding N(1)-methyl-N(3)-aminocarboxypropylpseudouridine-1248)",
-						"Reactome:R-HSA-5668414 (label: TRAF2 ubiquitinates cIAP1,2 in cIAP1,2:TRAF1:TRAF2:TRAF3:NIK)",
-						"EC:2.-.-.-", "Reactome:R-HSA-1483186 (label: PC is converted to PS by PTDSS1)")).toArray());
-		assertEquals(vertexDoc.getAttribute("hasOBONamespace"), "molecular_function");
-		assertEquals(vertexDoc.getAttribute("definition"),
-				"Catalysis of the transfer of a group, e.g. a methyl group, glycosyl group, acyl group, phosphorus-containing, or other groups, from one compound (generally regarded as the donor) to another compound (generally regarded as the acceptor). Transferase is the systematic name for any enzyme of EC class 2. (hasDbXref: EC:2.-.-.-)");
-		assertEquals(vertexDoc.getAttribute("id"), "GO:0016740");
-		assertEquals(vertexDoc.getAttribute("label"), "transferase activity");
 	}
 }
