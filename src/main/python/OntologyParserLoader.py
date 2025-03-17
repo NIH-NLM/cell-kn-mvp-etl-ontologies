@@ -25,19 +25,53 @@ OBO_PURLS = [
     "http://purl.obolibrary.org/obo/pato.owl",
     "http://purl.obolibrary.org/obo/mmusdv.owl",
     "http://purl.obolibrary.org/obo/hsapdv.owl",
+    "http://purl.obolibrary.org/obo/so.owl",
     # "https://raw.githubusercontent.com/kharchenkolab/cap_ontology/main/capo-base.owl",
     # "https://raw.githubusercontent.com/Cellular-Semantics/CellMark/refs/heads/main/clm-kg.owl",
+    # "http://purl.obolibrary.org/obo/chebi.owl",
+    # "http://purl.obolibrary.org/obo/pr.owl",
 ]
 
 OWL_NS = "{http://www.w3.org/2002/07/owl#}"
 RDF_NS = "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}"
 RDFS_NS = "{http://www.w3.org/2000/01/rdf-schema#}"
 
-URIREF_PATTERN = re.compile(r"/obo/([A-Za-z]*)_([A-Z0-9]*)")
-VALID_VERTICES = set(["UBERON", "CL", "GO", "NCBITaxon", "PR", "PATO", "CHEBI", "CLM"])
+URIREF_PATTERN = re.compile(r"/obo/([A-Za-z]*)_([A-Za-z0-9-+]*)")
+VALID_VERTICES = set(["CHEBI", "CL", "CLM", "GO", "MONDO", "NCBITaxon", "PATO", "PR", "UBERON"])
+SKIPPED_VERTICES = set()
 
 LOG_DIRPATH = Path("./log")
 LOG_DIRPATH.mkdir(exist_ok=True)
+
+
+def find_version(obo_filepath):
+    """Parse the ontology XML file to find its version.
+
+    Parameters
+    ----------
+    obo_filepath : Path
+        Path to ontology XML file
+
+    Returns
+    -------
+    version : str | float
+        Version guaranteed to sort
+    """
+    print(f"Parsing {obo_filepath}")
+    root = etree.parse(obo_filepath)
+    try:
+        version_info = root.find(f"{OWL_NS}Ontology/{OWL_NS}versionInfo")
+        version = datetime.strftime(
+            datetime.strptime(version_info.text, "%Y-%m-%d"), "%Y-%m-%d"
+        )
+    except Exception as e:
+        try:
+            version_iri = root.find(f"{OWL_NS}Ontology/{OWL_NS}versionIRI")
+            version = float(version_iri.get(f"{RDF_NS}resource").split("/")[5])
+        except Exception as e:
+            print(f"Could not get version for {obo_filepath}")
+            version = None
+    return version
 
 
 def update_ontologies():
@@ -65,23 +99,20 @@ def update_ontologies():
         with open(obo_filepath_new, "wb") as f:
             f.write(r.content)
 
-        print(f"Parsing {obo_filepath_new}")
-        root = etree.parse(obo_filepath_new)
-        version_new = root.find(f"{OWL_NS}Ontology/{OWL_NS}versionInfo").text
+        version_new = find_version(obo_filepath_new)
         print(f"Found new version {version_new}")
 
         obo_filepath_cur = OBO_DIRPATH / (obo_stem + obo_suffix)
         if obo_filepath_cur.exists():
-            print(f"Parsing {obo_filepath_cur}")
-            root = etree.parse(obo_filepath_cur)
-            version_cur = root.find(f"{OWL_NS}Ontology/{OWL_NS}versionInfo").text
+
+            version_cur = find_version(obo_filepath_cur)
             print(f"Found current version {version_cur}")
 
             if version_new > version_cur:
                 obo_filepath_old = (
                     OBO_DIRPATH
                     / ".archive"
-                    / (obo_stem + "-" + version_cur + obo_suffix)
+                    / (obo_stem + "-" + str(version_cur) + obo_suffix)
                 )
 
                 print(f"Renaming {obo_filepath_cur} to {obo_filepath_old}")
@@ -609,7 +640,8 @@ def create_or_get_vertex(vertex_collections, vertex_name, vertex_key, vertex_ter
         The ArangoDB vertex document
     """
     if vertex_name not in VALID_VERTICES:
-        print(f"Skipping invalid vertex name: {vertex_name}")
+        # print(f"Skipping invalid vertex name: {vertex_name}")
+        SKIPPED_VERTICES.add(vertex_name)
         return
 
     vertex = {}
@@ -874,7 +906,125 @@ def update_vertex_from_triple(vertex_collections, s, p, o, ro=None):
     return vertex
 
 
-def insert_vertices(adb_graph, vertex_collections):
+def update_edge_from_quadruple(
+    vertex_collections, edge_collections, from_v, to_v, p, o, ro=None
+):
+    """Update edge with annotation defined by the from and to
+    vertices, predicate, and object of a quadruple, creating Python
+    edge collections as needed.
+
+    Parameters
+    ----------
+    vertex_collections : dict
+        A dictionary with vertex name keys containing dictionaries
+        with vertex keys and documents
+    edge_collections : dict
+        A dictionary with edge name keys containing dictionaries with
+        edge keys and documents
+    from_v : rdflib.term.URIRef
+        From vertex
+    to_v : rdflib.term.URIRef
+        To vertex
+    p : rdflib.term.URIRef
+        Predicate of quadruple
+    o : rdflib.term.Literal
+        Object of quadruple
+    ro : None | dict
+        A dictionary mapping relationship ontology terms to labels
+
+    Returns
+    -------
+    edge : dict
+        The updated ArangoDB edge document
+    """
+
+    if not isinstance(o, Literal):
+        # print(f"Skipping non-literal object in quadruple: {(from, to, p, o)}")
+        return
+
+    from_oid, from_number, from_term, from_fragment, from_term_type = parse_term(
+        from_v, ro=ro
+    )
+
+    if from_term_type != "class":
+        print(f"Skipping invalid from vertex type in quadruple: {(from_v, to_v, p, o)}")
+        return
+
+    from_vertex_name = from_oid
+    from_vertex_key = from_number
+    from_vertex_term = from_term
+
+    from_vertex = create_or_get_vertex(
+        vertex_collections, from_vertex_name, from_vertex_key, from_vertex_term
+    )
+
+    if from_vertex is None:
+        # Message printed in previous function call
+        return
+
+    to_oid, to_number, to_term, to_fragment, to_term_type = parse_term(to_v, ro=ro)
+
+    if to_term_type != "class":
+        print(f"Skipping invalid to vertex type in quadruple: {(from_v, to_v, p, o)}")
+        return
+
+    to_vertex_name = to_oid
+    to_vertex_key = to_number
+    to_vertex_term = to_term
+
+    to_vertex = create_or_get_vertex(
+        vertex_collections, to_vertex_name, to_vertex_key, to_vertex_term
+    )
+
+    if to_vertex is None:
+        # Message printed in previous function call
+        return
+
+    edge_name = f"{from_vertex_name}-{to_vertex_name}"
+    edge_key = f"{from_vertex_key}-{to_vertex_key}"
+
+    if edge_name not in edge_collections or edge_key not in edge_collections[edge_name]:
+        print(f"Skipping invalid edge in quadruple: {(from_v, to_v, p, o)}")
+        return
+
+    else:
+        edge = edge_collections[edge_name][edge_key]
+
+    p_oid, p_number, p_term, p_fragment, p_term_type = parse_term(p, ro=ro)
+
+    if not (
+        p_term_type == "predicate"
+        or (p_term_type == "class" and p_fragment is not None)
+    ):
+        print(f"Skipping invalid predicate type in quadruple: {(from_v, to_v, p, o)}")
+        return
+
+    predicate = p_fragment
+
+    if isinstance(o.value, datetime):
+        # Convert datetime objects created by rdflib to strings
+        value = str(o.value)
+
+    else:
+        value = o.value
+
+    # Use the predicate as the key, and the object as the value in the
+    # edge document
+    if not predicate in edge:
+        edge[predicate] = value
+
+    else:
+        if not isinstance(edge[predicate], list):
+            edge[predicate] = [edge[predicate]]
+        if value not in edge[predicate]:
+            edge[predicate].append(value)
+
+    edge_collections[edge_name][edge_key] = edge
+
+    return edge
+
+
+def insert_vertices(adb_graph, vertex_collections, do_update=False):
     """Insert each vertex from each vertex collection, creating
     ArangoDB vertex collections as needed.
 
@@ -886,6 +1036,8 @@ def insert_vertices(adb_graph, vertex_collections):
     vertex_collections : dict
         A dictionary with vertex name keys containing dictionaries
         with vertex keys and documents
+    do_update : bool
+        Flag to update existing vertices, or not
 
     Returns
     -------
@@ -896,10 +1048,14 @@ def insert_vertices(adb_graph, vertex_collections):
         vertex_collection = adb.create_or_get_vertex_collection(adb_graph, vertex_name)
 
         for vertex_doc in vertex_docs.values():
-            vertex_collection.insert(vertex_doc)
+            if not vertex_collection.has(vertex_doc):
+                vertex_collection.insert(vertex_doc)
+            elif do_update:
+                vertex_collection.update(vertex_doc)
+            else:
+                print(f"Skipping vertex {vertex_doc}")
 
-
-def insert_edges(adb_graph, edge_collections):
+def insert_edges(adb_graph, edge_collections, do_update=False):
     """Insert each edge from each edge collection, creating
     ArangoDB edge collections as needed.
 
@@ -911,6 +1067,8 @@ def insert_edges(adb_graph, edge_collections):
     edge_collections : dict
         A dictionary with edge name keys containing dictionaries with
         edge keys and documents
+    do_update : bool
+        Flag to update existing edges, or not
 
     Returns
     -------
@@ -924,19 +1082,24 @@ def insert_edges(adb_graph, edge_collections):
         )[0]
 
         for edge_doc in edge_docs.values():
-            edge_collection.insert(edge_doc)
+            if not edge_collection.has(edge_doc):
+                edge_collection.insert(edge_doc)
+            elif do_update:
+                edge_collection.update(edge_doc)
+            else:
+                print(f"Skipping edge {edge_doc}")
 
 
-def load_triples_into_adb_graph(
-    triples, adb_graph, vertex_collections, edge_collections, ro=None
+def load_tuples_into_adb_graph(
+    tuples, adb_graph, vertex_collections, edge_collections, ro=None, do_update=False
 ):
-    """Uses each triple to add vertices, and edges to a graph,
-    additionally adding annotation to vertices.
+    """Uses each tuple to add vertices, and edges to a graph,
+    additionally adding annotation to vertices and edges.
 
     Parameters
     ----------
-    triples : list(tuple)
-        List of tuples which contain each triple
+    tuples : list(tuple)
+        List of tuples which contain each triple or quadruple
     adb_graph : arango.graph.Graph
         An ArangoDB graph instance
     vertex_collections : dict
@@ -947,32 +1110,51 @@ def load_triples_into_adb_graph(
         edge keys and documents
     ro : None | dict
         A dictionary mapping relationship ontology terms to labels
+    do_update : bool
+        Flag to update existing vertices and edges, or not
 
     Returns
     -------
     None
     """
-    for s, p, o in triples:
+    print("Creating vertices and edges")
+    for tuple in tuples:
+        if len(tuple) != 3:
+            continue
+        s, p, o = tuple
 
         create_or_get_vertices_from_triple(vertex_collections, s, p, o, ro=ro)
 
         create_or_get_edge_from_triple(
             vertex_collections, edge_collections, s, p, o, ro=ro
         )
+    print(f"Skipped vertices: {SKIPPED_VERTICES}")
 
-    for s, p, o in triples:
+    print("Updating vertices and edges")
+    for tuple in tuples:
+        if len(tuple) == 3:
+            s, p, o = tuple
 
-        update_vertex_from_triple(vertex_collections, s, p, o, ro=ro)
+            update_vertex_from_triple(vertex_collections, s, p, o, ro=ro)
 
-    insert_vertices(adb_graph, vertex_collections)
-    insert_edges(adb_graph, edge_collections)
+        elif len(tuple) == 4:
+            from_v, to_v, p, o = tuple
+
+            update_edge_from_quadruple(
+                vertex_collections, edge_collections, from_v, to_v, p, o, ro=ro
+            )
+
+    print("Inserting vertices and edges")
+    insert_vertices(adb_graph, vertex_collections, do_update=do_update)
+    insert_edges(adb_graph, edge_collections, do_update=do_update)
+
 
 
 def main(parameters=None):
     """Prototype an approach for loading the Cell Ontology into
     ArangoDB.
 
-    Provide a command line interface for loading a test, slim or full
+    Provide a command line interface for loading a test, or full
     version of the Cell Ontology.
 
     Note:
@@ -1007,16 +1189,10 @@ def main(parameters=None):
         default="",
         help="label to add to database_name",
     )
-    parser.add_argument(
-        "--include-bnodes", action="store_true", help="include BNodes when loading"
-    )
     group = parser.add_argument_group("Cell Ontology (CL)", "Version of the CL to load")
     exclusive_group = group.add_mutually_exclusive_group(required=True)
     exclusive_group.add_argument(
         "--test", action="store_true", help="load the test ontology"
-    )
-    exclusive_group.add_argument(
-        "--slim", action="store_true", help="load the slim ontology"
     )
     exclusive_group.add_argument(
         "--full", action="store_true", help="load the full ontology"
@@ -1029,26 +1205,14 @@ def main(parameters=None):
         args = parser.parse_args(remaining)
 
     if args.test:
-        cl_dirpath = Path("../../test/data/obo")
         cl_filename = "macrophage.owl"
-        db_name = "Cell-KN-v1.0"
+        db_name = "Cell-KN-v1.5"
         graph_name = "CL-Test"
 
-    if args.slim:
-        cl_dirpath = OBO_DIRPATH / ".archive"
-        cl_filename = "general_cell_types_upper_slim.owl"
-        db_name = "Cell-KN-v1.0"
-        graph_name = "CL-Slim"
-
     if args.full:
-        cl_dirpath = OBO_DIRPATH
         cl_filename = "cl.owl"
-        db_name = "Cell-KN-v1.0"
+        db_name = "Cell-KN-v1.5"
         graph_name = "CL-Full"
-
-    if args.include_bnodes:
-        db_name += "-bnodes"
-        graph_name += "-bnodes"
 
     if args.label:
         db_name += f"-{args.label}"
@@ -1056,12 +1220,12 @@ def main(parameters=None):
     ro_filename = "ro.owl"
     log_filename = f"{graph_name}.log"
 
-    print(f"Parsing {cl_dirpath / cl_filename} to populate rdflib graph")
+    print(f"Parsing {OBO_DIRPATH / cl_filename} to populate rdflib graph")
     rdf_graph = Graph()
-    rdf_graph.parse(cl_dirpath / cl_filename)
+    rdf_graph.parse(OBO_DIRPATH / cl_filename)
 
-    print(f"Parsing {cl_dirpath / cl_filename} to identify ids")
-    _, _, ids = parse_obo(cl_dirpath, cl_filename)
+    print(f"Parsing {OBO_DIRPATH / cl_filename} to identify ids")
+    _, _, ids = parse_obo(OBO_DIRPATH, cl_filename)
     print(ids)
 
     print("Counting triple types in rdflib graph")
@@ -1105,18 +1269,13 @@ def main(parameters=None):
     adb.delete_database(db_name)
     db = adb.create_or_get_database(db_name)
     adb_graph = adb.create_or_get_graph(db, graph_name)
-    if args.include_bnodes:
-        VALID_VERTICES.update(set(["BNode", "RO"]))
-        triples_to_populate = triples
-    else:
-        triples_to_populate = fnode_triples.copy()
-        triples_to_populate.extend(bnode_triples)
+    triples_to_populate = fnode_triples.copy()
+    triples_to_populate.extend(bnode_triples)
     vertex_collections = {}
     edge_collections = {}
-    load_triples_into_adb_graph(
+    load_tuples_into_adb_graph(
         triples_to_populate, adb_graph, vertex_collections, edge_collections, ro=ro
     )
-
 
 if __name__ == "__main__":
     main()

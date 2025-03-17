@@ -149,20 +149,23 @@ class OntologyTripleLoaderTest {
 		BaseDocument vertexDoc = vertexCollection.getVertex(number, BaseDocument.class);
 
 		// Assert vertex attributes have expected values
-		assertArrayEquals(((ArrayList<String>) vertexDoc.getAttribute("hasDbXref")).toArray(),
-				new ArrayList<>(
-						Arrays.asList("ZFA:0009141", "PMID:16213494", "GO_REF:0000031", "PMID:1919437", "GOC:add",
-								"CALOHA:TS-0587", "GOC:tfm", "FMA:83585", "MESH:D008264", "BTO:0000801", "FMA:63261"))
-						.toArray());
+		assertArrayEquals(((ArrayList<String>) vertexDoc.getAttribute("hasDbXref")).toArray(), new ArrayList<>(
+				Arrays.asList(
+                                              "CALOHA:TS-0587",
+                                              "ZFA:0009141 (mapping_justification: https://w3id.org/semapv/vocab/UnspecifiedMatching)",
+                                              "MESH:D008264",
+                                              "FMA:83585",
+                                              "BTO:0000801",
+                                              "FMA:63261"
+                                              ))
+				.toArray());
 		assertEquals(vertexDoc.getAttribute("hasExactSynonym"), "histiocyte");
-		assertEquals(vertexDoc.getAttribute("mapping_justification"),
-				"https://w3id.org/semapv/vocab/UnspecifiedMatching");
-		assertEquals(vertexDoc.getAttribute("definition"),
-				"A mononuclear phagocyte present in variety of tissues, typically differentiated from monocytes, capable of phagocytosing a variety of extracellular particulate material, including immune complexes, microorganisms, and dead cells.");
 		assertEquals(vertexDoc.getAttribute("comment"),
 				"Morphology: Diameter 30_M-80 _M, abundant cytoplasm, low N/C ratio, eccentric nucleus. Irregular shape with pseudopods, highly adhesive. Contain vacuoles and phagosomes, may contain azurophilic granules; markers: Mouse & Human: CD68, in most cases CD11b. Mouse: in most cases F4/80+; role or process: immune, antigen presentation, & tissue remodelling; lineage: hematopoietic, myeloid.");
-		assertEquals(vertexDoc.getAttribute("id"), "CL:0000235");
+		assertEquals(vertexDoc.getAttribute("definition"),
+				"A mononuclear phagocyte present in variety of tissues, typically differentiated from monocytes, capable of phagocytosing a variety of extracellular particulate material, including immune complexes, microorganisms, and dead cells. (hasDbXref: GOC:add, hasDbXref: GOC:tfm, hasDbXref: GO_REF:0000031, hasDbXref: PMID:16213494, hasDbXref: PMID:1919437)");
 		assertEquals(vertexDoc.getAttribute("label"), "macrophage");
+		assertEquals(vertexDoc.getAttribute("id"), "CL:0000235");
 
 		// Get macrophage edges to CL terms, then assert equal labels
 		String edgeName = "CL-CL";

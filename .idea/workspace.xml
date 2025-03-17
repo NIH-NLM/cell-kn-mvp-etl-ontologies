@@ -9,7 +9,7 @@
   <component name="ChangeListManager">
     <list default="true" id="ab62d87a-c49b-4988-979f-f2aad7db4669" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/gov/nih/nlm/OntologyTripleLoaderTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/gov/nih/nlm/OntologyTripleLoaderTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -19,8 +19,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Class" />
         <option value="JUnit5 Test Class" />
+        <option value="Class" />
       </list>
     </option>
   </component>
@@ -67,6 +67,9 @@
     "Application.OntologyNodeTypeCounter.executor": "Run",
     "Application.OntologyParser.executor": "Run",
     "Application.OntologyTripleLoader.executor": "Run",
+    "Application.OntologyTripleParser.executor": "Debug",
+    "Application.PatternPlayGround.executor": "Run",
+    "Application.PlayGround.executor": "Run",
     "JUnit.AppTest.executor": "Run",
     "JUnit.ArangoDbUtilitiesTest.createOrGetDatabase.executor": "Debug",
     "JUnit.ArangoDbUtilitiesTest.createOrGetEdgeCollection.executor": "Run",
@@ -76,7 +79,7 @@
     "JUnit.ArangoDbUtilitiesTest.deleteVertexCollection.executor": "Run",
     "JUnit.ArangoDbUtilitiesTest.executor": "Run",
     "JUnit.OntologyTripleLoaderTest.executor": "Run",
-    "JUnit.OntologyTripleLoaderTest.main.executor": "Run",
+    "JUnit.OntologyTripleLoaderTest.main.executor": "Debug",
     "Maven. [org.apache.maven.plugins:maven-archetype-plugin:RELEASE:generate].executor": "Run",
     "Maven.cell-kn-etl-ontologies [package].executor": "Run",
     "Maven.springbok-cell-kn-etl [clean].executor": "Run",
@@ -90,7 +93,7 @@
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary": "JUnit5",
     "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5": "",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "ralatsdc/update-list-of-ontologies",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "/Users/raymondleclair/Projects/NIH-NLM/Cell-KN/cell-kn-etl-ontologies",
     "node.js.detected.package.eslint": "true",
@@ -117,7 +120,7 @@
       <recent name="gov.nih.nlm" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.OntologyTripleLoader">
+  <component name="RunManager" selected="JUnit.OntologyTripleLoaderTest.main">
     <configuration name="OntologyTripleLoader" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="gov.nih.nlm.OntologyTripleLoader" />
       <module name="cell-kn-etl-ontologies" />
@@ -131,7 +134,8 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="ArangoDbUtilitiesTest.deleteEdgeCollection" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="OntologyTripleParser" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="gov.nih.nlm.OntologyTripleParser" />
       <module name="cell-kn-etl-ontologies" />
       <extension name="coverage">
         <pattern>
@@ -139,10 +143,32 @@
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
-      <option name="PACKAGE_NAME" value="gov.nih.nlm" />
-      <option name="MAIN_CLASS_NAME" value="gov.nih.nlm.ArangoDbUtilitiesTest" />
-      <option name="METHOD_NAME" value="deleteEdgeCollection" />
-      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="PatternPlayGround" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="gov.nih.nlm.PatternPlayGround" />
+      <module name="cell-kn-etl-ontologies" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="gov.nih.nlm.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="PlayGround" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="gov.nih.nlm.PlayGround" />
+      <module name="cell-kn-etl-ontologies" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="gov.nih.nlm.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -163,38 +189,20 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="OntologyParserLoader" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="cell-kn-etl-ontologies" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src/main/python" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/main/python/OntologyParserLoader.py" />
-      <option name="PARAMETERS" value="--full" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <list>
+      <item itemvalue="Application.PatternPlayGround" />
+      <item itemvalue="Application.OntologyTripleParser" />
+      <item itemvalue="Application.PlayGround" />
       <item itemvalue="Application.OntologyTripleLoader" />
-      <item itemvalue="JUnit.ArangoDbUtilitiesTest.deleteEdgeCollection" />
       <item itemvalue="JUnit.OntologyTripleLoaderTest.main" />
-      <item itemvalue="Python.OntologyParserLoader" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="JUnit.OntologyTripleLoaderTest.main" />
         <item itemvalue="Application.OntologyTripleLoader" />
+        <item itemvalue="Application.OntologyTripleParser" />
+        <item itemvalue="Application.PlayGround" />
+        <item itemvalue="Application.PatternPlayGround" />
       </list>
     </recent_temporary>
   </component>
@@ -232,6 +240,16 @@
       <workItem from="1740148677994" duration="366000" />
       <workItem from="1740149052068" duration="45000" />
       <workItem from="1740149101817" duration="21165000" />
+      <workItem from="1741114744824" duration="477000" />
+      <workItem from="1741115990009" duration="19304000" />
+      <workItem from="1741791904969" duration="865000" />
+      <workItem from="1741792929140" duration="278000" />
+      <workItem from="1741793222020" duration="19007000" />
+      <workItem from="1741971608874" duration="2796000" />
+      <workItem from="1741974419645" duration="33399000" />
+      <workItem from="1742129401415" duration="6748000" />
+      <workItem from="1742156382489" duration="7951000" />
+      <workItem from="1742219196908" duration="6562000" />
     </task>
     <servers />
   </component>
