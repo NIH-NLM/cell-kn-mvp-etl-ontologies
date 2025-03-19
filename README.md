@@ -10,9 +10,8 @@ the derived knowledge with knowledge about genes, pathways, diseases,
 and drugs from other NLM/NCBI resources, the knowledge will be derived
 in the form of semantically-structured assertions of
 subject-predicate-object triple statements which are compatible with
-storage using semantic web technologies, and graph databases.
-
-## Purpose
+storage using semantic web technologies, and graph databases, such as
+the [ArangoDB](https://arangodb.com/) database system.
 
 As one important semantic web technology, the [Web Ontology Language
 (OWL)](https://en.wikipedia.org/wiki/Web_Ontology_Language) provides a
@@ -26,22 +25,20 @@ and Biomedical Ontology Foundry](https://obofoundry.org/) provide
 comprehensive repositories of biomedical ontologies, many of which
 serve as a significant source of knowledge for the Cell KN.
 
-The [ArangoDB](https://arangodb.com/) database system supports three
-data models (graphs, JSON documents, and key/value pairs) within one
-database core, and provides a unified query language, AQL (ArangoDB
-Query Language). The NCBI Information Resources Branch has extensive
-experience with ArangoDB, including performance comparison testing
-with Neo4j, interaction with the ArangoDB developers, and use in
-production.
+The NCBI Information Resources Branch has extensive experience with
+ArangoDB, including performance comparison testing with Neo4j,
+interaction with the ArangoDB developers, and use in production.
 
-Therefore the `cell-kn-etl-ontology` repository provides Python and
-Java classes for parsing and loading ontologies into an ArangoDB
+## Purpose
+
+The `cell-kn-etl-ontology` repository provides Python modules and a
+Java package for parsing and loading ontologies into an ArangoDB
 instance.
 
 ## Ontologies
 
-Terms from the following ontologies have been selected for inclusion
-in the Cell KN:
+All terms from the following ontologies have been selected for loading
+into the Cell KN:
 
 - [CL](http://purl.obolibrary.org/obo/cl.owl): Cell Ontology provides
   a structured controlled vocabulary for cell types in animals
@@ -67,6 +64,18 @@ in the Cell KN:
   Developmental Stages describes life cycle stages for Mus Musculus
 - [HsapDv](http://purl.obolibrary.org/obo/hsapdv.owl): Human
   Developmental Stages describes life cycle stages for Humans
+
+Note that some terms from the following ontologies will also be loaded
+if the term is contained in one of the selected ontologies:
+
+- [CHEBI](http://purl.obolibrary.org/obo/chebi.owl): A structured
+  classification of molecular entities of biological interest focusing
+  on 'small' chemical compounds
+- [PR](http://purl.obolibrary.org/obo/pr.owl): An ontological
+  representation of protein-related entities
+
+Finally, identifiers from [CHEMBL](), a manually curated database of
+bioactive molecules with drug-like properties, will also appear.
 
 ## Dependencies
 
