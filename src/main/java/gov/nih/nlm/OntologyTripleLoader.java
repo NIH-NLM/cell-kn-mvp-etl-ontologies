@@ -35,9 +35,9 @@ public class OntologyTripleLoader {
 	public static final Path oboDir = usrDir.resolve("data/obo");
 
 	// Assign vertices to include in the graph
-	private static final ArrayList<String> validVertices = new ArrayList<>(
-			Arrays.asList("CHEBI", "CL", "ENSG", "GO", "HsapDv", "MONDO", "MmusDv", "NCBITaxon", "PATO", "PCL", "PCLCS",
-					"PR", "UBERON", "BMC", "CHEMBL", "CS", "CSD", "DS", "GS", "PUB", "SO"));
+	private static final ArrayList<String> validVertices = new ArrayList<>(Arrays.asList("BMC", "CHEBI", "CHEMBL", "CL",
+			"CS", "CSD", "DOID", "DS", "ENSG", "GO", "GS", "HP", "HsapDv", "MONDO", "MP", "MmusDv", "NCBITaxon", "NCT",
+			"Orphanet", "PATO", "PCL", "PCLCS", "PR", "PUB", "RS", "SO", "UBERON"));
 
 	private static final Pattern parenPattern = Pattern.compile("(.*) (\\(.*\\))$");
 
