@@ -28,7 +28,7 @@ import com.arangodb.entity.BaseEdgeDocument;
  * Loads triples parsed from each ontology file in the data/obo directory into a
  * local ArangoDB server instance.
  */
-public class OntologyTripleLoader {
+public class OntologyGraphBuilder {
 
 	// Assign location of ontology files
 	private static final Path usrDir = Paths.get(System.getProperty("user.dir"));
@@ -257,7 +257,7 @@ public class OntologyTripleLoader {
 	 */
 	public static void insertVertices(Map<String, ArangoVertexCollection> vertexCollections,
 			Map<String, Map<String, BaseDocument>> vertexDocuments) {
-		System.out.println("Insert vertices");
+		System.out.println("Inserting vertices");
 		long startTime = System.nanoTime();
 		int nVertices = 0;
 		for (String id : vertexDocuments.keySet()) {
@@ -416,7 +416,7 @@ public class OntologyTripleLoader {
 		if (args.length > 1) {
 			databaseName = args[1];
 		} else {
-			databaseName = "Cell-KN";
+			databaseName = "Cell-KN-Ontologies";
 		}
 
 		// Always recreate the database
@@ -428,7 +428,7 @@ public class OntologyTripleLoader {
 		if (args.length > 2) {
 			graphName = args[2];
 		} else {
-			graphName = "KN-v2.0";
+			graphName = "KN-Ontologies-v2.0";
 		}
 		arangoDbUtilities.deleteGraph(db, graphName);
 		ArangoGraph graph = arangoDbUtilities.createOrGetGraph(db, graphName);
