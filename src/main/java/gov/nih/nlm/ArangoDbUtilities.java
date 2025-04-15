@@ -117,7 +117,7 @@ public class ArangoDbUtilities {
 	 */
 	public ArangoVertexCollection createOrGetVertexCollection(ArangoGraph graph, String vertexName) {
 		// Create the vertex collection, if needed
-		if (!graph.db().collection(vertexName).exists()) {
+		if (!graph.getVertexCollections().contains(vertexName)) {
 			System.out.println("Creating vertex collection: " + vertexName);
 			graph.addVertexCollection(vertexName);
 		}
@@ -134,7 +134,7 @@ public class ArangoDbUtilities {
 	 */
 	public void deleteVertexCollection(ArangoGraph graph, String vertexName) {
 		// Delete the vertex collection, if needed
-		if (graph.db().collection(vertexName).exists()) {
+		if (graph.getVertexCollections().contains(vertexName)) {
 			System.out.println("Deleting vertex collection: " + vertexName);
 			VertexCollectionRemoveOptions options = new VertexCollectionRemoveOptions();
 			options.dropCollection(true);
@@ -156,7 +156,7 @@ public class ArangoDbUtilities {
 			String toVertexName) {
 		// Create edge collection, if needed
 		String collectionName = fromVertexName + "-" + toVertexName;
-		if (!graph.db().collection(collectionName).exists()) {
+		if (!graph.getEdgeDefinitions().contains(collectionName)) {
 			System.out.println("Creating edge collection: " + collectionName);
 			EdgeDefinition edgeDefinition = new EdgeDefinition().collection(collectionName).from(fromVertexName)
 					.to(toVertexName);
@@ -175,7 +175,7 @@ public class ArangoDbUtilities {
 	 */
 	public void deleteEdgeCollection(ArangoGraph graph, String edgeName) {
 		// Delete the edge collection, if needed
-		if (graph.db().collection(edgeName).exists()) {
+		if (graph.getEdgeDefinitions().contains(edgeName)) {
 			System.out.println("Deleting edge collection: " + edgeName);
 			EdgeCollectionRemoveOptions options = new EdgeCollectionRemoveOptions();
 			options.dropCollections(true);

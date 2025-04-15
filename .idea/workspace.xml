@@ -9,6 +9,11 @@
   <component name="ChangeListManager">
     <list default="true" id="ab62d87a-c49b-4988-979f-f2aad7db4669" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/ArangoDbUtilities.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/ArangoDbUtilities.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyTripleLoader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyGraphBuilder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyTripleParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyTripleParser.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/gov/nih/nlm/OntologyTripleLoaderTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/gov/nih/nlm/OntologyGraphBuilderTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -59,15 +64,18 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Application.App.executor": "Debug",
+    "Application.AqlQueryProcessor.executor": "Debug",
     "Application.ArangoDbUtilities.executor": "Run",
     "Application.NodeTypeCounter.executor": "Run",
-    "Application.OntologyElementParser.executor": "Debug",
+    "Application.OntologyElementParser.executor": "Run",
+    "Application.OntologyGraphBuilder.executor": "Run",
     "Application.OntologyLoader.executor": "Debug",
     "Application.OntologyNodeTypeCounter.executor": "Run",
     "Application.OntologyParser.executor": "Run",
     "Application.OntologyTripleLoader.executor": "Run",
     "Application.OntologyTripleParser.executor": "Debug",
     "Application.PatternPlayGround.executor": "Run",
+    "Application.PhenotypeGraphBuilder.executor": "Run",
     "Application.PlayGround.executor": "Run",
     "JUnit.AppTest.executor": "Run",
     "JUnit.ArangoDbUtilitiesTest.createOrGetDatabase.executor": "Debug",
@@ -119,9 +127,9 @@
       <recent name="gov.nih.nlm" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.OntologyTripleLoader">
-    <configuration name="OntologyTripleLoader" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="gov.nih.nlm.OntologyTripleLoader" />
+  <component name="RunManager" selected="Application.OntologyGraphBuilder">
+    <configuration name="OntologyGraphBuilder" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="gov.nih.nlm.OntologyGraphBuilder" />
       <module name="cell-kn-etl-ontologies" />
       <extension name="coverage">
         <pattern>
@@ -133,8 +141,8 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="OntologyTripleParser" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="gov.nih.nlm.OntologyTripleParser" />
+    <configuration name="PhenotypeGraphBuilder" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="gov.nih.nlm.PhenotypeGraphBuilder" />
       <module name="cell-kn-etl-ontologies" />
       <extension name="coverage">
         <pattern>
@@ -146,7 +154,7 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="OntologyTripleLoaderTest.main" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="OntologyGraphBuilderTest.main" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="cell-kn-etl-ontologies" />
       <extension name="coverage">
         <pattern>
@@ -155,7 +163,7 @@
         </pattern>
       </extension>
       <option name="PACKAGE_NAME" value="gov.nih.nlm" />
-      <option name="MAIN_CLASS_NAME" value="gov.nih.nlm.OntologyTripleLoaderTest" />
+      <option name="MAIN_CLASS_NAME" value="gov.nih.nlm.OntologyGraphBuilderTest" />
       <option name="METHOD_NAME" value="main" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
@@ -163,15 +171,15 @@
       </method>
     </configuration>
     <list>
-      <item itemvalue="Application.OntologyTripleParser" />
-      <item itemvalue="Application.OntologyTripleLoader" />
-      <item itemvalue="JUnit.OntologyTripleLoaderTest.main" />
+      <item itemvalue="Application.OntologyGraphBuilder" />
+      <item itemvalue="Application.PhenotypeGraphBuilder" />
+      <item itemvalue="JUnit.OntologyGraphBuilderTest.main" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Application.OntologyTripleLoader" />
-        <item itemvalue="JUnit.OntologyTripleLoaderTest.main" />
-        <item itemvalue="Application.OntologyTripleParser" />
+        <item itemvalue="Application.OntologyGraphBuilder" />
+        <item itemvalue="Application.PhenotypeGraphBuilder" />
+        <item itemvalue="JUnit.OntologyGraphBuilderTest.main" />
       </list>
     </recent_temporary>
   </component>
@@ -219,6 +227,10 @@
       <workItem from="1742129401415" duration="6748000" />
       <workItem from="1742156382489" duration="7951000" />
       <workItem from="1742219196908" duration="6562000" />
+      <workItem from="1742391160029" duration="608000" />
+      <workItem from="1743521445032" duration="961000" />
+      <workItem from="1743522415716" duration="24071000" />
+      <workItem from="1744221510904" duration="38835000" />
     </task>
     <servers />
   </component>
@@ -237,6 +249,25 @@
     </option>
   </component>
   <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyGraphBuilder.java</url>
+          <line>409</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyElementParser.java</url>
+          <line>208</line>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/../cell-kn-etl-results/src/main/java/gov/nih/nlm/PhenotypeGraphBuilder.java</url>
+          <line>173</line>
+          <option name="timeStamp" value="33" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
     <pin-to-top-manager>
       <pinned-members>
         <PinnedItemInfo parentTag="gov.nih.nlm.TripleTypeSets" memberName="oBNodeTriples" />

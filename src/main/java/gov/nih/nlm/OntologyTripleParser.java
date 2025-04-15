@@ -2,7 +2,7 @@ package gov.nih.nlm;
 
 import static gov.nih.nlm.OntologyElementParser.createURI;
 import static gov.nih.nlm.OntologyElementParser.parseOntologyElements;
-import static gov.nih.nlm.OntologyTripleLoader.parsePredicate;
+import static gov.nih.nlm.OntologyGraphBuilder.parsePredicate;
 import static gov.nih.nlm.PathUtilities.listFilesMatchingPattern;
 
 import java.io.IOException;

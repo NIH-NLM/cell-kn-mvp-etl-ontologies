@@ -24,7 +24,7 @@ import com.arangodb.ArangoVertexCollection;
 import com.arangodb.entity.BaseDocument;
 import com.arangodb.entity.BaseEdgeDocument;
 
-class OntologyTripleLoaderTest {
+class OntologyGraphBuilderTest {
 
 	static String arangoDbHost = "localhost";
 	static String arangoDbPort = "8529";
@@ -133,7 +133,7 @@ class OntologyTripleLoaderTest {
 		// Parse macrophage OWL file and load the result into ArangoDB
 		try {
 			String[] args = new String[] { oboDir.toString(), "cl-test", "test" };
-			OntologyTripleLoader.main(args);
+			OntologyGraphBuilder.main(args);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
