@@ -16,7 +16,7 @@ OBO_DIRPATH = Path("../../../data/obo")
 OBO_PURLS = [
     "http://purl.obolibrary.org/obo/cl.owl",
     "http://purl.obolibrary.org/obo/ro.owl",
-    "http://purl.obolibrary.org/obo/pcl.owl",
+    # "http://purl.obolibrary.org/obo/pcl.owl",
     "https://purl.obolibrary.org/obo/go/extensions/go-plus.owl",
     "http://purl.obolibrary.org/obo/uberon/uberon-base.owl",
     "http://purl.obolibrary.org/obo/ncbitaxon/subsets/taxslim.owl",
