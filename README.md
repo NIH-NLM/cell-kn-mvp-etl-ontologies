@@ -42,18 +42,13 @@ into the Cell KN:
 
 - [CL](http://purl.obolibrary.org/obo/cl.owl): Cell Ontology provides
   a structured controlled vocabulary for cell types in animals
-- [PCL](http://purl.obolibrary.org/obo/pcl.owl): Provisional Cell
-  Ontology describes cell types that are provisionally defined by
-  experimental techniques such as single cell or single nucleus
-  transcriptomics rather than a straightforward & coherent set of
-  properties
-- [GO](https://purl.obolibrary.org/obo/go/extensions/go-plus.owl):
-  Gene Ontology describes the function of genes and gene products
 - [UBERON](http://purl.obolibrary.org/obo/uberon/uberon-base.owl):
   Uberon multi-species anatomy ontology covers animals and bridges
   multiple species-specific ontologies
 - [NCBITaxon](http://purl.obolibrary.org/obo/ncbitaxon/subsets/taxslim.owl):
   An ontology representation of the NCBI organismal taxonomy
+- [GO](https://purl.obolibrary.org/obo/go/extensions/go-plus.owl):
+  Gene Ontology describes the function of genes and gene products
 - [MONDO](http://purl.obolibrary.org/obo/mondo/mondo-simple.owl):
   Mondo Disease Ontology harmonizes multiple disease resources to
   yield a coherent merged ontology
@@ -64,7 +59,10 @@ into the Cell KN:
   Developmental Stages describes life cycle stages for Mus Musculus
 - [HsapDv](http://purl.obolibrary.org/obo/hsapdv.owl): Human
   Developmental Stages describes life cycle stages for Humans
-
+- [SO](http://purl.obolibrary.org/obo/so.owl) Sequence Ontology
+  provides terms and relationships used to describe the features and
+  attributes of biological sequences.
+ 
 Note that some terms from the following ontologies will also be loaded
 if the term is contained in one of the selected ontologies:
 

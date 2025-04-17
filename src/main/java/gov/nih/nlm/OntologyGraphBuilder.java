@@ -35,9 +35,9 @@ public class OntologyGraphBuilder {
 	public static final Path oboDir = usrDir.resolve("data/obo");
 
 	// Assign vertices to include in the graph
-	private static final ArrayList<String> validVertices = new ArrayList<>(Arrays.asList("BMC", "CHEBI", "CHEMBL", "CL",
-			"CS", "CSD", "DOID", "DS", "ENSG", "GO", "GS", "HP", "HsapDv", "MONDO", "MP", "MmusDv", "NCBITaxon", "NCT",
-			"Orphanet", "PATO", "PCL", "PCLCS", "PR", "PUB", "RS", "SO", "UBERON"));
+	private static final ArrayList<String> validVertices = new ArrayList<>(
+			Arrays.asList("BMC", "CHEBI", "CHEMBL", "CL", "CS", "CSD", "GO", "GS", "HP", "HsapDv", "MONDO", "MmusDv",
+					"NCBITaxon", "NCT", "Orphanet", "PATO", "PR", "PUB", "RS", "SO", "UBERON"));
 
 	private static final Pattern parenPattern = Pattern.compile("(.*) (\\(.*\\))$");
 
