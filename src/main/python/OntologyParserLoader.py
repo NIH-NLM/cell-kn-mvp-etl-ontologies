@@ -37,7 +37,9 @@ RDF_NS = "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}"
 RDFS_NS = "{http://www.w3.org/2000/01/rdf-schema#}"
 
 URIREF_PATTERN = re.compile(r"/obo/([A-Za-z]*)_([A-Za-z0-9-+]*)")
-VALID_VERTICES = set(["CHEBI", "CL", "CLM", "GO", "MONDO", "NCBITaxon", "PATO", "PR", "UBERON"])
+VALID_VERTICES = set(
+    ["CHEBI", "CL", "CLM", "GO", "MONDO", "NCBITaxon", "PATO", "PR", "UBERON"]
+)
 SKIPPED_VERTICES = set()
 
 LOG_DIRPATH = Path("./log")
@@ -69,8 +71,16 @@ def find_version(obo_filepath):
             version_iri = root.find(f"{OWL_NS}Ontology/{OWL_NS}versionIRI")
             version = float(version_iri.get(f"{RDF_NS}resource").split("/")[5])
         except Exception as e:
-            print(f"Could not get version for {obo_filepath}")
-            version = None
+            try:
+                version = datetime.strftime(
+                    datetime.strptime(
+                        version_iri.get(f"{RDF_NS}resource").split("/")[5], "%Y-%m-%d"
+                    ),
+                    "%Y-%m-%d",
+                )
+            except Exception as e:
+                print(f"Could not get version for {obo_filepath}")
+                version = None
     return version
 
 
@@ -1055,6 +1065,7 @@ def insert_vertices(adb_graph, vertex_collections, do_update=False):
             else:
                 print(f"Skipping vertex {vertex_doc}")
 
+
 def insert_edges(adb_graph, edge_collections, do_update=False):
     """Insert each edge from each edge collection, creating
     ArangoDB edge collections as needed.
@@ -1147,7 +1158,6 @@ def load_tuples_into_adb_graph(
     print("Inserting vertices and edges")
     insert_vertices(adb_graph, vertex_collections, do_update=do_update)
     insert_edges(adb_graph, edge_collections, do_update=do_update)
-
 
 
 def main(parameters=None):
@@ -1276,6 +1286,7 @@ def main(parameters=None):
     load_tuples_into_adb_graph(
         triples_to_populate, adb_graph, vertex_collections, edge_collections, ro=ro
     )
+
 
 if __name__ == "__main__":
     main()
