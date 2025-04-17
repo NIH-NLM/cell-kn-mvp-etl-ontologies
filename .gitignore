@@ -39,6 +39,7 @@ build/
 
 ### Dev ###
 .poetry/
+.tern-port
 .venv/
 .zshenv
 __pycache__/
