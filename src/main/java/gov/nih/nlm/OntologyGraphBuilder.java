@@ -365,7 +365,7 @@ public class OntologyGraphBuilder {
 	 * @param documentId Document id
 	 * @return Document collection name
 	 */
-	private static String getDocumentCollectionName(String documentId) {
+	public static String getDocumentCollectionName(String documentId) {
 		String documentCollectionName = null;
 		if (documentId != null && documentId.contains("/")) {
 			documentCollectionName = documentId.substring(0, documentId.indexOf("/"));
@@ -381,7 +381,7 @@ public class OntologyGraphBuilder {
 	 * @param documentId Document id
 	 * @return Document key
 	 */
-	private static String getDocumentKey(String documentId) {
+	public static String getDocumentKey(String documentId) {
 		String documentKey = null;
 		if (documentId != null && documentId.contains("/")) {
 			documentKey = documentId.substring(documentId.indexOf("/") + 1);
