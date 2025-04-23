@@ -290,7 +290,7 @@ def print_vertex_examples(database_name, graph_name):
 
 def create_view(
     database_name,
-    collection_maps_name="../../../data/cell-kn-mvp-collection-maps-2024-04-17.json",
+    collection_maps_name="../../../data/cell-kn-mvp-collection-maps-2025-04-23.json",
 ):
 
     # Populate the view properties from the collections map
