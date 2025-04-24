@@ -9,8 +9,7 @@
   <component name="ChangeListManager">
     <list default="true" id="ab62d87a-c49b-4988-979f-f2aad7db4669" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/python/ArangoDbUtilities.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/python/ArangoDbUtilities.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/python/OntologyParserLoader.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/python/OntologyParserLoader.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/cell-kn-mvp-collection-maps-2025-04-23.json" beforeDir="false" afterPath="$PROJECT_DIR$/data/cell-kn-mvp-collection-maps-2025-04-23.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -97,7 +96,7 @@
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary": "JUnit5",
     "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5": "",
-    "git-widget-placeholder": "ralatsdc/add-function-to-create-analyzer-and-view",
+    "git-widget-placeholder": "ralatsdc/skip-deprecated-terms",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "/Users/raymondleclair/Projects/NIH-NLM/Cell-KN/cell-kn-etl-results/cell-kn-etl-ontologies",
     "node.js.detected.package.eslint": "true",
@@ -228,7 +227,8 @@
       <workItem from="1743521445032" duration="961000" />
       <workItem from="1743522415716" duration="24071000" />
       <workItem from="1744221510904" duration="38835000" />
-      <workItem from="1744898772679" duration="5361000" />
+      <workItem from="1744898772679" duration="9200000" />
+      <workItem from="1745342975823" duration="17646000" />
     </task>
     <servers />
   </component>
@@ -249,11 +249,6 @@
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyGraphBuilder.java</url>
-          <line>409</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyElementParser.java</url>
           <line>208</line>

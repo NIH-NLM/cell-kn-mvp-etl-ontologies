@@ -242,7 +242,7 @@
         {
             "abbreviated_name": "PUB",
             "display_name": "Publication",
-            "individual_labels": ["PMID", "PMCID"],
+            "individual_labels": ["PMID", "PMCID", "Author", "Journal", "Title", "Year"],
             "individual_url": "http://44.220.217.88/#/browse/<FIELD_TO_USE>",
             "field_to_use": "_id",
             "to_be_replaced": "",
