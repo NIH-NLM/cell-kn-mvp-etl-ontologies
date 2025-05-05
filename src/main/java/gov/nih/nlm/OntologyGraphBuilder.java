@@ -275,9 +275,15 @@ public class OntologyGraphBuilder {
 						doc.updateAttribute(attribute, literals.toArray()[0]);
 					}
 				}
-				try {
+				if (vertexCollection.getVertex(doc.getKey(), doc.getClass()) == null) {
+					Object deprecated = doc.getAttribute("deprecated");
+					Object label = doc.getAttribute("label");
+					if ((deprecated != null && deprecated.toString().contains("true"))
+							|| (label != null && label.toString().contains("obsolete"))) {
+						continue;
+					}
 					vertexCollection.insertVertex(doc);
-				} catch (Exception e) {
+				} else {
 					vertexCollection.updateVertex(doc.getKey(), doc);
 				}
 			}
@@ -352,12 +358,46 @@ public class OntologyGraphBuilder {
 	}
 
 	/**
+	 * Get the document collection name, which is typically an ontology id for a
+	 * vertex document, or an ontology id pair for an edge document, from a document
+	 * id.
+	 *
+	 * @param documentId Document id
+	 * @return Document collection name
+	 */
+	public static String getDocumentCollectionName(String documentId) {
+		String documentCollectionName = null;
+		if (documentId != null && documentId.contains("/")) {
+			documentCollectionName = documentId.substring(0, documentId.indexOf("/"));
+		}
+		return documentCollectionName;
+	}
+
+	/**
+	 * Get the document key, which is typically an ontology term number for a vertex
+	 * document, or an ontology term number pair for an edge document, from a
+	 * document id.
+	 *
+	 * @param documentId Document id
+	 * @return Document key
+	 */
+	public static String getDocumentKey(String documentId) {
+		String documentKey = null;
+		if (documentId != null && documentId.contains("/")) {
+			documentKey = documentId.substring(documentId.indexOf("/") + 1);
+		}
+		return documentKey;
+	}
+
+	/**
 	 * Insert all edges after they have been constructed to improve performance.
 	 *
-	 * @param edgeCollections ArangoDB edge collections
-	 * @param edgeDocuments   ArangoDB edge documents
+	 * @param vertexCollections ArangoDB vertex collections
+	 * @param edgeCollections   ArangoDB edge collections
+	 * @param edgeDocuments     ArangoDB edge documents
 	 */
-	public static void insertEdges(Map<String, ArangoEdgeCollection> edgeCollections,
+	public static void insertEdges(Map<String, ArangoVertexCollection> vertexCollections,
+			Map<String, ArangoEdgeCollection> edgeCollections,
 			Map<String, Map<String, BaseEdgeDocument>> edgeDocuments) {
 		System.out.println("Inserting edges");
 		long startTime = System.nanoTime();
@@ -366,11 +406,21 @@ public class OntologyGraphBuilder {
 			ArangoEdgeCollection edgeCollection = edgeCollections.get(idPair);
 			for (String key : edgeDocuments.get(idPair).keySet()) {
 				nEdges++;
-				BaseDocument doc = edgeDocuments.get(idPair).get(key);
-				try {
-					edgeCollection.insertEdge(doc);
-				} catch (Exception e) {
-					edgeCollection.updateEdge(doc.getKey(), doc);
+				BaseEdgeDocument doc = edgeDocuments.get(idPair).get(key);
+				String docKey = doc.getKey();
+				String fromId = doc.getFrom();
+				String fromName = getDocumentCollectionName(fromId);
+				String fromKey = getDocumentKey(fromId);
+				String toId = doc.getTo();
+				String toName = getDocumentCollectionName(toId);
+				String toKey = getDocumentKey(toId);
+				if (edgeCollection.getEdge(docKey, doc.getClass()) == null) {
+					if (!(vertexCollections.get(fromName).getVertex(fromKey, BaseDocument.class) == null)
+							&& !(vertexCollections.get(toName).getVertex(toKey, BaseDocument.class) == null)) {
+						edgeCollection.insertEdge(doc);
+					}
+				} else {
+					edgeCollection.updateEdge(docKey, doc);
 				}
 			}
 		}
@@ -453,6 +503,6 @@ public class OntologyGraphBuilder {
 		} catch (RuntimeException e) {
 			throw new RuntimeException(e);
 		}
-		insertEdges(edgeCollections, edgeDocuments);
+		insertEdges(vertexCollections, edgeCollections, edgeDocuments);
 	}
 }
