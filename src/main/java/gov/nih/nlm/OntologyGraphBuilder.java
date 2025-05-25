@@ -504,5 +504,8 @@ public class OntologyGraphBuilder {
 			throw new RuntimeException(e);
 		}
 		insertEdges(vertexCollections, edgeCollections, edgeDocuments);
+
+		// Disconnect from a local ArangoDB server instance
+		arangoDbUtilities.arangoDB.shutdown();
 	}
 }
