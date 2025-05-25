@@ -7,7 +7,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
+<<<<<<< Updated upstream
     <list default="true" id="ab62d87a-c49b-4988-979f-f2aad7db4669" name="Changes" comment="" />
+=======
+    <list default="true" id="ab62d87a-c49b-4988-979f-f2aad7db4669" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
+>>>>>>> Stashed changes
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -54,6 +60,7 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
+<<<<<<< Updated upstream
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Application.App.executor": "Debug",
@@ -106,6 +113,60 @@
     "project.structure.side.proportion": "0.2",
     "settings.editor.selected.configurable": "preferences.pluginManager",
     "vue.rearranger.settings.migration": "true"
+=======
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.App.executor&quot;: &quot;Debug&quot;,
+    &quot;Application.AqlQueryProcessor.executor&quot;: &quot;Debug&quot;,
+    &quot;Application.ArangoDbUtilities.executor&quot;: &quot;Run&quot;,
+    &quot;Application.NodeTypeCounter.executor&quot;: &quot;Run&quot;,
+    &quot;Application.OntologyElementParser.executor&quot;: &quot;Run&quot;,
+    &quot;Application.OntologyGraphBuilder.executor&quot;: &quot;Run&quot;,
+    &quot;Application.OntologyLoader.executor&quot;: &quot;Debug&quot;,
+    &quot;Application.OntologyNodeTypeCounter.executor&quot;: &quot;Run&quot;,
+    &quot;Application.OntologyParser.executor&quot;: &quot;Run&quot;,
+    &quot;Application.OntologyTripleLoader.executor&quot;: &quot;Run&quot;,
+    &quot;Application.OntologyTripleParser.executor&quot;: &quot;Debug&quot;,
+    &quot;Application.PatternPlayGround.executor&quot;: &quot;Run&quot;,
+    &quot;Application.PhenotypeGraphBuilder.executor&quot;: &quot;Run&quot;,
+    &quot;Application.PlayGround.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AppTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ArangoDbUtilitiesTest.createOrGetDatabase.executor&quot;: &quot;Debug&quot;,
+    &quot;JUnit.ArangoDbUtilitiesTest.createOrGetEdgeCollection.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ArangoDbUtilitiesTest.createOrGetVertexCollection.executor&quot;: &quot;Debug&quot;,
+    &quot;JUnit.ArangoDbUtilitiesTest.deleteEdgeCollection.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ArangoDbUtilitiesTest.deleteGraph.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ArangoDbUtilitiesTest.deleteVertexCollection.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ArangoDbUtilitiesTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.OntologyTripleLoaderTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.OntologyTripleLoaderTest.main.executor&quot;: &quot;Debug&quot;,
+    &quot;Maven. [org.apache.maven.plugins:maven-archetype-plugin:RELEASE:generate].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.cell-kn-etl-ontologies [package].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.springbok-cell-kn-etl [clean].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.springbok-cell-kn-etl [compile].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.springbok-cell-kn-etl [package].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.springbok-cell-kn-etl [test].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.springbok-cell-kn-etl [validate].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.springbok-cell-kn-etl [verify].executor&quot;: &quot;Run&quot;,
+    &quot;Python.OntologyParserLoader.executor&quot;: &quot;Debug&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary&quot;: &quot;JUnit5&quot;,
+    &quot;com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5&quot;: &quot;&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;ralatsdc/add-arangodb-analyzer&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/raymondleclair/Projects/NIH-NLM/Cell-KN/cell-kn-etl-results/cell-kn-etl-ontologies&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;SDKs&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+>>>>>>> Stashed changes
   }
 }]]></component>
   <component name="RecentsManager">
@@ -227,6 +288,7 @@
       <workItem from="1744898772679" duration="9200000" />
       <workItem from="1745342975823" duration="51282000" />
       <workItem from="1746459118343" duration="3929000" />
+      <workItem from="1747849553287" duration="600000" />
     </task>
     <servers />
   </component>
