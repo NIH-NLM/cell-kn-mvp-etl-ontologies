@@ -10,12 +10,12 @@ the derived knowledge with knowledge about genes, pathways, diseases,
 and drugs from other NLM/NCBI resources, the knowledge will be derived
 in the form of semantically-structured assertions of
 subject-predicate-object triple statements which are compatible with
-storage using semantic web technologies, and graph databases, such as
+semantic web technologies, and storage using graph databases, such as
 the [ArangoDB](https://arangodb.com/) database system.
 
-As one important semantic web technology, the [Web Ontology Language
-(OWL)](https://en.wikipedia.org/wiki/Web_Ontology_Language) provides a
-family of knowledge representation languages for authoring
+One important semantic web technology, the [Web Ontology Language
+(OWL)](https://en.wikipedia.org/wiki/Web_Ontology_Language), provides
+a family of knowledge representation languages for authoring
 ontologies. [Ontologies](https://en.wikipedia.org/wiki/Ontology_(information_science))
 encompasses a representation, formal naming, and definitions of the
 categories, properties, and relations between the concepts, data, or
@@ -147,7 +147,7 @@ $ export ARANGO_DB_PASSWORD="<some-password>"
 $ java -cp target/cell-kn-etl-ontologies-1.0.jar gov.nih.nlm.OntologyGraphBuilder
 ```
 
-Run the Python ontology parser and loader as follows:
+Run the Python ontology parser and loader (now deprecated) as follows:
 ```
 $ export ARANGO_DB_PASSWORD="<some-password>"
 $ cd src/main/python

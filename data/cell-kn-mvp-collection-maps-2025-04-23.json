@@ -112,20 +112,6 @@
         }
     ],
     [
-        "HP",
-        {
-            "abbreviated_name": "HP",
-            "display_name": "Phenotype",
-            "individual_labels": ["_key"],
-            "individual_url": "http://purl.obolibrary.org/obo/<FIELD_TO_USE>",
-            "field_to_use": "_id",
-            "to_be_replaced": "/",
-            "replace_with": "_",
-            "make_lower_case": false,
-            "more_info": "The Human Phenotype Ontology (HPO) aims to provide a standardized vocabulary of phenotypic abnormalities encountered in human disease. Each term in the HPO describes a phenotypic abnormality, such as atrial septal defect. The HPO is currently being developed using the medical literature, Orphanet, DECIPHER, and OMIM."
-        }
-    ],
-    [
         "HsapDv",
         {
             "abbreviated_name": "HsapDv",

@@ -39,6 +39,7 @@ build/
 
 ### Dev ###
 .built
+.archived
 .poetry/
 .tern-port
 .venv/
