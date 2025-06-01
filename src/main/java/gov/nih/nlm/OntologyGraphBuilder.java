@@ -282,9 +282,17 @@ public class OntologyGraphBuilder {
 							|| (label != null && label.toString().contains("obsolete"))) {
 						continue;
 					}
-					vertexCollection.insertVertex(doc);
+					try {
+						vertexCollection.insertVertex(doc);
+					} catch (Exception e) {
+						System.err.println("Error inserting vertex " + doc + ": " + e.getMessage());
+					}
 				} else {
-					vertexCollection.updateVertex(doc.getKey(), doc);
+					try {
+						vertexCollection.updateVertex(doc.getKey(), doc);
+					} catch (Exception e) {
+						System.err.println("Error updating vertex " + doc + ": " + e.getMessage());
+					}
 				}
 			}
 		}
@@ -417,10 +425,18 @@ public class OntologyGraphBuilder {
 				if (edgeCollection.getEdge(docKey, doc.getClass()) == null) {
 					if (!(vertexCollections.get(fromName).getVertex(fromKey, BaseDocument.class) == null)
 							&& !(vertexCollections.get(toName).getVertex(toKey, BaseDocument.class) == null)) {
-						edgeCollection.insertEdge(doc);
+						try {
+							edgeCollection.insertEdge(doc);
+						} catch (Exception e) {
+							System.err.println("Error inserting edge " + doc + ": " + e.getMessage());
+						}
 					}
 				} else {
-					edgeCollection.updateEdge(docKey, doc);
+					try {
+						edgeCollection.updateEdge(docKey, doc);
+					} catch (Exception e) {
+						System.err.println("Error updating edge " + doc + ": " + e.getMessage());
+					}
 				}
 			}
 		}
