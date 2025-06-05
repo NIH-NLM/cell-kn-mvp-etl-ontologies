@@ -297,14 +297,15 @@ public class OntologyGraphBuilder {
 	 * contain a filled subject and object which contain an ontology ID contained in
 	 * the valid vertices collection.
 	 *
-	 * @param uniqueTriples       Unique triples with which to construct vertices
+	 * @param source              Souce of the triples
+	 * @param triples             Triples with which to construct vertices
 	 * @param ontologyElementMaps Maps terms and labels
 	 * @param graph               ArangoDB graph in which to create vertex
 	 *                            collections
 	 * @param edgeCollections     ArangoDB edge collections
 	 * @param edgeDocuments       ArangoDB edge documents
 	 */
-	public static void constructEdges(HashSet<Triple> uniqueTriples,
+	public static void constructEdges(String source, HashSet<Triple> triples,
 			Map<String, OntologyElementMap> ontologyElementMaps, ArangoDbUtilities arangoDbUtilities, ArangoGraph graph,
 			Map<String, ArangoEdgeCollection> edgeCollections, Map<String, Map<String, BaseEdgeDocument>> edgeDocuments)
 			throws RuntimeException {
@@ -315,9 +316,9 @@ public class OntologyGraphBuilder {
 
 		// Process triples
 		long startTime = System.nanoTime();
-		System.out.println("Constructing edges using " + uniqueTriples.size() + " triples");
+		System.out.println("Constructing edges using " + triples.size() + " triples");
 		int nEdges = 0;
-		for (Triple triple : uniqueTriples) {
+		for (Triple triple : triples) {
 
 			// Ensure the subject contains a valid ontology ID
 			VTuple subjectVTuple = createVTuple(triple.getSubject());
@@ -348,12 +349,13 @@ public class OntologyGraphBuilder {
 				BaseEdgeDocument doc = new BaseEdgeDocument(key, subjectVTuple.id + "/" + subjectVTuple.number,
 						objectVTuple.id + "/" + objectVTuple.number);
 				doc.addAttribute("label", label);
+				doc.addAttribute("source", source);
 				edgeDocuments.get(idPair).put(key, doc);
 				edgeKeys.get(idPair).add(key);
 			}
 		}
 		long stopTime = System.nanoTime();
-		System.out.println("Constructed " + nEdges + " edges from " + uniqueTriples.size() + " triples in "
+		System.out.println("Constructed " + nEdges + " edges from " + triples.size() + " triples in "
 				+ (stopTime - startTime) / 1e9 + " s");
 	}
 
@@ -494,14 +496,23 @@ public class OntologyGraphBuilder {
 		}
 		insertVertices(vertexCollections, vertexDocuments);
 
-		// Create, and insert the edges
+		// Create, and insert the edges, capturing source
 		Map<String, ArangoEdgeCollection> edgeCollections = new HashMap<>();
 		Map<String, Map<String, BaseEdgeDocument>> edgeDocuments = new HashMap<>();
-		try {
-			constructEdges(uniqueTriples, ontologyElementMaps, arangoDbUtilities, graph, edgeCollections,
-					edgeDocuments);
-		} catch (RuntimeException e) {
-			throw new RuntimeException(e);
+		for (Path oboFile : oboFiles) {
+			String oboFNm = oboFile.getFileName().toString();
+			if (oboFNm.equals("ro.owl"))
+				continue;
+			String source = oboFNm.substring(0, oboFNm.lastIndexOf("."));
+			List<Triple> ontologyTriples = ontologyTripleTypeSets.get(source).soFNodeTriples;
+			HashSet<Triple> triples = new HashSet<>(ontologyTriples);
+			triples.retainAll(uniqueTriples);
+			try {
+				constructEdges(source, triples, ontologyElementMaps, arangoDbUtilities, graph, edgeCollections,
+						edgeDocuments);
+			} catch (RuntimeException e) {
+				throw new RuntimeException(e);
+			}
 		}
 		insertEdges(vertexCollections, edgeCollections, edgeDocuments);
 
