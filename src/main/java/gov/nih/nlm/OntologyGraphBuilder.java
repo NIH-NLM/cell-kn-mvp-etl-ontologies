@@ -339,6 +339,10 @@ public class OntologyGraphBuilder {
 				edgeCollections.put(idPair,
 						arangoDbUtilities.createOrGetEdgeCollection(graph, subjectVTuple.id, objectVTuple.id));
 				edgeDocuments.put(idPair, new HashMap<>());
+			}
+
+			// Create an edge key set, if needed
+			if (!edgeKeys.containsKey(idPair)) {
 				edgeKeys.put(idPair, new HashSet<>());
 			}
 
