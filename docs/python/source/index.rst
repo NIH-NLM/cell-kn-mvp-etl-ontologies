@@ -1,5 +1,5 @@
-cell-kn-etl-ontologies documentation
-====================================
+cell-kn-mvp-etl-ontologies documentation
+========================================
 
 Utilities for parsing and loading ontologies into ArangoDB.
 
