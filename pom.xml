@@ -3,11 +3,11 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>gov.nih.nlm</groupId>
-  <artifactId>cell-kn-etl-ontologies</artifactId>
+  <artifactId>cell-kn-mvp-etl-ontologies</artifactId>
   <version>1.0</version>
   <packaging>jar</packaging>
 
-  <name>cell-kn-etl-ontologies</name>
+  <name>cell-kn-mvp-etl-ontologies</name>
   <url>https://maven.apache.org</url>
 
   <properties>
