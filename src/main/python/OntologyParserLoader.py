@@ -46,7 +46,7 @@ LOG_DIRPATH = Path("./log")
 LOG_DIRPATH.mkdir(exist_ok=True)
 
 
-def find_version(obo_filepath):
+def find_obo_version(obo_filepath):
     """Parse the ontology XML file to find its version.
 
     Parameters
@@ -84,61 +84,68 @@ def find_version(obo_filepath):
     return version
 
 
-def update_ontologies():
-    """Download each specified ontology, parse version information
-    from new and current ontology, and replace current with new if new
-    is newer than current.
+def update_downloads(urls, download_dirpath, find_version):
+    """Download each specified URL, parse version information from new
+    and current download, and replace current with new if new is newer
+    than current.
 
     Parameters
     ----------
-    None
+    urls : list(str)
+        List of URLs
+    download_dirpath : Path
+        Path to directory containing downloaded files
+    find_version : function
+        Function to take a file name and find a version
 
     Returns
     -------
     None
     """
-    for obo_purl in OBO_PURLS:
+    for url in urls:
 
-        print(f"Getting {obo_purl}")
-        r = requests.get(obo_purl)
+        print(f"Getting {url}")
+        r = requests.get(url)
 
-        obo_stem = Path(urlparse(obo_purl).path).stem
-        obo_suffix = Path(urlparse(obo_purl).path).suffix
-        obo_filepath_new = OBO_DIRPATH / (obo_stem + "-new" + obo_suffix)
-        print(f"Writing {obo_filepath_new}")
-        with open(obo_filepath_new, "wb") as f:
+        download_stem = Path(urlparse(url).path).stem
+        download_suffix = Path(urlparse(url).path).suffix
+        download_filepath_new = download_dirpath / (
+            download_stem + "-new" + download_suffix
+        )
+        print(f"Writing {download_filepath_new}")
+        with open(download_filepath_new, "wb") as f:
             f.write(r.content)
 
-        version_new = find_version(obo_filepath_new)
+        version_new = find_version(download_filepath_new)
         print(f"Found new version {version_new}")
 
-        obo_filepath_cur = OBO_DIRPATH / (obo_stem + obo_suffix)
-        if obo_filepath_cur.exists():
+        download_filepath_cur = download_dirpath / (download_stem + download_suffix)
+        if download_filepath_cur.exists():
 
-            version_cur = find_version(obo_filepath_cur)
+            version_cur = find_version(download_filepath_cur)
             print(f"Found current version {version_cur}")
 
             if version_new > version_cur:
-                obo_filepath_old = (
-                    OBO_DIRPATH
+                download_filepath_old = (
+                    download_dirpath
                     / ".archive"
-                    / (obo_stem + "-" + str(version_cur) + obo_suffix)
+                    / (download_stem + "-" + str(version_cur) + download_suffix)
                 )
 
-                print(f"Renaming {obo_filepath_cur} to {obo_filepath_old}")
-                obo_filepath_cur.rename(obo_filepath_old)
+                print(f"Renaming {download_filepath_cur} to {download_filepath_old}")
+                download_filepath_cur.rename(download_filepath_old)
 
-                print(f"Renaming {obo_filepath_new} to {obo_filepath_cur}")
-                obo_filepath_new.rename(obo_filepath_cur)
+                print(f"Renaming {download_filepath_new} to {download_filepath_cur}")
+                download_filepath_new.rename(download_filepath_cur)
 
             else:
                 print(f"New version is not newer than current version")
-                print(f"Removing {obo_filepath_new}")
-                obo_filepath_new.unlink()
+                print(f"Removing {download_filepath_new}")
+                download_filepath_new.unlink()
 
         else:
-            print(f"Renaming {obo_filepath_new} to {obo_filepath_cur}")
-            obo_filepath_new.rename(obo_filepath_cur)
+            print(f"Renaming {download_filepath_new} to {download_filepath_cur}")
+            download_filepath_new.rename(download_filepath_cur)
 
 
 def parse_obo(obo_dir, obo_fnm):
@@ -1191,7 +1198,7 @@ def main(parameters=None):
         args, remaining = parser.parse_known_args(parameters)
 
     if args.update:
-        update_ontologies()
+        update_downloads(OBO_PURLS, OBO_DIRPATH, find_obo_version)
         return
 
     parser.add_argument(
