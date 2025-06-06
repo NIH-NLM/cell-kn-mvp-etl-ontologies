@@ -348,14 +348,30 @@ public class OntologyGraphBuilder {
 
 			// Construct the edge, if needed
 			String key = subjectVTuple.number + "-" + objectVTuple.number;
+			HashSet<String> labels;
+			HashSet<String> sources;
 			if (!edgeKeys.get(idPair).contains(key)) {
 				nEdges++;
 				BaseEdgeDocument doc = new BaseEdgeDocument(key, subjectVTuple.id + "/" + subjectVTuple.number,
 						objectVTuple.id + "/" + objectVTuple.number);
-				doc.addAttribute("label", label);
-				doc.addAttribute("source", source);
+
+				// Collect the first label and source
+				labels = new HashSet<>();
+				labels.add(label);
+				doc.addAttribute("label", labels);
+				sources = new HashSet<>();
+				sources.add(source);
+				doc.addAttribute("source", sources);
 				edgeDocuments.get(idPair).put(key, doc);
 				edgeKeys.get(idPair).add(key);
+			} else {
+				BaseEdgeDocument doc = edgeDocuments.get(idPair).get(key);
+
+				// Collect all subsequent labels and sources
+				labels = (HashSet<String>) doc.getAttribute("label");
+				labels.add(label);
+				sources = (HashSet<String>) doc.getAttribute("source");
+				sources.add(source);
 			}
 		}
 		long stopTime = System.nanoTime();
