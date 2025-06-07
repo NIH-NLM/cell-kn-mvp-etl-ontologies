@@ -206,13 +206,13 @@ def delete_edge_collection(graph, edge_name):
         graph.delete_edge_definition(edge_name)
 
 
-def create_analyzer(database_name):
-    """Create the bigram analyzer in the named database.
+def create_analyzers(database_name):
+    """Create n-gram and text analyzers in the named database.
 
     Parameters
     ----------
     database_name : str
-        Name of the database in which to create the analyzer
+        Name of the database in which to create the analyzers
 
     Returns
     -------
@@ -220,22 +220,38 @@ def create_analyzer(database_name):
     """
     db = create_or_get_database(database_name)
     db.create_analyzer(
-        name=f"{database_name}::bigram",
+        name=f"{database_name}::n-gram",
         analyzer_type="ngram",
         properties={
-            "min": 2,
-            "max": 2,
-            "preserveOriginal": False,
+            "min": 3,
+            "max": 4,
+            "preserveOriginal": True,
             "streamType": "utf8",
             "startMarker": "",
             "endMarker": "",
         },
-        features=["frequency", "position"],
+        features=["frequency", "position", "norm"],
+    )
+    db.create_analyzer(
+        name=f"{database_name}::text_en_no_stem",
+        analyzer_type="text",
+        properties={
+            "locale": "en",
+            "case": "lower",
+            "accent": False,
+            "stemming": False,
+            "edgeNgram": {
+                "min": 3,
+                "max": 12,
+                "preserveOriginal": True,
+            },
+        },
+        features=["frequency", "position", "norm"],
     )
 
 
-def delete_analyzer(database_name):
-    """Delete the bigram analyzer in the named database.
+def delete_analyzers(database_name):
+    """Delete n-gram and text analyzers in the named database.
 
     Parameters
     ----------
@@ -247,45 +263,8 @@ def delete_analyzer(database_name):
     None
     """
     db = create_or_get_database(database_name)
-    db.delete_analyzer(f"{database_name}::bigram", ignore_missing=True)
-
-
-def print_vertex_examples(database_name, graph_name):
-    """Delete the bigram analyzer in the named database.
-
-    Parameters
-    ----------
-    database_name : str
-        Name of the database in which to delete the analyzer
-    graph_name : str
-        Name of the graph to create or get
-
-    Returns
-    -------
-    None
-    """
-    # Get the database and graph
-    db = create_or_get_database(database_name)
-    graph = create_or_get_graph(db, graph_name)
-
-    # Collect relevant vertex names
-    vertex_names = []
-    for collection in db.collections():
-        if collection["type"] != "document" or collection["name"][0] == "_":
-            continue
-        vertex_names.append(collection["name"])
-
-    # Select one vertex randomly
-    random.seed(a=0, version=2)
-    for vertex_name in sorted(vertex_names):
-        vertex_collection = create_or_get_vertex_collection(graph, vertex_name)
-        vertex_keys = list(vertex_collection.keys())
-        vertex_key = vertex_keys[random.randint(0, vertex_collection.count() - 1)]
-        vertex = vertex_collection.get(vertex_key)
-        print()
-        print(vertex_name)
-        print()
-        pprint(vertex)
+    db.delete_analyzer(f"{database_name}::n-gram", ignore_missing=True)
+    db.delete_analyzer(f"{database_name}::text_en_no_stem", ignore_missing=True)
 
 
 def create_view(
@@ -359,3 +338,41 @@ def create_view(
 def delete_view(database_name):
     db = create_or_get_database(database_name)
     db.delete_view("indexed")
+
+
+def print_vertex_examples(database_name, graph_name):
+    """Delete the bigram analyzer in the named database.
+
+    Parameters
+    ----------
+    database_name : str
+        Name of the database in which to delete the analyzer
+    graph_name : str
+        Name of the graph to create or get
+
+    Returns
+    -------
+    None
+    """
+    # Get the database and graph
+    db = create_or_get_database(database_name)
+    graph = create_or_get_graph(db, graph_name)
+
+    # Collect relevant vertex names
+    vertex_names = []
+    for collection in db.collections():
+        if collection["type"] != "document" or collection["name"][0] == "_":
+            continue
+        vertex_names.append(collection["name"])
+
+    # Select one vertex randomly
+    random.seed(a=0, version=2)
+    for vertex_name in sorted(vertex_names):
+        vertex_collection = create_or_get_vertex_collection(graph, vertex_name)
+        vertex_keys = list(vertex_collection.keys())
+        vertex_key = vertex_keys[random.randint(0, vertex_collection.count() - 1)]
+        vertex = vertex_collection.get(vertex_key)
+        print()
+        print(vertex_name)
+        print()
+        pprint(vertex)
