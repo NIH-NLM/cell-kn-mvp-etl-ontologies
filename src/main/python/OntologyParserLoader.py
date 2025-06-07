@@ -1215,11 +1215,13 @@ def main(parameters=None):
         args = parser.parse_args(remaining)
 
     if args.test:
+        obo_dirpath = Path("../../test/data/obo")
         cl_filename = "macrophage.owl"
         db_name = "Cell-KN-v1.5"
         graph_name = "CL-Test"
 
     if args.full:
+        obo_dirpath = OBO_DIRPATH
         cl_filename = "cl.owl"
         db_name = "Cell-KN-v1.5"
         graph_name = "CL-Full"
@@ -1230,12 +1232,12 @@ def main(parameters=None):
     ro_filename = "ro.owl"
     log_filename = f"{graph_name}.log"
 
-    print(f"Parsing {OBO_DIRPATH / cl_filename} to populate rdflib graph")
+    print(f"Parsing {obo_dirpath / cl_filename} to populate rdflib graph")
     rdf_graph = Graph()
-    rdf_graph.parse(OBO_DIRPATH / cl_filename)
+    rdf_graph.parse(obo_dirpath / cl_filename)
 
-    print(f"Parsing {OBO_DIRPATH / cl_filename} to identify ids")
-    _, _, ids = parse_obo(OBO_DIRPATH, cl_filename)
+    print(f"Parsing {obo_dirpath / cl_filename} to identify ids")
+    _, _, ids = parse_obo(obo_dirpath, cl_filename)
     print(ids)
 
     print("Counting triple types in rdflib graph")
@@ -1259,7 +1261,7 @@ def main(parameters=None):
 
     print("Collecting and printing all blank node triple sets in rdflib graph")
     bnode_triple_sets = {}
-    ro, _, _ = parse_obo(OBO_DIRPATH, ro_filename)
+    ro, _, _ = parse_obo(obo_dirpath, ro_filename)
     collect_bnode_triple_sets(rdf_graph, bnode_triple_sets, use="subject", ro=ro)
     collect_bnode_triple_sets(rdf_graph, bnode_triple_sets, use="object", ro=ro)
     bnode_triple_sets_filename = log_filename.replace(".log", "_bnode_triple_sets.txt")

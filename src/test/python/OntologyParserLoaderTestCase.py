@@ -99,7 +99,7 @@ class OntologyParserLoaderTestCase(unittest.TestCase):
         opl.main(parameters=["--test"])
 
         # Connect to ArangoDB
-        db = ARANGO_CLIENT.db("Cell-KN-v1.0", username="root", password=ARANGO_ROOT_PASSWORD)
+        db = ARANGO_CLIENT.db("Cell-KN-v1.5", username="root", password=ARANGO_ROOT_PASSWORD)
         graph = db.graph("CL-Test")
 
         # Get the actual macrophage vertex

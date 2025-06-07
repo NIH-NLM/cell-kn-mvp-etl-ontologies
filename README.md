@@ -144,7 +144,8 @@ $ export ARANGO_DB_HOST=127.0.0.1
 $ export ARANGO_DB_PORT=8529
 $ export ARANGO_DB_HOME="<some-path>/arangodb"
 $ export ARANGO_DB_PASSWORD="<some-password>"
-$ java -cp target/cell-kn-etl-ontologies-1.0.jar gov.nih.nlm.OntologyGraphBuilder
+$ export CP_ONTOLOGIES="target/cell-kn-mvp-etl-ontologies-1.0.jar"
+$ java -cp $CP_ONTOLOGIES gov.nih.nlm.OntologyGraphBuilder
 ```
 
 Run the Python ontology parser and loader (now deprecated) as follows:

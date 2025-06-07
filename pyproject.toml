@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "cell-kn-etl-ontologies"
+name = "cell-kn-mvp-etl-ontologies"
 version = "0.1.0"
 description = "Load ontologies into an ArangoDB instance"
 authors = ["Raymond LeClair <raymond.leclair@springbok.io>"]
