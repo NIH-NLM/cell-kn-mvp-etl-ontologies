@@ -305,7 +305,7 @@ def create_view(
         properties["links"][vertex_name]["fields"] = {}
         for vertex_label in vertex_labels:
             properties["links"][vertex_name]["fields"][vertex_label] = {
-                "analyzers": ["text_en", "bigram"]
+                "analyzers": ["text_en_no_stem", "n-gram"]
             }
         properties["links"][vertex_name]["includeAllFields"] = False
         properties["links"][vertex_name]["storeValues"] = "none"
