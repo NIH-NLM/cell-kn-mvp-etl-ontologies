@@ -220,7 +220,7 @@ def create_analyzers(database_name):
     """
     db = create_or_get_database(database_name)
     db.create_analyzer(
-        name=f"{database_name}::n-gram",
+        name=f"n-gram",
         analyzer_type="ngram",
         properties={
             "min": 3,
@@ -233,7 +233,7 @@ def create_analyzers(database_name):
         features=["frequency", "position", "norm"],
     )
     db.create_analyzer(
-        name=f"{database_name}::text_en_no_stem",
+        name=f"text_en_no_stem",
         analyzer_type="text",
         properties={
             "locale": "en",
@@ -305,7 +305,7 @@ def create_view(
         properties["links"][vertex_name]["fields"] = {}
         for vertex_label in vertex_labels:
             properties["links"][vertex_name]["fields"][vertex_label] = {
-                "analyzers": ["text_en_no_stem", "n-gram"]
+                "analyzers": ["text_en", "text_en_no_stem", "n-gram"]
             }
         properties["links"][vertex_name]["includeAllFields"] = False
         properties["links"][vertex_name]["storeValues"] = "none"
