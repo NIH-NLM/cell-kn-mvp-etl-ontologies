@@ -220,6 +220,19 @@ def create_analyzers(database_name):
     """
     db = create_or_get_database(database_name)
     db.create_analyzer(
+        name=f"bigram",
+        analyzer_type="ngram",
+        properties={
+            "min": 2,
+            "max": 2,
+            "preserveOriginal": False,
+            "streamType": "utf8",
+            "startMarker": "",
+            "endMarker": "",
+        },
+        features=["frequency", "position"],
+    )
+    db.create_analyzer(
         name=f"n-gram",
         analyzer_type="ngram",
         properties={
