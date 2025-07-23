@@ -219,19 +219,20 @@ def create_analyzers(database_name):
     None
     """
     db = create_or_get_database(database_name)
-    db.create_analyzer(
-        name=f"bigram",
-        analyzer_type="ngram",
-        properties={
-            "min": 2,
-            "max": 2,
-            "preserveOriginal": False,
-            "streamType": "utf8",
-            "startMarker": "",
-            "endMarker": "",
-        },
-        features=["frequency", "position"],
-    )
+    # TODO: Remove
+    # db.create_analyzer(
+    #     name=f"bigram",
+    #     analyzer_type="ngram",
+    #     properties={
+    #         "min": 2,
+    #         "max": 2,
+    #         "preserveOriginal": False,
+    #         "streamType": "utf8",
+    #         "startMarker": "",
+    #         "endMarker": "",
+    #     },
+    #     features=["frequency", "position"],
+    # )
     db.create_analyzer(
         name=f"n-gram",
         analyzer_type="ngram",
@@ -282,7 +283,7 @@ def delete_analyzers(database_name):
 
 def create_view(
     database_name,
-    collection_maps_name="../../../data/cell-kn-mvp-collection-maps-2025-04-23.json",
+    collection_maps_name="../../../data/cell-kn-mvp-collection-maps.json",
 ):
 
     # Populate the view properties from the collections map
@@ -312,7 +313,7 @@ def create_view(
     }
     for collection_map in collection_maps:
         vertex_name = collection_map[0]
-        vertex_labels = collection_map[1]["individual_labels"]
+        vertex_labels = [d['field_to_use'] for d in collection_map[1]['individual_labels']]
         properties["links"][vertex_name] = {}
         properties["links"][vertex_name]["analyzers"] = ["identity"]
         properties["links"][vertex_name]["fields"] = {}
