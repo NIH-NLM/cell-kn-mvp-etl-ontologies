@@ -10,6 +10,12 @@
                     "to_be_replaced": " ",
                     "replace_with": "|",
                     "make_lower_case": false
+                },
+                {
+                    "field_to_use": "_key",
+                    "to_be_replaced": "",
+                    "replace_with": "",
+                    "make_lower_case": false
                 }
             ],
             "individual_urls": [
@@ -72,6 +78,12 @@
                     "to_be_replaced": "",
                     "replace_with": "",
                     "make_lower_case": false
+                },
+                {
+                    "field_to_use": "_id",
+                    "to_be_replaced": "/",
+                    "replace_with": "",
+                    "make_lower_case": false
                 }
             ],
             "individual_urls": [
@@ -121,10 +133,16 @@
         "CS",
         {
             "abbreviated_name": "CS",
-            "display_name": "",
+            "display_name": "Cell set",
             "individual_labels": [
                 {
                     "field_to_use": "Author_cell_term",
+                    "to_be_replaced": "",
+                    "replace_with": "",
+                    "make_lower_case": false
+                },
+                {
+                    "field_to_use": "_key",
                     "to_be_replaced": "",
                     "replace_with": "",
                     "make_lower_case": false
@@ -146,17 +164,16 @@
         "CSD",
         {
             "abbreviated_name": "CSD",
-            "display_name": "Cell",
-            "individual_labels": ["Collection_id"],
+            "display_name": "Cell set dataset",
             "individual_labels": [
                 {
-                    "field_to_use": "label",
+                    "field_to_use": "Citation",
                     "to_be_replaced": "",
                     "replace_with": "",
                     "make_lower_case": false
                 },
                 {
-                    "field_to_use": "definition",
+                    "field_to_use": "_key",
                     "to_be_replaced": "",
                     "replace_with": "",
                     "make_lower_case": false
@@ -179,7 +196,20 @@
         {
             "abbreviated_name": "GO",
             "display_name": "Gene ontology",
-            "individual_labels": ["label", "definition"],
+            "individual_labels": [
+                {
+                    "field_to_use": "label",
+                    "to_be_replaced": "",
+                    "replace_with": "",
+                    "make_lower_case": false
+                },
+                {
+                    "field_to_use": "definition",
+                    "to_be_replaced": "",
+                    "replace_with": "",
+                    "make_lower_case": false
+                }
+            ],
             "individual_urls": [
                 {
                     "individual_url": "https://www.ebi.ac.uk/QuickGO/term/<FIELD_TO_USE>",
@@ -197,7 +227,21 @@
         {
             "abbreviated_name": "GS",
             "display_name": "Gene symbol",
-            "individual_labels": ["_key"],
+            "individual_labels": [
+                {
+                    "field_to_use": "Official_Symbol",
+                    "to_be_replaced": "",
+                    "replace_with": "",
+                    "make_lower_case": false
+                },
+                {
+                    "field_to_use": "_key",
+                    "to_be_replaced": "",
+                    "replace_with": "",
+                    "make_lower_case": false
+                }
+
+            ],
             "individual_urls": [
                 {
                     "individual_url": "https://www.ncbi.nlm.nih.gov/gene/<FIELD_TO_USE>",
@@ -215,7 +259,20 @@
         {
             "abbreviated_name": "HsapDv",
             "display_name": "Life cycle stage",
-            "individual_labels": ["label", "definition"],
+            "individual_labels": [
+                {
+                    "field_to_use": "label",
+                    "to_be_replaced": "",
+                    "replace_with": "",
+                    "make_lower_case": false
+                },
+                {
+                    "field_to_use": "definition",
+                    "to_be_replaced": "",
+                    "replace_with": "",
+                    "make_lower_case": false
+                }
+            ],
             "individual_urls": [
                 {
                     "individual_url": "http://purl.obolibrary.org/obo/<FIELD_TO_USE>",
@@ -233,7 +290,20 @@
         {
             "abbreviated_name": "MONDO",
             "display_name": "Disease",
-            "individual_labels": ["label", "definition"],
+            "individual_labels": [
+                {
+                    "field_to_use": "label",
+                    "to_be_replaced": "",
+                    "replace_with": "",
+                    "make_lower_case": false
+                },
+                {
+                    "field_to_use": "definition",
+                    "to_be_replaced": "",
+                    "replace_with": "",
+                    "make_lower_case": false
+                }
+            ],
             "individual_urls": [
                 {
                     "individual_url": "http://purl.obolibrary.org/obo/<FIELD_TO_USE>",
@@ -251,7 +321,20 @@
         {
             "abbreviated_name": "MmusDv",
             "display_name": "Life cycle stage",
-            "individual_labels": ["label", "definition"],
+            "individual_labels": [
+                {
+                    "field_to_use": "label",
+                    "to_be_replaced": "",
+                    "replace_with": "",
+                    "make_lower_case": false
+                },
+                {
+                    "field_to_use": "definition",
+                    "to_be_replaced": "",
+                    "replace_with": "",
+                    "make_lower_case": false
+                }
+            ],
             "individual_urls": [
                 {
                     "individual_url": "http://purl.obolibrary.org/obo/<FIELD_TO_USE>",
@@ -269,7 +352,14 @@
         {
             "abbreviated_name": "NCBITaxon",
             "display_name": "Taxonomy",
-            "individual_labels": ["label"],
+            "individual_labels": [
+                {
+                    "field_to_use": "label",
+                    "to_be_replaced": "",
+                    "replace_with": "",
+                    "make_lower_case": false
+                }
+            ],
             "individual_urls": [
                 {
                     "individual_url": "http://purl.obolibrary.org/obo/<FIELD_TO_USE>",
@@ -287,7 +377,14 @@
         {
             "abbreviated_name": "NCT",
             "display_name": "Clinical trial",
-            "individual_labels": ["_key"],
+            "individual_labels": [
+                {
+                    "field_to_use": "_key",
+                    "to_be_replaced": "",
+                    "replace_with": "",
+                    "make_lower_case": false
+                }
+            ],
             "individual_urls": [
                 {
                     "individual_url": "https://clinicaltrials.gov/search?term=<FIELD_TO_USE>",
@@ -305,7 +402,14 @@
         {
             "abbreviated_name": "Orphanet",
             "display_name": "Rare disease",
-            "individual_labels": ["_key"],
+            "individual_labels": [
+                {
+                    "field_to_use": "_key",
+                    "to_be_replaced": "",
+                    "replace_with": "",
+                    "make_lower_case": false
+                }
+            ],
             "individual_urls": [
                 {
                     "individual_url": "http://purl.obolibrary.org/obo/<FIELD_TO_USE>",
@@ -323,7 +427,20 @@
         {
             "abbreviated_name": "PATO",
             "display_name": "Phenotype",
-            "individual_labels": ["label"],
+            "individual_labels": [
+                {
+                    "field_to_use": "label",
+                    "to_be_replaced": "",
+                    "replace_with": "",
+                    "make_lower_case": false
+                },
+                {
+                    "field_to_use": "definition",
+                    "to_be_replaced": "",
+                    "replace_with": "",
+                    "make_lower_case": false
+                }
+            ],
             "individual_urls": [
                 {
                     "individual_url": "http://purl.obolibrary.org/obo/<FIELD_TO_USE>",
@@ -341,7 +458,26 @@
         {
             "abbreviated_name": "PR",
             "display_name": "Protein",
-            "individual_labels": ["Recommended_name"],
+            "individual_labels": [
+                {
+                    "field_to_use": "UniProt_ID",
+                    "to_be_replaced": "",
+                    "replace_with": "",
+                    "make_lower_case": false
+                },
+                {
+                    "field_to_use": "label",
+                    "to_be_replaced": "",
+                    "replace_with": "",
+                    "make_lower_case": false
+                },
+                {
+                    "field_to_use": "definition",
+                    "to_be_replaced": "",
+                    "replace_with": "",
+                    "make_lower_case": false
+                }
+            ],
             "individual_urls": [
                 {
                     "individual_url": "http://purl.obolibrary.org/obo/<FIELD_TO_USE>",
@@ -359,7 +495,14 @@
         {
             "abbreviated_name": "PUB",
             "display_name": "Publication",
-            "individual_labels": ["Citation", "Author", "Journal", "Title", "Year", "PMID", "PMCID"],
+            "individual_labels": [
+                {
+                    "field_to_use": "Citation",
+                    "to_be_replaced": "",
+                    "replace_with": "",
+                    "make_lower_case": false
+                }
+            ],
             "individual_urls": [
                 {
                     "individual_url": "http://cell-kn-mvp.org/#/browse/<FIELD_TO_USE>",
@@ -377,7 +520,14 @@
         {
             "abbreviated_name": "RS",
             "display_name": "Variant",
-            "individual_labels": ["_id"],
+            "individual_labels": [
+                {
+                    "field_to_use": "_id",
+                    "to_be_replaced": "/",
+                    "replace_with": "",
+                    "make_lower_case": false
+                }
+            ],
             "individual_urls": [
                 {
                     "individual_url": "https://www.ncbi.nlm.nih.gov/snp/<FIELD_TO_USE>",
@@ -395,7 +545,20 @@
         {
             "abbreviated_name": "SO",
             "display_name": "Sequence feature",
-            "individual_labels": ["_key"],
+            "individual_labels": [
+                {
+                    "field_to_use": "label",
+                    "to_be_replaced": "",
+                    "replace_with": "",
+                    "make_lower_case": false
+                },
+                {
+                    "field_to_use": "definition",
+                    "to_be_replaced": "",
+                    "replace_with": "",
+                    "make_lower_case": false
+                }
+            ],
             "individual_urls": [
                 {
                     "individual_url": "http://purl.obolibrary.org/obo/<FIELD_TO_USE>",
@@ -413,7 +576,14 @@
         {
             "abbreviated_name": "UBERON",
             "display_name": "Anatomy structure",
-            "individual_labels": ["label", "definition"],
+            "individual_labels": [
+                {
+                    "field_to_use": "label",
+                    "to_be_replaced": "",
+                    "replace_with": "",
+                    "make_lower_case": false
+                }
+            ],
             "individual_urls": [
                 {
                     "individual_url": "http://purl.obolibrary.org/obo/<FIELD_TO_USE>",
