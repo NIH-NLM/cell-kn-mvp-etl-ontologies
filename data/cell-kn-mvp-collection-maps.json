@@ -1082,14 +1082,14 @@
                 {
                     "field_to_display": "PMID",
                     "display_field_as": "PMID",
-                    "field_url": "",
-                    "field_to_use": ""
+                    "field_url": "https://pubmed.ncbi.nlm.nih.gov/<FIELD_TO_USE>/",
+                    "field_to_use": "PMID"
                 },
                 {
                     "field_to_display": "PMCID",
                     "display_field_as": "PMCID",
-                    "field_url": "",
-                    "field_to_use": ""
+                    "field_url": "https://pmc.ncbi.nlm.nih.gov/articles/<FIELD_TO_USE>/",
+                    "field_to_use": "PMCID"
                 }
             ],
             "more_info": "Publication DOIs"
