@@ -1003,7 +1003,7 @@
                     "display_field_as": "Definition",
                     "field_url": "",
                     "field_to_use": ""
-                }
+                },
                 {
                     "field_to_display": "hasOBONamespace",
                     "display_field_as": "OBO_namespace",
