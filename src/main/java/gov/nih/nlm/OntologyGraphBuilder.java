@@ -6,8 +6,12 @@ import static gov.nih.nlm.OntologyTripleParser.collectUniqueSOFNodeTriples;
 import static gov.nih.nlm.OntologyTripleParser.parseOntologyTriples;
 import static gov.nih.nlm.PathUtilities.listFilesMatchingPattern;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -30,9 +34,10 @@ import com.arangodb.entity.BaseEdgeDocument;
  */
 public class OntologyGraphBuilder {
 
-	// Assign location of ontology files
+	// Assign location of ontology and deprecated terms files
 	private static final Path usrDir = Paths.get(System.getProperty("user.dir"));
 	public static final Path oboDir = usrDir.resolve("data/obo");
+	public static final Path deprecatedTermsFile = oboDir.resolve("deprecated_terms.txt");
 
 	// Assign vertices to include in the graph
 	private static final ArrayList<String> validVertices = new ArrayList<>(
@@ -256,9 +261,11 @@ public class OntologyGraphBuilder {
 	 * @param vertexDocuments   ArangoDB vertex documents
 	 */
 	public static void insertVertices(Map<String, ArangoVertexCollection> vertexCollections,
-			Map<String, Map<String, BaseDocument>> vertexDocuments) {
+			Map<String, Map<String, BaseDocument>> vertexDocuments) throws IOException {
 		System.out.println("Inserting vertices");
 		long startTime = System.nanoTime();
+		Charset charset = StandardCharsets.US_ASCII;
+		BufferedWriter deprecatedTermsWriter = Files.newBufferedWriter(deprecatedTermsFile, charset);
 		int nVertices = 0;
 		for (String id : vertexDocuments.keySet()) {
 			ArangoVertexCollection vertexCollection = vertexCollections.get(id);
@@ -280,6 +287,7 @@ public class OntologyGraphBuilder {
 					Object label = doc.getAttribute("label");
 					if ((deprecated != null && deprecated.toString().contains("true"))
 							|| (label != null && label.toString().contains("obsolete"))) {
+						deprecatedTermsWriter.write(id + "_" + number + "\n");
 						continue;
 					}
 					try {
@@ -296,6 +304,7 @@ public class OntologyGraphBuilder {
 				}
 			}
 		}
+		deprecatedTermsWriter.close();
 		long stopTime = System.nanoTime();
 		System.out.println("Inserted " + nVertices + " vertices in " + (stopTime - startTime) / 1e9 + " s");
 	}
@@ -530,7 +539,11 @@ public class OntologyGraphBuilder {
 		} catch (RuntimeException e) {
 			throw new RuntimeException(e);
 		}
-		insertVertices(vertexCollections, vertexDocuments);
+		try {
+			insertVertices(vertexCollections, vertexDocuments);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 
 		// Create, and insert the edges, capturing source
 		Map<String, ArangoEdgeCollection> edgeCollections = new HashMap<>();
