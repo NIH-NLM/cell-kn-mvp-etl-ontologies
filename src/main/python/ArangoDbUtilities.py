@@ -281,11 +281,23 @@ def delete_analyzers(database_name):
     db.delete_analyzer(f"{database_name}::text_en_no_stem", ignore_missing=True)
 
 
-def create_view(
-    database_name,
-    collection_maps_name="../../../data/cell-kn-mvp-collection-maps.json",
-):
+def create_view(database_name, collection_maps_name):
+    """Create views in the Evidence and Knowledge graphs in the
+    specified database based on the specified collection_maps JSON
+    file.
 
+    Parameters
+    ----------
+    database_name : str
+        Name of the database in which to create the views
+    collection_maps_name : str
+        Name of the JSON file containing a mapping for each vertex
+        collection
+
+    Returns
+    -------
+    None
+    """
     # Populate the view properties from the collections map
     with open(collection_maps_name, "r") as fp:
         collection_maps = json.load(fp)
@@ -311,8 +323,11 @@ def create_view(
         "primarySortCompression": "lz4",
         "writebufferIdle": 64,
     }
-    for collection_map in collection_maps:
+    for collection_map in collection_maps["maps"]:
         vertex_name = collection_map[0]
+        # TODO: Restructure collection_maps to separate vertices and edges
+        if vertex_name == "edges":
+            continue
         vertex_labels = [
             d["field_to_use"] for d in collection_map[1]["individual_labels"]
         ]
@@ -352,6 +367,18 @@ def create_view(
 
 
 def delete_view(database_name):
+    """Delete views in the Evidence and Knowledge graphs in the
+    specified database.
+
+    Parameters
+    ----------
+    database_name : str
+        Name of the database in which to create the views
+
+    Returns
+    -------
+    None
+    """
     db = create_or_get_database(database_name)
     db.delete_view("indexed")
 
