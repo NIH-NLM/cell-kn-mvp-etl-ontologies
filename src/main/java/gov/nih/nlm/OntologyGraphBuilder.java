@@ -46,10 +46,6 @@ public class OntologyGraphBuilder {
 
 	private static final Pattern parenPattern = Pattern.compile("(.*) (\\(.*\\))$");
 
-	// Define a record describing a vertex
-	public record VTuple(String term, String id, String number, Boolean isValidVertex) {
-	}
-
 	/**
 	 * Parse a URI to find an ontology term, ID, and number, and test if the ID is a
 	 * valid vertex.
@@ -175,6 +171,27 @@ public class OntologyGraphBuilder {
 	}
 
 	/**
+	 * Normalize vertex and edge attributes by making the first character upper
+	 * case, remaining characters lower case, and replacing spaces with underscores.
+	 * 
+	 * @param attribute Attribute to normalize
+	 * @return Normalized attribute
+	 */
+	public static String normalizeAttribute(String attribute) {
+		return attribute.substring(0, 1).toUpperCase() + attribute.substring(1).toLowerCase().replace(" ", "_");
+	}
+
+	/**
+	 * Normalize vertex and edge sources by makng all characters upper case.
+	 * 
+	 * @param source Source to normalize
+	 * @return Normalized source
+	 */
+	public static String normalizeSource(String source) {
+		return source.toUpperCase();
+	}
+
+	/**
 	 * Update vertices using triples parsed from specified ontology files that
 	 * contain a filled subject which contains an ontology ID contained in the valid
 	 * vertices collection, and a filled object literal.
@@ -203,8 +220,8 @@ public class OntologyGraphBuilder {
 			VTuple vtuple = createVTuple(triple.getSubject());
 			if (vtuple.isValidVertex) {
 
-				// Parse the predicate
-				String attribute = parsePredicate(ontologyElementMaps, triple.getPredicate());
+				// Parse the predicate and normalize
+				String attribute = normalizeAttribute(parsePredicate(ontologyElementMaps, triple.getPredicate()));
 
 				// Parse the object
 				String literal = o.getLiteralValue().toString();
@@ -283,8 +300,8 @@ public class OntologyGraphBuilder {
 					}
 				}
 				if (vertexCollection.getVertex(doc.getKey(), doc.getClass()) == null) {
-					Object deprecated = doc.getAttribute("deprecated");
-					Object label = doc.getAttribute("label");
+					Object deprecated = doc.getAttribute("Deprecated");
+					Object label = doc.getAttribute("Label");
 					if ((deprecated != null && deprecated.toString().contains("true"))
 							|| (label != null && label.toString().contains("obsolete"))) {
 						deprecatedTermsWriter.write(id + "_" + number + "\n");
@@ -375,19 +392,19 @@ public class OntologyGraphBuilder {
 				// Collect the first label and source
 				labels = new HashSet<>();
 				labels.add(label);
-				doc.addAttribute("label", labels);
+				doc.addAttribute("Label", labels);
 				sources = new HashSet<>();
 				sources.add(source);
-				doc.addAttribute("source", sources);
+				doc.addAttribute("Source", sources);
 				edgeDocuments.get(idPair).put(key, doc);
 				edgeKeys.get(idPair).add(key);
 			} else {
 				BaseEdgeDocument doc = edgeDocuments.get(idPair).get(key);
 
 				// Collect all subsequent labels and sources
-				labels = (HashSet<String>) doc.getAttribute("label");
+				labels = (HashSet<String>) doc.getAttribute("Label");
 				labels.add(label);
-				sources = (HashSet<String>) doc.getAttribute("source");
+				sources = (HashSet<String>) doc.getAttribute("Source");
 				sources.add(source);
 			}
 		}
@@ -552,7 +569,7 @@ public class OntologyGraphBuilder {
 			String oboFNm = oboFile.getFileName().toString();
 			if (oboFNm.equals("ro.owl"))
 				continue;
-			String source = oboFNm.substring(0, oboFNm.lastIndexOf("."));
+			String source = normalizeSource(oboFNm.substring(0, oboFNm.lastIndexOf(".")));
 			List<Triple> ontologyTriples = ontologyTripleTypeSets.get(source).soFNodeTriples;
 			HashSet<Triple> triples = new HashSet<>(ontologyTriples);
 			triples.retainAll(uniqueTriples);
@@ -567,5 +584,9 @@ public class OntologyGraphBuilder {
 
 		// Disconnect from a local ArangoDB server instance
 		arangoDbUtilities.arangoDB.shutdown();
+	}
+
+	// Define a record describing a vertex
+	public record VTuple(String term, String id, String number, Boolean isValidVertex) {
 	}
 }
