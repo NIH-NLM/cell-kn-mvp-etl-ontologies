@@ -394,7 +394,7 @@ public class OntologyGraphBuilder {
 				labels.add(label);
 				doc.addAttribute("Label", labels);
 				sources = new HashSet<>();
-				sources.add(source);
+				sources.add(normalizeSource(source));
 				doc.addAttribute("Source", sources);
 				edgeDocuments.get(idPair).put(key, doc);
 				edgeKeys.get(idPair).add(key);
@@ -405,7 +405,7 @@ public class OntologyGraphBuilder {
 				labels = (HashSet<String>) doc.getAttribute("Label");
 				labels.add(label);
 				sources = (HashSet<String>) doc.getAttribute("Source");
-				sources.add(source);
+				sources.add(normalizeSource(source));
 			}
 		}
 		long stopTime = System.nanoTime();
@@ -569,7 +569,7 @@ public class OntologyGraphBuilder {
 			String oboFNm = oboFile.getFileName().toString();
 			if (oboFNm.equals("ro.owl"))
 				continue;
-			String source = normalizeSource(oboFNm.substring(0, oboFNm.lastIndexOf(".")));
+			String source = oboFNm.substring(0, oboFNm.lastIndexOf("."));
 			List<Triple> ontologyTriples = ontologyTripleTypeSets.get(source).soFNodeTriples;
 			HashSet<Triple> triples = new HashSet<>(ontologyTriples);
 			triples.retainAll(uniqueTriples);
