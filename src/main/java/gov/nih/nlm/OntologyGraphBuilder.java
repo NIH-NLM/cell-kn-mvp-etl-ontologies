@@ -38,6 +38,8 @@ public class OntologyGraphBuilder {
 	private static final Path usrDir = Paths.get(System.getProperty("user.dir"));
 	public static final Path oboDir = usrDir.resolve("data/obo");
 	public static final Path deprecatedTermsFile = oboDir.resolve("deprecated_terms.txt");
+	public static final Path edgeSourcesFile = oboDir.resolve("edge_sources.txt");
+	public static final Path edgeLabelsFile = oboDir.resolve("edge_labels.txt");
 
 	// Assign vertices to include in the graph
 	private static final ArrayList<String> validVertices = new ArrayList<>(
@@ -171,27 +173,6 @@ public class OntologyGraphBuilder {
 	}
 
 	/**
-	 * Normalize vertex and edge attributes by making the first character upper
-	 * case, remaining characters lower case, and replacing spaces with underscores.
-	 * 
-	 * @param attribute Attribute to normalize
-	 * @return Normalized attribute
-	 */
-	public static String normalizeAttribute(String attribute) {
-		return attribute.substring(0, 1).toUpperCase() + attribute.substring(1).toLowerCase().replace(" ", "_");
-	}
-
-	/**
-	 * Normalize vertex and edge sources by makng all characters upper case.
-	 * 
-	 * @param source Source to normalize
-	 * @return Normalized source
-	 */
-	public static String normalizeSource(String source) {
-		return source.toUpperCase();
-	}
-
-	/**
 	 * Update vertices using triples parsed from specified ontology files that
 	 * contain a filled subject which contains an ontology ID contained in the valid
 	 * vertices collection, and a filled object literal.
@@ -220,8 +201,8 @@ public class OntologyGraphBuilder {
 			VTuple vtuple = createVTuple(triple.getSubject());
 			if (vtuple.isValidVertex) {
 
-				// Parse the predicate and normalize
-				String attribute = normalizeAttribute(parsePredicate(ontologyElementMaps, triple.getPredicate()));
+				// Parse the predicate
+				String attribute = parsePredicate(ontologyElementMaps, triple.getPredicate());
 
 				// Parse the object
 				String literal = o.getLiteralValue().toString();
@@ -300,8 +281,8 @@ public class OntologyGraphBuilder {
 					}
 				}
 				if (vertexCollection.getVertex(doc.getKey(), doc.getClass()) == null) {
-					Object deprecated = doc.getAttribute("Deprecated");
-					Object label = doc.getAttribute("Label");
+					Object deprecated = doc.getAttribute("deprecated");
+					Object label = doc.getAttribute("label");
 					if ((deprecated != null && deprecated.toString().contains("true"))
 							|| (label != null && label.toString().contains("obsolete"))) {
 						deprecatedTermsWriter.write(id + "_" + number + "\n");
@@ -327,6 +308,53 @@ public class OntologyGraphBuilder {
 	}
 
 	/**
+	 * Normalize edge sources by making all characters upper case.
+	 *
+	 * @param source
+	 * @return
+	 */
+	public static String normalizeEdgeSource(String source) {
+		switch (source) {
+			case "mondo-simple":
+				return "MONDO";
+			case "taxslim":
+				return "NCBITAXON";
+			case "go-plus":
+				return "GO";
+			case "uberon-base":
+				return "UBERON";
+			default:
+				return source.toUpperCase();
+		}
+	}
+
+	/**
+	 * Normalize edge labels by making all characters upper case, and replacing
+	 * spaces with underscores. Handle special cases.
+	 *
+	 * @param label Attribute value to normalize
+	 * @return Normalized attribute value
+	 */
+	public static String normalizeEdgeLabel(String label) {
+		switch (label) {
+			case "subClassOf":
+				return "SUB_CLASS_OF";
+			case "disjointWith":
+				return "DISJOINT_WITH";
+			case "crossSpeciesExactMatch":
+				return "CROSS_SPECIES_EXACT_MATCH";
+			case "exactMatch":
+				return "EXACT_MATCH";
+			case "equivalentClass":
+				return "EQUIVALENT_CLASS";
+			case "seeAlso":
+				return "SEE_ALSO";
+			default:
+				return label.toUpperCase().replace(" ", "_");
+		}
+	}
+
+	/**
 	 * Construct edges using triples parsed from specified ontology files that
 	 * contain a filled subject and object which contain an ontology ID contained in
 	 * the valid vertices collection.
@@ -339,10 +367,10 @@ public class OntologyGraphBuilder {
 	 * @param edgeCollections     ArangoDB edge collections
 	 * @param edgeDocuments       ArangoDB edge documents
 	 */
-	public static void constructEdges(String source, HashSet<Triple> triples,
+	public static HashSet<String> constructEdges(String source, HashSet<Triple> triples,
 			Map<String, OntologyElementMap> ontologyElementMaps, ArangoDbUtilities arangoDbUtilities, ArangoGraph graph,
 			Map<String, ArangoEdgeCollection> edgeCollections, Map<String, Map<String, BaseEdgeDocument>> edgeDocuments)
-			throws RuntimeException {
+			throws RuntimeException, IOException {
 
 		// Collect edge keys in each edge collection to prevent constructing duplicate
 		// edges in the edge collection
@@ -351,6 +379,7 @@ public class OntologyGraphBuilder {
 		// Process triples
 		long startTime = System.nanoTime();
 		System.out.println("Constructing edges using " + triples.size() + " triples");
+		HashSet<String> edgeLabels = new HashSet<>();
 		int nEdges = 0;
 		for (Triple triple : triples) {
 
@@ -364,8 +393,9 @@ public class OntologyGraphBuilder {
 			if (!objectVTuple.isValidVertex)
 				continue;
 
-			// Parse the predicate
+			// Parse the predicate and collect unique lables
 			String label = parsePredicate(ontologyElementMaps, triple.getPredicate());
+			edgeLabels.add(label);
 
 			// Create an edge collection, if needed
 			String idPair = subjectVTuple.id + "-" + objectVTuple.id;
@@ -384,6 +414,8 @@ public class OntologyGraphBuilder {
 			String key = subjectVTuple.number + "-" + objectVTuple.number;
 			HashSet<String> labels;
 			HashSet<String> sources;
+			String normalizedSource = normalizeEdgeSource(source);
+			String normalizedLabel = normalizeEdgeLabel(label);
 			if (!edgeKeys.get(idPair).contains(key)) {
 				nEdges++;
 				BaseEdgeDocument doc = new BaseEdgeDocument(key, subjectVTuple.id + "/" + subjectVTuple.number,
@@ -391,10 +423,10 @@ public class OntologyGraphBuilder {
 
 				// Collect the first label and source
 				labels = new HashSet<>();
-				labels.add(label);
+				labels.add(normalizedLabel);
 				doc.addAttribute("Label", labels);
 				sources = new HashSet<>();
-				sources.add(normalizeSource(source));
+				sources.add(normalizedSource);
 				doc.addAttribute("Source", sources);
 				edgeDocuments.get(idPair).put(key, doc);
 				edgeKeys.get(idPair).add(key);
@@ -403,14 +435,15 @@ public class OntologyGraphBuilder {
 
 				// Collect all subsequent labels and sources
 				labels = (HashSet<String>) doc.getAttribute("Label");
-				labels.add(label);
+				labels.add(normalizedLabel);
 				sources = (HashSet<String>) doc.getAttribute("Source");
-				sources.add(normalizeSource(source));
+				sources.add(normalizedSource);
 			}
 		}
 		long stopTime = System.nanoTime();
 		System.out.println("Constructed " + nEdges + " edges from " + triples.size() + " triples in "
 				+ (stopTime - startTime) / 1e9 + " s");
+		return edgeLabels;
 	}
 
 	/**
@@ -498,7 +531,7 @@ public class OntologyGraphBuilder {
 	 *
 	 * @param args (None expected)
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 
 		// List ontology files
 		String oboPath;
@@ -562,25 +595,43 @@ public class OntologyGraphBuilder {
 			throw new RuntimeException(e);
 		}
 
-		// Create, and insert the edges, capturing source
+		// Create, and insert the edges, capturing unique sources and labels
 		Map<String, ArangoEdgeCollection> edgeCollections = new HashMap<>();
 		Map<String, Map<String, BaseEdgeDocument>> edgeDocuments = new HashMap<>();
+		HashSet<String> edgeSources = new HashSet<>();
+		HashSet<String> edgeLabels = new HashSet<>();
 		for (Path oboFile : oboFiles) {
 			String oboFNm = oboFile.getFileName().toString();
 			if (oboFNm.equals("ro.owl"))
 				continue;
 			String source = oboFNm.substring(0, oboFNm.lastIndexOf("."));
+			edgeSources.add(source);
 			List<Triple> ontologyTriples = ontologyTripleTypeSets.get(source).soFNodeTriples;
 			HashSet<Triple> triples = new HashSet<>(ontologyTriples);
 			triples.retainAll(uniqueTriples);
 			try {
-				constructEdges(source, triples, ontologyElementMaps, arangoDbUtilities, graph, edgeCollections,
-						edgeDocuments);
+				edgeLabels.addAll(constructEdges(source, triples, ontologyElementMaps, arangoDbUtilities, graph,
+						edgeCollections, edgeDocuments));
 			} catch (RuntimeException e) {
 				throw new RuntimeException(e);
+			} catch (IOException e) {
+				throw new IOException(e);
 			}
 		}
 		insertEdges(vertexCollections, edgeCollections, edgeDocuments);
+
+		// Document unique sources and labels, and their normalized values
+		Charset charset = StandardCharsets.US_ASCII;
+		BufferedWriter edgeSourcesWriter = Files.newBufferedWriter(edgeSourcesFile, charset);
+		for (String source : edgeSources) {
+			edgeSourcesWriter.write(source + ": " + normalizeEdgeSource(source) + "\n");
+		}
+		edgeSourcesWriter.close();
+		BufferedWriter edgeLabelsWriter = Files.newBufferedWriter(edgeLabelsFile, charset);
+		for (String label : edgeLabels) {
+			edgeLabelsWriter.write(label + ": " + normalizeEdgeLabel(label) + "\n");
+		}
+		edgeLabelsWriter.close();
 
 		// Disconnect from a local ArangoDB server instance
 		arangoDbUtilities.arangoDB.shutdown();
