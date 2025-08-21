@@ -336,7 +336,7 @@ def create_view(database_name, collection_maps_name):
         properties["links"][vertex_name]["fields"] = {}
         for vertex_field in vertex_fields:
             properties["links"][vertex_name]["fields"][vertex_field] = {
-                "analyzers": ["text_en", "text_en_no_stem", "n-gram"]
+                "analyzers": ["text_en", "text_en_no_stem", "n-gram", "identity"]
             }
         properties["links"][vertex_name]["includeAllFields"] = False
         properties["links"][vertex_name]["storeValues"] = "none"
