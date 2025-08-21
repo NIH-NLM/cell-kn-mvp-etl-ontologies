@@ -328,14 +328,14 @@ def create_view(database_name, collection_maps_name):
         # TODO: Restructure collection_maps to separate vertices and edges
         if vertex_name == "edges":
             continue
-        vertex_labels = [
-            d["field_to_use"] for d in collection_map[1]["individual_labels"]
+        vertex_fields = [
+            d["field_to_display"] for d in collection_map[1]["individual_fields"]
         ]
         properties["links"][vertex_name] = {}
         properties["links"][vertex_name]["analyzers"] = ["identity"]
         properties["links"][vertex_name]["fields"] = {}
-        for vertex_label in vertex_labels:
-            properties["links"][vertex_name]["fields"][vertex_label] = {
+        for vertex_field in vertex_fields:
+            properties["links"][vertex_name]["fields"][vertex_field] = {
                 "analyzers": ["text_en", "text_en_no_stem", "n-gram"]
             }
         properties["links"][vertex_name]["includeAllFields"] = False
