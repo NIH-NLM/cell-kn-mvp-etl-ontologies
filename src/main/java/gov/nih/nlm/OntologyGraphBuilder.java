@@ -43,8 +43,8 @@ public class OntologyGraphBuilder {
 
 	// Assign vertices to include in the graph
 	private static final ArrayList<String> validVertices = new ArrayList<>(
-			Arrays.asList("BMC", "CHEBI", "CHEMBL", "CL", "CS", "CSD", "GO", "GS", "HP", "HsapDv", "MONDO", "MmusDv",
-					"NCBITaxon", "NCT", "Orphanet", "PATO", "PR", "PUB", "RS", "SO", "UBERON"));
+			Arrays.asList("BGS", "BMC", "CHEBI", "CHEMBL", "CL", "CS", "CSD", "GO", "GS", "HP", "HsapDv", "MONDO",
+					"MmusDv", "NCBITaxon", "NCT", "Orphanet", "PATO", "PR", "PUB", "RS", "SO", "UBERON"));
 
 	private static final Pattern parenPattern = Pattern.compile("(.*) (\\(.*\\))$");
 
@@ -315,16 +315,16 @@ public class OntologyGraphBuilder {
 	 */
 	public static String normalizeEdgeSource(String source) {
 		switch (source) {
-			case "mondo-simple":
-				return "MONDO";
-			case "taxslim":
-				return "NCBITAXON";
-			case "go-plus":
-				return "GO";
-			case "uberon-base":
-				return "UBERON";
-			default:
-				return source.toUpperCase();
+		case "mondo-simple":
+			return "MONDO";
+		case "taxslim":
+			return "NCBITAXON";
+		case "go-plus":
+			return "GO";
+		case "uberon-base":
+			return "UBERON";
+		default:
+			return source.toUpperCase();
 		}
 	}
 
@@ -337,20 +337,20 @@ public class OntologyGraphBuilder {
 	 */
 	public static String normalizeEdgeLabel(String label) {
 		switch (label) {
-			case "subClassOf":
-				return "SUB_CLASS_OF";
-			case "disjointWith":
-				return "DISJOINT_WITH";
-			case "crossSpeciesExactMatch":
-				return "CROSS_SPECIES_EXACT_MATCH";
-			case "exactMatch":
-				return "EXACT_MATCH";
-			case "equivalentClass":
-				return "EQUIVALENT_CLASS";
-			case "seeAlso":
-				return "SEE_ALSO";
-			default:
-				return label.toUpperCase().replace(" ", "_");
+		case "subClassOf":
+			return "SUB_CLASS_OF";
+		case "disjointWith":
+			return "DISJOINT_WITH";
+		case "crossSpeciesExactMatch":
+			return "CROSS_SPECIES_EXACT_MATCH";
+		case "exactMatch":
+			return "EXACT_MATCH";
+		case "equivalentClass":
+			return "EQUIVALENT_CLASS";
+		case "seeAlso":
+			return "SEE_ALSO";
+		default:
+			return label.toUpperCase().replace(" ", "_");
 		}
 	}
 
