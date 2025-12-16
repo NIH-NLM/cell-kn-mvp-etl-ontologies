@@ -4,7 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9c125ae8-75f3-40b9-9b06-d0071ed73213" name="Changes" comment="" />
+    <list default="true" id="9c125ae8-75f3-40b9-9b06-d0071ed73213" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/python/ArangoDbUtilities.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/python/ArangoDbUtilities.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -57,6 +60,7 @@
       <updated>1754492796058</updated>
       <workItem from="1754492797095" duration="6104000" />
       <workItem from="1755531953743" duration="3257000" />
+      <workItem from="1764175285236" duration="1287000" />
     </task>
     <servers />
   </component>
