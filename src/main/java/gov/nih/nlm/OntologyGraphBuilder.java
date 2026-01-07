@@ -80,9 +80,11 @@ public class OntologyGraphBuilder {
 		}
 		String id = null;
 		String number = null;
-		if (tokens != null) {
+		if (tokens != null && tokens.length == 2) {
 			id = tokens[0];
 			number = tokens[1];
+		} else {
+			return vtuple;
 		}
 		Boolean isValidVertex = validVertices.contains(id);
 		return new VTuple(term, id, number, isValidVertex);
