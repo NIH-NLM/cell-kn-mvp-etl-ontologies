@@ -312,7 +312,7 @@ def create_view(database_name, collection_maps_name):
     for collection_map in collection_maps["maps"]:
         vertex_name = collection_map[0]
         # TODO: Restructure collection_maps to separate vertices and edges
-        if vertex_name == "edges":
+        if vertex_name in ["edges", "TEST_DOCUMENT_COLLECTION", "TEST_EDGE_COLLECTION"]:
             continue
         vertex_fields = [
             d["field_to_display"] for d in collection_map[1]["individual_fields"]
