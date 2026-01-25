@@ -44,7 +44,7 @@ public class OntologyGraphBuilder {
 	// Assign vertices to include in the graph
 	private static final ArrayList<String> validVertices = new ArrayList<>(
 			Arrays.asList("BGS", "BMC", "CHEBI", "CHEMBL", "CL", "CS", "CSD", "GO", "GS", "HP", "HsapDv", "MONDO",
-					"MmusDv", "NCBITaxon", "NCT", "Orphanet", "PATO", "PR", "PUB", "RS", "SO", "UBERON"));
+					"MmusDv", "NCBITaxon", "NCT", "Orphanet", "PATO", "PR", "PUB", "RS", "UBERON"));
 
 	private static final Pattern parenPattern = Pattern.compile("(.*) (\\(.*\\))$");
 
