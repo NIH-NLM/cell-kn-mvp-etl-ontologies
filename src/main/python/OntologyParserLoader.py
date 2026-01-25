@@ -22,6 +22,7 @@ OBO_PURLS = [
     "http://purl.obolibrary.org/obo/ncbitaxon/subsets/taxslim.owl",
     # "http://purl.obolibrary.org/obo/hancestro/hancestro.owl",
     "http://purl.obolibrary.org/obo/mondo/mondo-simple.owl",
+    "http://purl.obolibrary.org/obo/hp/hp-international.owl",
     "http://purl.obolibrary.org/obo/pato.owl",
     "http://purl.obolibrary.org/obo/mmusdv.owl",
     "http://purl.obolibrary.org/obo/hsapdv.owl",
