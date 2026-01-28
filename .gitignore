@@ -39,6 +39,7 @@ build/
 
 ### Dev ###
 .built
+.ai
 .archived
 .poetry/
 .tern-port
