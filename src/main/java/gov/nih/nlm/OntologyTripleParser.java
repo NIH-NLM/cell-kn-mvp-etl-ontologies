@@ -159,7 +159,7 @@ public class OntologyTripleParser {
 			}
 		}
 		if (flattenedSubject != null && flattenedPredicate != null && flattenedObject != null) {
-			Triple flattenedTripleToAdd = new Triple(flattenedSubject, flattenedPredicate, flattenedObject);
+			Triple flattenedTripleToAdd = Triple.create(flattenedSubject, flattenedPredicate, flattenedObject);
 
 			String flattenedPredicateLabel = parsePredicate(ontologyElementMaps, flattenedPredicate);
 			String flattenedObjectLabel = null;
@@ -171,7 +171,7 @@ public class OntologyTripleParser {
 			Node combinedObject;
 
 			// Handle remaining triples
-			String combinedObjectLabel = "";
+			StringBuilder combinedObjectLabel = new StringBuilder();
 			for (Triple remainingTriple : remainingTriples) {
 				Triple remainingTripleToAdd = null;
 
@@ -190,17 +190,18 @@ public class OntologyTripleParser {
 					// Append flattened predicate and object label to remaining object label
 					combinedObject = NodeFactory.createLiteral(
 							remainingObjectLabel + ", for '" + flattenedPredicateLabel + "': " + flattenedObjectLabel);
-					remainingTripleToAdd = new Triple(flattenedSubject, remainingPredicate, combinedObject);
+					remainingTripleToAdd = Triple.create(flattenedSubject, remainingPredicate, combinedObject);
 
 				} else if (flattenedObject.isLiteral() && remainingObject.isURI()) {
 					// Append remaining predicate and object label to flattened object label
 					combinedObject = NodeFactory.createLiteral(
 							flattenedObjectLabel + " (" + remainingPredicateLabel + ": " + remainingObjectLabel + ")");
-					flattenedTripleToAdd = new Triple(flattenedSubject, flattenedPredicate, combinedObject);
+					flattenedTripleToAdd = Triple.create(flattenedSubject, flattenedPredicate, combinedObject);
 
 				} else if (flattenedObject.isLiteral() && remainingObject.isLiteral()) {
 					// Append remaining predicate and object label to combined object label
-					combinedObjectLabel += remainingPredicateLabel + ": " + remainingObjectLabel + ", ";
+					combinedObjectLabel.append(remainingPredicateLabel).append(": ").append(remainingObjectLabel)
+							.append(", ");
 				}
 				flattenedTriples.add(remainingTriple);
 
@@ -215,10 +216,10 @@ public class OntologyTripleParser {
 
 			// Add flattened triple to the list of triples with filled subject and object
 			// nodes
-			if (!combinedObjectLabel.equals("")) {
+			if (combinedObjectLabel.length() > 0) {
 				combinedObject = NodeFactory.createLiteral(flattenedObjectLabel + " ("
 						+ combinedObjectLabel.substring(0, combinedObjectLabel.lastIndexOf(",")) + ")");
-				flattenedTripleToAdd = new Triple(flattenedSubject, flattenedPredicate, combinedObject);
+				flattenedTripleToAdd = Triple.create(flattenedSubject, flattenedPredicate, combinedObject);
 			}
 			tripleTypeSets.nTriples++;
 			tripleTypeSets.soFNodeTriples.add(flattenedTripleToAdd);
@@ -287,7 +288,7 @@ public class OntologyTripleParser {
 		String[] fragments = { "Axiom", "Restriction" };
 		for (String fragment : fragments) {
 			for (Node key : tripleTypeSets.sBNodeTriples.keySet().toArray(new Node[0])) {
-				for (Triple triple : tripleTypeSets.sBNodeTriples.get(key).toArray(new Triple[0])) {
+				for (Triple triple : tripleTypeSets.sBNodeTriples.get(key)) {
 					Node o = triple.getObject();
 					if (o.isURI()) {
 						String objectFragment = createURI(o.getURI()).getFragment();
