@@ -18,8 +18,8 @@
   <dependencies>
     <dependency>
       <groupId>org.apache.jena</groupId>
-      <artifactId>jena-arq</artifactId>
-      <version>4.10.0</version>
+      <artifactId>apache-jena-libs</artifactId>
+      <version>5.6.0</version>
     </dependency>
     <dependency>
       <groupId>com.arangodb</groupId>
