@@ -13,8 +13,19 @@ import java.util.*;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.graph.Triple;
+import org.apache.jena.ontapi.OntModelFactory;
+import org.apache.jena.ontapi.model.OntModel;
+import org.apache.jena.ontapi.model.OntStatement;
+import org.apache.jena.rdf.model.Property;
+import org.apache.jena.rdf.model.RDFNode;
+import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.Statement;
+import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFParser;
 import org.apache.jena.riot.lang.CollectorStreamTriples;
+import org.apache.jena.vocabulary.OWL;
+import org.apache.jena.vocabulary.RDF;
+import org.apache.jena.vocabulary.RDFS;
 
 /**
  * Parses each ontology file in the data/obo directory to produce triple sets
@@ -25,6 +36,9 @@ public class OntologyTripleParser {
 	// Assign location of ontology files
 	private static final Path usrDir = Paths.get(System.getProperty("user.dir"));
 	private static final Path oboDir = usrDir.resolve("data/obo");
+
+	private static final List<String> predicateNameSpaces = List.of("http://www.w3.org/2000/01/rdf-schema#",
+			"http://purl.obolibrary.org/obo/", "http://purl.org/dc/", "http://www.geneontology.org/formats/oboInOwl#");
 
 	/**
 	 * Collect all triples into sets containing triples with:
@@ -381,6 +395,81 @@ public class OntologyTripleParser {
 		}
 		System.out.println("Parsed ontology triples from " + files.size() + " files.");
 		return ontologyTripleTypeSets;
+	}
+
+	public static List<Triple> collectTriplesFromFile(Path owlFile) {
+
+		List<Triple> triples = new ArrayList<>();
+
+		// Read the OWL file
+		OntModel ontModel = OntModelFactory.createModel();
+		RDFDataMgr.read(ontModel, owlFile.toString());
+
+		// Print a few values describing the OWL file, and identify the root namespace
+		Resource ontology = ontModel.listResourcesWithProperty(RDF.type, OWL.Ontology).nextOptional().orElse(null);
+		Statement versionIRI = null;
+		Statement versionInfo = null;
+		Statement comment = null;
+		Statement rootTerm = null;
+		String rootNS;
+		if (ontology != null) {
+			versionIRI = ontology.getProperty(OWL.versionIRI);
+			if (versionIRI != null) {
+				System.out.println("versionIRI = " + versionIRI.getObject());
+			}
+			versionInfo = ontology.getProperty(OWL.versionInfo);
+			if (versionInfo != null) {
+				System.out.println("versionInfo = " + versionInfo.getObject());
+			}
+			comment = ontology.getProperty(RDFS.comment);
+			if (comment != null) {
+				System.out.println("comment = " + comment.getObject());
+			}
+			rootTerm = ontology.getProperty(ontModel.createProperty("http://purl.obolibrary.org/obo/IAO_0000700"));
+			if (rootTerm != null) {
+				System.out.println("rootTerm " + rootTerm.getObject());
+				rootNS = rootTerm.getResource().getURI().split("_")[0];
+			} else {
+				rootNS = null;
+			}
+		} else {
+			rootNS = null;
+		}
+
+		// Consider each statement about each class in the root name space
+		ontModel.classes().filter(ontClass -> ontClass.getURI().startsWith(rootNS)).forEach(ontClass -> {
+			ontClass.statements().forEach(classStatement -> {
+				String predicateURI = classStatement.getPredicate().getURI();
+				if (!classStatement.getObject().isAnon()) {
+					// Handle statements which contain a named object
+					if (predicateNameSpaces.stream().anyMatch(ns -> predicateURI.startsWith(ns))) {
+						// Collect statements as triples which contain a predicate in one of the
+						// specified name spaces
+						triples.add(classStatement.asTriple());
+					}
+				} else if (predicateURI.equals("http://www.w3.org/2000/01/rdf-schema#subClassOf")) {
+					// Handle statements which contain an anonymous object, and an rdfs:subClassOf
+					// predicate by considering each statement about the anonymous object in order
+					// to flatten these statements into a single statement with a named subject and
+					// object
+					Resource subject = classStatement.getSubject();
+					Property predicate = null;
+					RDFNode object = null;
+					for (OntStatement objectStatement : ontModel
+							.statements(classStatement.getObject().asResource(), null, null).toList()) {
+						String predicateResource = objectStatement.getPredicate().getURI();
+						if (predicateResource.equals("http://www.w3.org/2002/07/owl#onProperty")) {
+							predicate = ontModel.getProperty(objectStatement.getObject().asResource().getURI());
+						} else if (predicateResource.equals("http://www.w3.org/2002/07/owl#someValuesFrom")) {
+							object = objectStatement.getObject();
+						}
+					}
+					// Create the single statement, and collect it as a triple
+					triples.add(ontModel.createStatement(subject, predicate, object).asTriple());
+				}
+			});
+		});
+		return triples;
 	}
 
 	/**
