@@ -37,7 +37,6 @@ public class OntologyGraphBuilder {
 	private static final Path usrDir = Paths.get(System.getProperty("user.dir"));
 	public static final Path oboDir = usrDir.resolve("data/obo");
 	public static final Path deprecatedTermsFile = oboDir.resolve("deprecated_terms.txt");
-	public static final Path edgeSourcesFile = oboDir.resolve("edge_sources.txt");
 	public static final Path edgeLabelsFile = oboDir.resolve("edge_labels.txt");
 
 	// Assign vertices to include in the graph
@@ -45,6 +44,7 @@ public class OntologyGraphBuilder {
 			Arrays.asList("BGS", "BMC", "CHEBI", "CHEMBL", "CL", "CS", "CSD", "GO", "GS", "HP", "HsapDv", "MONDO",
 					"MmusDv", "NCBITaxon", "NCT", "Orphanet", "PATO", "PR", "PUB", "RS", "UBERON"));
 
+	// Assign pattern used in collecting literal value sets
 	private static final Pattern parenPattern = Pattern.compile("(.*) (\\(.*\\))$");
 
 	/**
@@ -119,7 +119,7 @@ public class OntologyGraphBuilder {
 
 	/**
 	 * Construct vertices using triples parsed from specified ontology files that
-	 * contain a filled subject and object which contain an ontology ID contained in
+	 * contain a named subject and object which contain an ontology ID contained in
 	 * the valid vertices collection.
 	 *
 	 * @param uniqueTriples     Unique triples with which to construct vertices
@@ -175,12 +175,11 @@ public class OntologyGraphBuilder {
 
 	/**
 	 * Update vertices using triples parsed from specified ontology files that
-	 * contain a filled subject which contains an ontology ID contained in the valid
+	 * contain a named subject which contains an ontology ID contained in the valid
 	 * vertices collection, and a filled object literal.
 	 *
-	 * @param uniqueTriples       Unique triples with which to construct vertices
-	 * @param ontologyElementMaps Maps terms and labels
-	 * @param vertexDocuments     ArangoDB vertex documents
+	 * @param uniqueTriples   Unique triples with which to update
+	 * @param vertexDocuments ArangoDB vertex documents
 	 */
 	public static void updateVertices(HashSet<Triple> uniqueTriples,
 			Map<String, OntologyElementMap> ontologyElementMaps, Map<String, Map<String, BaseDocument>> vertexDocuments)
@@ -357,10 +356,10 @@ public class OntologyGraphBuilder {
 
 	/**
 	 * Construct edges using triples parsed from specified ontology files that
-	 * contain a filled subject and object which contain an ontology ID contained in
+	 * contain a named subject and object which contain an ontology ID contained in
 	 * the valid vertices collection.
 	 *
-	 * @param triples             Triples with which to construct vertices
+	 * @param triples             Triples with which to construct edges
 	 * @param ontologyElementMaps Maps terms and labels
 	 * @param graph               ArangoDB graph in which to create vertex
 	 *                            collections
@@ -393,7 +392,7 @@ public class OntologyGraphBuilder {
 			if (!objectVTuple.isValidVertex)
 				continue;
 
-			// Parse the predicate and collect unique lables
+			// Parse the predicate and collect unique labels
 			String label = parsePredicate(ontologyElementMaps, triple.getPredicate());
 			edgeLabels.add(label);
 
@@ -597,7 +596,6 @@ public class OntologyGraphBuilder {
 		// Create, and insert the edges, capturing unique labels
 		Map<String, ArangoEdgeCollection> edgeCollections = new HashMap<>();
 		Map<String, Map<String, BaseEdgeDocument>> edgeDocuments = new HashMap<>();
-		HashSet<String> edgeSources = new HashSet<>();
 		HashSet<String> edgeLabels = new HashSet<>();
 		try {
 			edgeLabels.addAll(constructEdges(uniqueTriples, ontologyElementMaps, arangoDbUtilities, graph,

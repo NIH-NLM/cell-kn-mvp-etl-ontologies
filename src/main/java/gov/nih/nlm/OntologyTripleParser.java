@@ -1,17 +1,16 @@
 package gov.nih.nlm;
 
-import static gov.nih.nlm.OntologyElementParser.createURI;
 import static gov.nih.nlm.OntologyElementParser.parseOntologyElements;
-import static gov.nih.nlm.OntologyGraphBuilder.parsePredicate;
 import static gov.nih.nlm.PathUtilities.listFilesMatchingPattern;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 
-import org.apache.jena.graph.Node;
-import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.ontapi.OntModelFactory;
 import org.apache.jena.ontapi.model.OntModel;
@@ -21,14 +20,12 @@ import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.riot.RDFDataMgr;
-import org.apache.jena.riot.RDFParser;
-import org.apache.jena.riot.lang.CollectorStreamTriples;
 import org.apache.jena.vocabulary.OWL;
 import org.apache.jena.vocabulary.RDF;
 
 /**
- * Parses each ontology file in the data/obo directory to produce triple sets
- * sorted by the types of nodes the triples contain.
+ * Parses each ontology file in the data/obo directory to collect unique
+ * triples.
  */
 public class OntologyTripleParser {
 
@@ -46,7 +43,7 @@ public class OntologyTripleParser {
 	 * specified name spaces. Handle statements which contain an anonymous object
 	 * and an rdfs:subClassOf predicate by flattening all statements about the
 	 * anonymous object into a single statement with a named subject and object,
-	 * then collecting the triples from the single statement.
+	 * then collecting the triple from the single statement.
 	 * 
 	 * @param owlFile Path to OWL file
 	 * @return List of triples with named subject and object nodes
@@ -93,11 +90,11 @@ public class OntologyTripleParser {
 					// Handle statements which contain a named object
 					if (predicateNameSpaces.stream().anyMatch(ns -> predicateURI.startsWith(ns))) {
 						// Collect statements as triples which contain a predicate in one of the
-						// specified name spaces
+						// selected name spaces
 						triples.add(classStatement.asTriple());
 					}
 				} else if (predicateURI.equals("http://www.w3.org/2000/01/rdf-schema#subClassOf")) {
-					// Handle statements which contain an anonymous object, and an rdfs:subClassOf
+					// Handle statements which contain an anonymous object and an rdfs:subClassOf
 					// predicate by considering each statement about the anonymous object in order
 					// to flatten these statements into a single statement with a named subject and
 					// object
