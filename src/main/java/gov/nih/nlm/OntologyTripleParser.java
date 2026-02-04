@@ -36,6 +36,7 @@ public class OntologyTripleParser {
 	private static final Path usrDir = Paths.get(System.getProperty("user.dir"));
 	private static final Path oboDir = usrDir.resolve("data/obo");
 
+	// Assign selected predicate namespaces
 	private static final List<String> predicateNameSpaces = List.of("http://www.w3.org/2000/01/rdf-schema#",
 			"http://purl.obolibrary.org/obo/", "http://purl.org/dc/", "http://www.geneontology.org/formats/oboInOwl#");
 
@@ -167,9 +168,8 @@ public class OntologyTripleParser {
 	}
 
 	/**
-	 * Parse each ontology file in the data/obo directory to produce triple sets
-	 * sorted by the types of nodes the triples contain.
-	 * 
+	 * Parse each ontology file in the data/obo directory to collect unique triples
+	 *
 	 * @param args (None expected)
 	 */
 	public static void main(String[] args) {
