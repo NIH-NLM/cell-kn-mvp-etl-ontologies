@@ -2,8 +2,7 @@ package gov.nih.nlm;
 
 import static gov.nih.nlm.OntologyElementParser.createURI;
 import static gov.nih.nlm.OntologyElementParser.parseOntologyElements;
-import static gov.nih.nlm.OntologyTripleParser.collectUniqueSOFNodeTriples;
-import static gov.nih.nlm.OntologyTripleParser.parseOntologyTriples;
+import static gov.nih.nlm.OntologyTripleParser.collectUniqueTriples;
 import static gov.nih.nlm.PathUtilities.listFilesMatchingPattern;
 
 import java.io.BufferedWriter;
@@ -361,7 +360,6 @@ public class OntologyGraphBuilder {
 	 * contain a filled subject and object which contain an ontology ID contained in
 	 * the valid vertices collection.
 	 *
-	 * @param source              Souce of the triples
 	 * @param triples             Triples with which to construct vertices
 	 * @param ontologyElementMaps Maps terms and labels
 	 * @param graph               ArangoDB graph in which to create vertex
@@ -369,7 +367,7 @@ public class OntologyGraphBuilder {
 	 * @param edgeCollections     ArangoDB edge collections
 	 * @param edgeDocuments       ArangoDB edge documents
 	 */
-	public static HashSet<String> constructEdges(String source, HashSet<Triple> triples,
+	public static HashSet<String> constructEdges(HashSet<Triple> triples,
 			Map<String, OntologyElementMap> ontologyElementMaps, ArangoDbUtilities arangoDbUtilities, ArangoGraph graph,
 			Map<String, ArangoEdgeCollection> edgeCollections, Map<String, Map<String, BaseEdgeDocument>> edgeDocuments)
 			throws RuntimeException, IOException {
@@ -416,7 +414,7 @@ public class OntologyGraphBuilder {
 			String key = subjectVTuple.number + "-" + objectVTuple.number;
 			HashSet<String> labels;
 			HashSet<String> sources;
-			String normalizedSource = normalizeEdgeSource(source);
+			String normalizedSource = normalizeEdgeSource(subjectVTuple.id);
 			String normalizedLabel = normalizeEdgeLabel(label);
 			if (!edgeKeys.get(idPair).contains(key)) {
 				nEdges++;
@@ -554,10 +552,9 @@ public class OntologyGraphBuilder {
 			throw new RuntimeException(e);
 		}
 
-		// Parse ontology elements and triples, and connect unique triples
+		// Parse ontology elements, and collect unique triples
 		Map<String, OntologyElementMap> ontologyElementMaps = parseOntologyElements(oboFiles);
-		Map<String, TripleTypeSets> ontologyTripleTypeSets = parseOntologyTriples(oboFiles, ontologyElementMaps);
-		HashSet<Triple> uniqueTriples = collectUniqueSOFNodeTriples(oboFiles, ontologyTripleTypeSets);
+		HashSet<Triple> uniqueTriples = collectUniqueTriples(oboFiles);
 
 		// Connect to a local ArangoDB server instance
 		ArangoDbUtilities arangoDbUtilities = new ArangoDbUtilities();
@@ -597,38 +594,23 @@ public class OntologyGraphBuilder {
 			throw new RuntimeException(e);
 		}
 
-		// Create, and insert the edges, capturing unique sources and labels
+		// Create, and insert the edges, capturing unique labels
 		Map<String, ArangoEdgeCollection> edgeCollections = new HashMap<>();
 		Map<String, Map<String, BaseEdgeDocument>> edgeDocuments = new HashMap<>();
 		HashSet<String> edgeSources = new HashSet<>();
 		HashSet<String> edgeLabels = new HashSet<>();
-		for (Path oboFile : oboFiles) {
-			String oboFNm = oboFile.getFileName().toString();
-			if (oboFNm.equals("ro.owl"))
-				continue;
-			String source = oboFNm.substring(0, oboFNm.lastIndexOf("."));
-			edgeSources.add(source);
-			List<Triple> ontologyTriples = ontologyTripleTypeSets.get(source).soFNodeTriples;
-			HashSet<Triple> triples = new HashSet<>(ontologyTriples);
-			triples.retainAll(uniqueTriples);
-			try {
-				edgeLabels.addAll(constructEdges(source, triples, ontologyElementMaps, arangoDbUtilities, graph,
-						edgeCollections, edgeDocuments));
-			} catch (RuntimeException e) {
-				throw new RuntimeException(e);
-			} catch (IOException e) {
-				throw new IOException(e);
-			}
+		try {
+			edgeLabels.addAll(constructEdges(uniqueTriples, ontologyElementMaps, arangoDbUtilities, graph,
+					edgeCollections, edgeDocuments));
+		} catch (RuntimeException e) {
+			throw new RuntimeException(e);
+		} catch (IOException e) {
+			throw new IOException(e);
 		}
 		insertEdges(vertexCollections, edgeCollections, edgeDocuments);
 
-		// Document unique sources and labels, and their normalized values
+		// Document unique labels, and their normalized values
 		Charset charset = StandardCharsets.US_ASCII;
-		BufferedWriter edgeSourcesWriter = Files.newBufferedWriter(edgeSourcesFile, charset);
-		for (String source : edgeSources) {
-			edgeSourcesWriter.write(source + ": " + normalizeEdgeSource(source) + "\n");
-		}
-		edgeSourcesWriter.close();
 		BufferedWriter edgeLabelsWriter = Files.newBufferedWriter(edgeLabelsFile, charset);
 		for (String label : edgeLabels) {
 			edgeLabelsWriter.write(label + ": " + normalizeEdgeLabel(label) + "\n");
