@@ -5,9 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="68feab4d-4cd7-43cf-b930-9b7a07d572b4" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyNodeTypeCounter.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyNodeTypeCounts.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/TripleTypeSets.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyTripleParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyTripleParser.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -153,7 +151,7 @@
       <workItem from="1769609862665" duration="594000" />
       <workItem from="1769617874208" duration="567000" />
       <workItem from="1769618455221" duration="595000" />
-      <workItem from="1770127819990" duration="34152000" />
+      <workItem from="1770127819990" duration="34723000" />
     </task>
     <servers />
   </component>
