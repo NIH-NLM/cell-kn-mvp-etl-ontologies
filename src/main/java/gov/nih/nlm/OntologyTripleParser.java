@@ -41,25 +41,6 @@ public class OntologyTripleParser {
 			"http://purl.obolibrary.org/obo/", "http://purl.org/dc/", "http://www.geneontology.org/formats/oboInOwl#");
 
 	/**
-	 * Get the filled node of a triple containing either a blank subject or object
-	 * node.
-	 *
-	 * @param triple Triple containing a blank subject or object node
-	 * @return Filled node
-	 */
-	public static Node getFNode(Triple triple) {
-		if (triple.getSubject().isBlank() && triple.getObject().isBlank()) {
-			throw new IllegalArgumentException("Triple subject and object are both blank");
-		} else if (!triple.getSubject().isBlank() && !triple.getObject().isBlank()) {
-			throw new IllegalArgumentException("Triple subject and object are both filled");
-		} else if (triple.getSubject().isBlank()) {
-			return triple.getObject();
-		} else {
-			return triple.getSubject();
-		}
-	}
-
-	/**
 	 * Read an OWL file and identify the root namespace. Collect triples from
 	 * statements which contain a named object and a predicate in one of the
 	 * specified name spaces. Handle statements which contain an anonymous object
