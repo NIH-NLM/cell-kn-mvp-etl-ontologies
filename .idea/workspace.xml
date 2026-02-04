@@ -5,9 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="68feab4d-4cd7-43cf-b930-9b7a07d572b4" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyGraphBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyGraphBuilder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyTripleParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyTripleParser.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyNodeTypeCounter.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyNodeTypeCounts.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/TripleTypeSets.java" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -153,7 +153,7 @@
       <workItem from="1769609862665" duration="594000" />
       <workItem from="1769617874208" duration="567000" />
       <workItem from="1769618455221" duration="595000" />
-      <workItem from="1770127819990" duration="33494000" />
+      <workItem from="1770127819990" duration="34152000" />
     </task>
     <servers />
   </component>
@@ -163,11 +163,6 @@
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/gov/nih/nlm/ApacheJenaPlayground.java</url>
-          <line>102</line>
-          <option name="timeStamp" value="10" />
-        </line-breakpoint>
         <breakpoint enabled="true" type="java-exception">
           <properties class="org.apache.jena.riot.RiotNotFoundException" package="org.apache.jena.riot" />
           <option name="timeStamp" value="11" />
