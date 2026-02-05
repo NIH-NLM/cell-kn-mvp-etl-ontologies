@@ -6,7 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="68feab4d-4cd7-43cf-b930-9b7a07d572b4" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyGraphBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyGraphBuilder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyTripleParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/gov/nih/nlm/OntologyTripleParser.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -50,13 +50,14 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Application.ApacheJenaPlayground.executor": "Debug",
-    "Application.OntologyGraphBuilder.executor": "Run",
+    "Application.OntologyGraphBuilder.executor": "Debug",
     "Application.OntologyTripleParser.executor": "Run",
     "RunOnceActivity.MCP Project settings loaded": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "git-widget-placeholder": "ralatsdc/put-ontology-triple-parsing-on-firmer-footing",
+    "git-widget-placeholder": "277076ad",
     "kotlin-language-version-configured": "true",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -153,7 +154,7 @@
       <workItem from="1769609862665" duration="594000" />
       <workItem from="1769617874208" duration="567000" />
       <workItem from="1769618455221" duration="595000" />
-      <workItem from="1770127819990" duration="38104000" />
+      <workItem from="1770127819990" duration="42365000" />
     </task>
     <servers />
   </component>
