@@ -13,6 +13,7 @@ import java.util.Map;
 
 import org.apache.jena.graph.Triple;
 import org.apache.jena.ontapi.OntModelFactory;
+import org.apache.jena.ontapi.model.OntClass;
 import org.apache.jena.ontapi.model.OntModel;
 import org.apache.jena.ontapi.model.OntStatement;
 import org.apache.jena.rdf.model.Property;
@@ -50,7 +51,7 @@ public class OntologyTripleParser {
 	 */
 	public static List<Triple> collectTriplesFromFile(Path owlFile) {
 		List<Triple> triples = new ArrayList<>();
-		System.out.println("Collecting triples from within " + owlFile);
+		System.out.println("Collecting triples from within " + owlFile.getFileName());
 		long startTime = System.nanoTime();
 
 		// Read the OWL file
@@ -83,8 +84,14 @@ public class OntologyTripleParser {
 		}
 
 		// Consider each statement about each class in the root name space
-		ontModel.classes().filter(ontClass -> ontClass.getURI().startsWith(rootNS)).forEach(ontClass -> {
-			ontClass.statements().forEach(classStatement -> {
+		System.out.println("Filter on root NS " + rootNS);
+		for (OntClass ontClass : ontModel.classes().toList()) {
+			if (!ontClass.getURI().startsWith(rootNS)) {
+				continue;
+			}
+			System.out.println(ontClass);
+			for (OntStatement classStatement : ontClass.statements().toList()) {
+				System.out.println(classStatement);
 				String predicateURI = classStatement.getPredicate().getURI();
 				if (!classStatement.getObject().isAnon()) {
 					// Handle statements which contain a named object
@@ -115,10 +122,11 @@ public class OntologyTripleParser {
 						triples.add(ontModel.createStatement(subject, predicate, object).asTriple());
 					}
 				}
-			});
-		});
+			}
+		}
 		long stopTime = System.nanoTime();
-		System.out.println("Collected triples from within " + owlFile + " in " + (stopTime - startTime) / 1e9 + " s");
+		System.out.println("Collected triples from within " + owlFile.getFileName() + " in "
+				+ (stopTime - startTime) / 1e9 + " s");
 		return triples;
 	}
 
