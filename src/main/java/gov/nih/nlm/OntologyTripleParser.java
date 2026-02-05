@@ -89,9 +89,7 @@ public class OntologyTripleParser {
 			if (!ontClass.getURI().startsWith(rootNS)) {
 				continue;
 			}
-			System.out.println(ontClass);
 			for (OntStatement classStatement : ontClass.statements().toList()) {
-				System.out.println(classStatement);
 				String predicateURI = classStatement.getPredicate().getURI();
 				if (!classStatement.getObject().isAnon()) {
 					// Handle statements which contain a named object
