@@ -17,11 +17,12 @@ OBO_PURLS = [
     "http://purl.obolibrary.org/obo/cl.owl",
     "http://purl.obolibrary.org/obo/ro.owl",
     # "http://purl.obolibrary.org/obo/pcl.owl",
-    "https://purl.obolibrary.org/obo/go/extensions/go-plus.owl",
+    "http://purl.obolibrary.org/obo/go.owl",
     "http://purl.obolibrary.org/obo/uberon/uberon-base.owl",
     "http://purl.obolibrary.org/obo/ncbitaxon/subsets/taxslim.owl",
     # "http://purl.obolibrary.org/obo/hancestro/hancestro.owl",
     "http://purl.obolibrary.org/obo/mondo/mondo-simple.owl",
+    "http://purl.obolibrary.org/obo/hp.owl",
     "http://purl.obolibrary.org/obo/pato.owl",
     "http://purl.obolibrary.org/obo/mmusdv.owl",
     "http://purl.obolibrary.org/obo/hsapdv.owl",
@@ -69,18 +70,18 @@ def find_obo_version(obo_filepath):
     except Exception as e:
         try:
             version_iri = root.find(f"{OWL_NS}Ontology/{OWL_NS}versionIRI")
-            version = float(version_iri.get(f"{RDF_NS}resource").split("/")[5])
-        except Exception as e:
-            try:
-                version = datetime.strftime(
-                    datetime.strptime(
-                        version_iri.get(f"{RDF_NS}resource").split("/")[5], "%Y-%m-%d"
-                    ),
+            version = datetime.strftime(
+                datetime.strptime(
+                    re.search(
+                        r"(\d{4}-\d{2}-\d{2})", version_iri.get(f"{RDF_NS}resource")
+                    ).group(1),
                     "%Y-%m-%d",
-                )
-            except Exception as e:
-                print(f"Could not get version for {obo_filepath}")
-                version = None
+                ),
+                "%Y-%m-%d",
+            )
+        except Exception as e:
+            print(f"Could not get version for {obo_filepath}")
+            version = None
     return version
 
 
