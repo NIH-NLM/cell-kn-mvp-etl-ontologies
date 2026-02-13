@@ -8,6 +8,9 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.apache.jena.graph.Triple;
+import org.apache.jena.ontapi.OntModelFactory;
+import org.apache.jena.ontapi.model.OntModel;
+import org.apache.jena.riot.RDFDataMgr;
 import org.junit.jupiter.api.Test;
 
 class OntologyTripleParserTest {
@@ -126,6 +129,28 @@ class OntologyTripleParserTest {
 
 		// The unique set size should be <= total triples
 		assertTrue(uniqueTriples.size() <= allTriples.size());
+	}
+
+	@Test
+	void getRootNS_macrophage() {
+		Path macrophageOwl = testOboDir.resolve("macrophage.owl");
+		OntModel ontModel = OntModelFactory.createModel();
+		RDFDataMgr.read(ontModel, macrophageOwl.toString());
+
+		String rootNS = OntologyTripleParser.getRootNS(ontModel);
+
+		assertEquals("http://purl.obolibrary.org/obo/CL", rootNS);
+	}
+
+	@Test
+	void getRootNS_no_IAO_0000700() {
+		Path macrophageOwl = testOboDir.resolve("no-IAO_0000700-test.owl");
+		OntModel ontModel = OntModelFactory.createModel();
+		RDFDataMgr.read(ontModel, macrophageOwl.toString());
+
+		String rootNS = OntologyTripleParser.getRootNS(ontModel);
+
+		assertEquals("http://purl.obolibrary.org/obo/NCBITaxon", rootNS);
 	}
 
 	@Test
