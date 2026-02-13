@@ -151,7 +151,7 @@ class OntologyGraphBuilderTest {
     }
 
     @Test
-    void parsePredicate_oboTermWithRoMapping() {
+    void parsePredicate_oboTermWithDevelopsFrom() {
         // A URI without fragment, where the term is in the ro map
         List<Path> roFile = List.of(oboDir.resolve("ro.owl"));
         Map<String, OntologyElementMap> maps = OntologyElementParser.parseOntologyElements(roFile);
