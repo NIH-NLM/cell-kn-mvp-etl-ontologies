@@ -544,8 +544,7 @@ public class OntologyGraphBuilder {
 		try {
 			oboFiles = listFilesMatchingPattern(oboPath, oboPattern);
 			if (oboFiles.isEmpty()) {
-				System.out.println("No OBO files found matching the pattern " + oboPattern);
-				System.exit(1);
+				throw new RuntimeException("No OBO files found matching the pattern " + oboPattern);
 			}
 		} catch (IOException e) {
 			throw new RuntimeException(e);
