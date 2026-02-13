@@ -35,7 +35,10 @@ public class OntologyTripleParser {
     private static final Path oboDir = usrDir.resolve("data/obo");
 
     // Assign selected predicate namespaces
-    private static final List<String> predicateNameSpaces = List.of("http://www.w3.org/2000/01/rdf-schema#", "http://purl.obolibrary.org/obo/", "http://purl.org/dc/", "http://www.geneontology.org/formats/oboInOwl#");
+    private static final List<String> predicateNameSpaces = List.of("http://www.w3.org/2000/01/rdf-schema#",
+            "http://purl.obolibrary.org/obo/",
+            "http://purl.org/dc/",
+            "http://www.geneontology.org/formats/oboInOwl#");
 
     /**
      * Read an OWL file and identify the root namespace. Collect triples from
@@ -81,7 +84,9 @@ public class OntologyTripleParser {
                     Resource subject = classStatement.getSubject();
                     Property predicate = null;
                     RDFNode object = null;
-                    for (OntStatement objectStatement : ontModel.statements(classStatement.getObject().asResource(), null, null).toList()) {
+                    for (OntStatement objectStatement : ontModel.statements(classStatement.getObject().asResource(),
+                            null,
+                            null).toList()) {
                         String predicateResource = objectStatement.getPredicate().getURI();
                         if (predicateResource.equals("http://www.w3.org/2002/07/owl#onProperty")) {
                             predicate = ontModel.getProperty(objectStatement.getObject().asResource().getURI());
