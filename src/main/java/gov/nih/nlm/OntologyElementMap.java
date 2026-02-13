@@ -12,43 +12,63 @@ import java.util.Set;
  */
 public class OntologyElementMap {
 
-	/** Ontology title */
-	public String title;
-	/** Ontology description */
-	public String description;
-	/** Ontology PURL */
-	public URI purl;
-	/** Ontology version */
-	public URI versionIRI;
-	/** Ontology root term */
-	public URI root;
-	/** Unique ontology term ids */
-	public Set<String> ids;
-	/** Mapping from ontology term to PURLs and labels */
-	public Map<String, OntologyTerm> terms;
+    /**
+     * Ontology title
+     */
+    public String title;
+    /**
+     * Ontology description
+     */
+    public String description;
+    /**
+     * Ontology PURL
+     */
+    public URI purl;
+    /**
+     * Ontology version
+     */
+    public URI versionIRI;
+    /**
+     * Ontology root term
+     */
+    public URI root;
+    /**
+     * Unique ontology term ids
+     */
+    public Set<String> ids;
+    /**
+     * Mapping from ontology term to PURLs and labels
+     */
+    public Map<String, OntologyTerm> terms;
 
-	/** Contains ontology term PURL and label */
-	public static class OntologyTerm {
+    public OntologyElementMap() {
+        ids = new HashSet<>();
+        terms = new HashMap<>();
+    }
 
-		/** Ontology term PURL */
-		public URI purl;
-		/** Ontology term label */
-		public String label;
+    /**
+     * Contains ontology term PURL and label
+     */
+    public static class OntologyTerm {
 
-		/**
-		 * Construct an OntologyTerm instance.
-		 * 
-		 * @param purl  Ontology term PURL
-		 * @param label Ontology term label
-		 */
-		public OntologyTerm(URI purl, String label) {
-			this.purl = purl;
-			this.label = label;
-		}
-	}
+        /**
+         * Ontology term PURL
+         */
+        public URI purl;
+        /**
+         * Ontology term label
+         */
+        public String label;
 
-	public OntologyElementMap() {
-		ids = new HashSet<>();
-		terms = new HashMap<>();
-	}
+        /**
+         * Construct an OntologyTerm instance.
+         *
+         * @param purl  Ontology term PURL
+         * @param label Ontology term label
+         */
+        public OntologyTerm(URI purl, String label) {
+            this.purl = purl;
+            this.label = label;
+        }
+    }
 }
