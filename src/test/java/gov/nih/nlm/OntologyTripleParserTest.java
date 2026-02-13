@@ -11,7 +11,10 @@ import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class OntologyTripleParserTest {
 
@@ -40,7 +43,8 @@ class OntologyTripleParserTest {
         String macrophageUri = "http://purl.obolibrary.org/obo/CL_0000235";
         String subClassOfUri = "http://www.w3.org/2000/01/rdf-schema#subClassOf";
 
-        List<Triple> macrophageSubClassTriples = triples.stream().filter(t -> t.getSubject().getURI().equals(macrophageUri)).filter(t -> t.getPredicate().getURI().equals(subClassOfUri)).toList();
+        List<Triple> macrophageSubClassTriples = triples.stream().filter(t -> t.getSubject().getURI().equals(
+                macrophageUri)).filter(t -> t.getPredicate().getURI().equals(subClassOfUri)).toList();
 
         assertFalse(macrophageSubClassTriples.isEmpty());
 
@@ -60,7 +64,8 @@ class OntologyTripleParserTest {
         String developsFromUri = "http://purl.obolibrary.org/obo/RO_0002202";
         String monocyteUri = "http://purl.obolibrary.org/obo/CL_0000576";
 
-        boolean found = triples.stream().anyMatch(t -> t.getSubject().getURI().equals(macrophageUri) && t.getPredicate().getURI().equals(developsFromUri) && t.getObject().isURI() && t.getObject().getURI().equals(monocyteUri));
+        boolean found = triples.stream().anyMatch(t -> t.getSubject().getURI().equals(macrophageUri) && t.getPredicate().getURI().equals(
+                developsFromUri) && t.getObject().isURI() && t.getObject().getURI().equals(monocyteUri));
         assertTrue(found, "Should contain flattened restriction: macrophage develops_from monocyte");
     }
 
@@ -74,7 +79,8 @@ class OntologyTripleParserTest {
         String capableOfUri = "http://purl.obolibrary.org/obo/RO_0002215";
         String pseudopodiumOrgUri = "http://purl.obolibrary.org/obo/GO_0031268";
 
-        boolean found = triples.stream().anyMatch(t -> t.getSubject().getURI().equals(macrophageUri) && t.getPredicate().getURI().equals(capableOfUri) && t.getObject().isURI() && t.getObject().getURI().equals(pseudopodiumOrgUri));
+        boolean found = triples.stream().anyMatch(t -> t.getSubject().getURI().equals(macrophageUri) && t.getPredicate().getURI().equals(
+                capableOfUri) && t.getObject().isURI() && t.getObject().getURI().equals(pseudopodiumOrgUri));
         assertTrue(found, "Should contain flattened restriction: macrophage capable_of GO_0031268");
     }
 
@@ -100,7 +106,8 @@ class OntologyTripleParserTest {
         // All subjects should be from CL namespace (macrophage.owl root) not RO
         // since ro.owl is skipped
         String roNS = "http://purl.obolibrary.org/obo/RO_";
-        boolean hasRoSubject = uniqueTriples.stream().anyMatch(t -> t.getSubject().isURI() && t.getSubject().getURI().startsWith(roNS));
+        boolean hasRoSubject = uniqueTriples.stream().anyMatch(t -> t.getSubject().isURI() && t.getSubject().getURI().startsWith(
+                roNS));
         assertFalse(hasRoSubject, "Should not contain triples with RO subjects (ro.owl is skipped)");
     }
 

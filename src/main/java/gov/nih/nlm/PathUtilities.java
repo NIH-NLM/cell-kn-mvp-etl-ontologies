@@ -24,7 +24,8 @@ public class PathUtilities {
     public static List<Path> listFilesMatchingPattern(String directoryPath, String filePattern) throws IOException {
         Pattern pattern = Pattern.compile(filePattern);
         try (var filesStream = Files.list(Paths.get(directoryPath))) {
-            return filesStream.filter(Files::isRegularFile).filter(path -> pattern.matcher(path.getFileName().toString()).matches()).collect(Collectors.toList());
+            return filesStream.filter(Files::isRegularFile).filter(path -> pattern.matcher(path.getFileName().toString()).matches()).collect(
+                    Collectors.toList());
         }
     }
 }

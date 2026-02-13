@@ -22,7 +22,15 @@ import java.util.regex.Pattern;
 public class OntologyDownloader {
 
     // Assign OBO Foundry PURLs
-    static final List<String> OBO_PURLS = List.of("http://purl.obolibrary.org/obo/cl.owl", "http://purl.obolibrary.org/obo/ro.owl", "http://purl.obolibrary.org/obo/go.owl", "http://purl.obolibrary.org/obo/uberon/uberon-base.owl", "http://purl.obolibrary.org/obo/ncbitaxon/subsets/taxslim.owl", "http://purl.obolibrary.org/obo/mondo/mondo-simple.owl", "http://purl.obolibrary.org/obo/hp.owl", "http://purl.obolibrary.org/obo/pato.owl", "http://purl.obolibrary.org/obo/hsapdv.owl");
+    static final List<String> OBO_PURLS = List.of("http://purl.obolibrary.org/obo/cl.owl",
+            "http://purl.obolibrary.org/obo/ro.owl",
+            "http://purl.obolibrary.org/obo/go.owl",
+            "http://purl.obolibrary.org/obo/uberon/uberon-base.owl",
+            "http://purl.obolibrary.org/obo/ncbitaxon/subsets/taxslim.owl",
+            "http://purl.obolibrary.org/obo/mondo/mondo-simple.owl",
+            "http://purl.obolibrary.org/obo/hp.owl",
+            "http://purl.obolibrary.org/obo/pato.owl",
+            "http://purl.obolibrary.org/obo/hsapdv.owl");
     // Assign location of ontology files
     private static final Path usrDir = Paths.get(System.getProperty("user.dir"));
     private static final Path oboDir = usrDir.resolve("data/obo");

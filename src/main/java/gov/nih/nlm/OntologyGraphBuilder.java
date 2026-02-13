@@ -17,7 +17,13 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,7 +45,26 @@ public class OntologyGraphBuilder {
     public static final Path edgeLabelsFile = oboDir.resolve("edge_labels.txt");
 
     // Assign vertices to include in the graph
-    private static final ArrayList<String> validVertices = new ArrayList<>(Arrays.asList("BGS", "BMC", "CHEBI", "CHEMBL", "CL", "CS", "CSD", "GO", "GS", "HP", "HsapDv", "MONDO", "NCBITaxon", "NCT", "Orphanet", "PATO", "PR", "PUB", "RS", "UBERON"));
+    private static final ArrayList<String> validVertices = new ArrayList<>(Arrays.asList("BGS",
+            "BMC",
+            "CHEBI",
+            "CHEMBL",
+            "CL",
+            "CS",
+            "CSD",
+            "GO",
+            "GS",
+            "HP",
+            "HsapDv",
+            "MONDO",
+            "NCBITaxon",
+            "NCT",
+            "Orphanet",
+            "PATO",
+            "PR",
+            "PUB",
+            "RS",
+            "UBERON"));
 
     // Assign pattern used in collecting literal value sets
     private static final Pattern parenPattern = Pattern.compile("(.*) (\\(.*\\))$");
@@ -91,7 +116,8 @@ public class OntologyGraphBuilder {
      * @param p                   Predicate node to parse
      * @return Label resulting from parsing the node
      */
-    public static String parsePredicate(Map<String, OntologyElementMap> ontologyElementMaps, Node p) throws RuntimeException {
+    public static String parsePredicate(Map<String, OntologyElementMap> ontologyElementMaps,
+                                        Node p) throws RuntimeException {
         String label;
         if (p.isURI()) {
             label = createURI(p.getURI()).getFragment();
@@ -121,7 +147,11 @@ public class OntologyGraphBuilder {
      * @param vertexCollections ArangoDB vertex collections
      * @param vertexDocuments   ArangoDB vertex documents
      */
-    public static void constructVertices(HashSet<Triple> uniqueTriples, ArangoDbUtilities arangoDbUtilities, ArangoGraph graph, Map<String, ArangoVertexCollection> vertexCollections, Map<String, Map<String, BaseDocument>> vertexDocuments) {
+    public static void constructVertices(HashSet<Triple> uniqueTriples,
+                                         ArangoDbUtilities arangoDbUtilities,
+                                         ArangoGraph graph,
+                                         Map<String, ArangoVertexCollection> vertexCollections,
+                                         Map<String, Map<String, BaseDocument>> vertexDocuments) {
 
         // Collect vertex keys for each vertex collection to prevent constructing
         // duplicate vertices in the vertex collection
@@ -143,7 +173,8 @@ public class OntologyGraphBuilder {
 
                     // Create a vertex collection, if needed
                     if (!vertexCollections.containsKey(vtuple.id)) {
-                        vertexCollections.put(vtuple.id, arangoDbUtilities.createOrGetVertexCollection(graph, vtuple.id));
+                        vertexCollections.put(vtuple.id,
+                                arangoDbUtilities.createOrGetVertexCollection(graph, vtuple.id));
                         vertexDocuments.put(vtuple.id, new HashMap<>());
                         vertexKeys.put(vtuple.id, new HashSet<>());
                     }
@@ -170,7 +201,9 @@ public class OntologyGraphBuilder {
      * @param uniqueTriples   Unique triples with which to update
      * @param vertexDocuments ArangoDB vertex documents
      */
-    public static void updateVertices(HashSet<Triple> uniqueTriples, Map<String, OntologyElementMap> ontologyElementMaps, Map<String, Map<String, BaseDocument>> vertexDocuments) throws RuntimeException {
+    public static void updateVertices(HashSet<Triple> uniqueTriples,
+                                      Map<String, OntologyElementMap> ontologyElementMaps,
+                                      Map<String, Map<String, BaseDocument>> vertexDocuments) throws RuntimeException {
 
         // Process triples
         long startTime = System.nanoTime();
@@ -244,7 +277,8 @@ public class OntologyGraphBuilder {
      * @param vertexCollections ArangoDB vertex collections
      * @param vertexDocuments   ArangoDB vertex documents
      */
-    public static void insertVertices(Map<String, ArangoVertexCollection> vertexCollections, Map<String, Map<String, BaseDocument>> vertexDocuments) throws IOException {
+    public static void insertVertices(Map<String, ArangoVertexCollection> vertexCollections,
+                                      Map<String, Map<String, BaseDocument>> vertexDocuments) throws IOException {
         System.out.println("Inserting vertices");
         long startTime = System.nanoTime();
         Charset charset = StandardCharsets.US_ASCII;
@@ -267,7 +301,8 @@ public class OntologyGraphBuilder {
                 if (vertexCollection.getVertex(doc.getKey(), doc.getClass()) == null) {
                     Object deprecated = doc.getAttribute("deprecated");
                     Object label = doc.getAttribute("label");
-                    if ((deprecated != null && deprecated.toString().contains("true")) || (label != null && label.toString().contains("obsolete"))) {
+                    if ((deprecated != null && deprecated.toString().contains("true")) || (label != null && label.toString().contains(
+                            "obsolete"))) {
                         deprecatedTermsWriter.write(id + "_" + number + "\n");
                         continue;
                     }
@@ -349,7 +384,12 @@ public class OntologyGraphBuilder {
      * @param edgeCollections     ArangoDB edge collections
      * @param edgeDocuments       ArangoDB edge documents
      */
-    public static HashSet<String> constructEdges(HashSet<Triple> triples, Map<String, OntologyElementMap> ontologyElementMaps, ArangoDbUtilities arangoDbUtilities, ArangoGraph graph, Map<String, ArangoEdgeCollection> edgeCollections, Map<String, Map<String, BaseEdgeDocument>> edgeDocuments) throws RuntimeException, IOException {
+    public static HashSet<String> constructEdges(HashSet<Triple> triples,
+                                                 Map<String, OntologyElementMap> ontologyElementMaps,
+                                                 ArangoDbUtilities arangoDbUtilities,
+                                                 ArangoGraph graph,
+                                                 Map<String, ArangoEdgeCollection> edgeCollections,
+                                                 Map<String, Map<String, BaseEdgeDocument>> edgeDocuments) throws RuntimeException, IOException {
 
         // Collect edge keys in each edge collection to prevent constructing duplicate
         // edges in the edge collection
@@ -377,7 +417,8 @@ public class OntologyGraphBuilder {
             // Create an edge collection, if needed
             String idPair = subjectVTuple.id + "-" + objectVTuple.id;
             if (!edgeCollections.containsKey(idPair)) {
-                edgeCollections.put(idPair, arangoDbUtilities.createOrGetEdgeCollection(graph, subjectVTuple.id, objectVTuple.id));
+                edgeCollections.put(idPair,
+                        arangoDbUtilities.createOrGetEdgeCollection(graph, subjectVTuple.id, objectVTuple.id));
                 edgeDocuments.put(idPair, new HashMap<>());
             }
 
@@ -394,7 +435,9 @@ public class OntologyGraphBuilder {
             String normalizedLabel = normalizeEdgeLabel(label);
             if (!edgeKeys.get(idPair).contains(key)) {
                 nEdges++;
-                BaseEdgeDocument doc = new BaseEdgeDocument(key, subjectVTuple.id + "/" + subjectVTuple.number, objectVTuple.id + "/" + objectVTuple.number);
+                BaseEdgeDocument doc = new BaseEdgeDocument(key,
+                        subjectVTuple.id + "/" + subjectVTuple.number,
+                        objectVTuple.id + "/" + objectVTuple.number);
 
                 // Collect the first label and source
                 labels = new HashSet<>();
@@ -459,7 +502,9 @@ public class OntologyGraphBuilder {
      * @param edgeCollections   ArangoDB edge collections
      * @param edgeDocuments     ArangoDB edge documents
      */
-    public static void insertEdges(Map<String, ArangoVertexCollection> vertexCollections, Map<String, ArangoEdgeCollection> edgeCollections, Map<String, Map<String, BaseEdgeDocument>> edgeDocuments) {
+    public static void insertEdges(Map<String, ArangoVertexCollection> vertexCollections,
+                                   Map<String, ArangoEdgeCollection> edgeCollections,
+                                   Map<String, Map<String, BaseEdgeDocument>> edgeDocuments) {
         System.out.println("Inserting edges");
         long startTime = System.nanoTime();
         int nEdges = 0;
@@ -476,7 +521,9 @@ public class OntologyGraphBuilder {
                 String toName = getDocumentCollectionName(toId);
                 String toKey = getDocumentKey(toId);
                 if (edgeCollection.getEdge(docKey, doc.getClass()) == null) {
-                    if (!(vertexCollections.get(fromName).getVertex(fromKey, BaseDocument.class) == null) && !(vertexCollections.get(toName).getVertex(toKey, BaseDocument.class) == null)) {
+                    if (!(vertexCollections.get(fromName).getVertex(fromKey,
+                            BaseDocument.class) == null) && !(vertexCollections.get(toName).getVertex(toKey,
+                            BaseDocument.class) == null)) {
                         try {
                             edgeCollection.insertEdge(doc);
                         } catch (Exception e) {
@@ -569,7 +616,12 @@ public class OntologyGraphBuilder {
         Map<String, Map<String, BaseEdgeDocument>> edgeDocuments = new HashMap<>();
         HashSet<String> edgeLabels = new HashSet<>();
         try {
-            edgeLabels.addAll(constructEdges(uniqueTriples, ontologyElementMaps, arangoDbUtilities, graph, edgeCollections, edgeDocuments));
+            edgeLabels.addAll(constructEdges(uniqueTriples,
+                    ontologyElementMaps,
+                    arangoDbUtilities,
+                    graph,
+                    edgeCollections,
+                    edgeDocuments));
         } catch (RuntimeException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
