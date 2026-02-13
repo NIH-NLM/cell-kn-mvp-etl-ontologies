@@ -10,6 +10,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.jena.graph.NodeFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -150,7 +151,7 @@ class OntologyGraphBuilderTest {
     }
 
     @Test
-    void parsePredicate_oboTermWithRoMapping() {
+    void parsePredicate_oboTermWithDevelopsFrom() {
         // A URI without fragment, where the term is in the ro map
         List<Path> roFile = List.of(oboDir.resolve("ro.owl"));
         Map<String, OntologyElementMap> maps = OntologyElementParser.parseOntologyElements(roFile);
@@ -312,6 +313,7 @@ class OntologyGraphBuilderTest {
      *
      * This test requires a running ArangoDB instance.
      */
+    @Tag("integration")
     @Test
     void main() {
         try {

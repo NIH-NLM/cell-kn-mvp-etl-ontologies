@@ -1,13 +1,32 @@
 package gov.nih.nlm;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.arangodb.*;
 import com.arangodb.entity.EdgeDefinition;
+import com.arangodb.entity.arangosearch.AnalyzerFeature;
+import com.arangodb.entity.arangosearch.CollectionLink;
+import com.arangodb.entity.arangosearch.FieldLink;
+import com.arangodb.entity.arangosearch.StoreValuesType;
+import com.arangodb.entity.arangosearch.analyzer.EdgeNgram;
+import com.arangodb.entity.arangosearch.analyzer.NGramAnalyzer;
+import com.arangodb.entity.arangosearch.analyzer.NGramAnalyzerProperties;
+import com.arangodb.entity.arangosearch.analyzer.SearchAnalyzerCase;
+import com.arangodb.entity.arangosearch.analyzer.StreamType;
+import com.arangodb.entity.arangosearch.analyzer.TextAnalyzer;
+import com.arangodb.entity.arangosearch.analyzer.TextAnalyzerProperties;
 import com.arangodb.model.EdgeCollectionRemoveOptions;
 import com.arangodb.model.VertexCollectionRemoveOptions;
+import com.arangodb.model.arangosearch.ArangoSearchCreateOptions;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Provides utilities for managing named ArangoDB databases, graphs, vertex
@@ -180,6 +199,130 @@ public class ArangoDbUtilities {
 			EdgeCollectionRemoveOptions options = new EdgeCollectionRemoveOptions();
 			options.dropCollections(true);
 			graph.edgeCollection(edgeName).remove(options);
+		}
+	}
+
+	/**
+	 * Create n-gram and text analyzers in the specified database.
+	 *
+	 * @param db Database in which to create the analyzers
+	 */
+	public void createAnalyzers(ArangoDatabase db) {
+		// Create n-gram analyzer
+		NGramAnalyzer ngramAnalyzer = new NGramAnalyzer();
+		ngramAnalyzer.setName("n-gram");
+		ngramAnalyzer.setFeatures(Set.of(AnalyzerFeature.frequency, AnalyzerFeature.position, AnalyzerFeature.norm));
+		NGramAnalyzerProperties ngramProps = new NGramAnalyzerProperties();
+		ngramProps.setMin(3);
+		ngramProps.setMax(4);
+		ngramProps.setPreserveOriginal(true);
+		ngramProps.setStreamType(StreamType.utf8);
+		ngramAnalyzer.setProperties(ngramProps);
+		System.out.println("Creating analyzer: n-gram");
+		db.createSearchAnalyzer(ngramAnalyzer);
+
+		// Create text analyzer without stemming
+		TextAnalyzer textAnalyzer = new TextAnalyzer();
+		textAnalyzer.setName("text_en_no_stem");
+		textAnalyzer.setFeatures(Set.of(AnalyzerFeature.frequency, AnalyzerFeature.position, AnalyzerFeature.norm));
+		TextAnalyzerProperties textProps = new TextAnalyzerProperties();
+		textProps.setLocale("en");
+		textProps.setAnalyzerCase(SearchAnalyzerCase.lower);
+		textProps.setAccent(false);
+		textProps.setStemming(false);
+		EdgeNgram edgeNgram = new EdgeNgram();
+		edgeNgram.setMin(3);
+		edgeNgram.setMax(12);
+		edgeNgram.setPreserveOriginal(true);
+		textProps.setEdgeNgram(edgeNgram);
+		textAnalyzer.setProperties(textProps);
+		System.out.println("Creating analyzer: text_en_no_stem");
+		db.createSearchAnalyzer(textAnalyzer);
+	}
+
+	/**
+	 * Delete n-gram and text analyzers in the specified database.
+	 *
+	 * @param db Database in which to delete the analyzers
+	 */
+	public void deleteAnalyzers(ArangoDatabase db) {
+		try {
+			System.out.println("Deleting analyzer: n-gram");
+			db.deleteSearchAnalyzer("n-gram");
+		} catch (ArangoDBException e) {
+			System.out.println("Analyzer n-gram not found, skipping");
+		}
+		try {
+			System.out.println("Deleting analyzer: text_en_no_stem");
+			db.deleteSearchAnalyzer("text_en_no_stem");
+		} catch (ArangoDBException e) {
+			System.out.println("Analyzer text_en_no_stem not found, skipping");
+		}
+	}
+
+	/**
+	 * Create an arangosearch view named "indexed" in the specified database,
+	 * using the collection maps JSON file to configure per-collection links.
+	 *
+	 * @param db                 Database in which to create the view
+	 * @param collectionMapsPath Path to the JSON file containing collection maps
+	 * @throws IOException if the JSON file cannot be read
+	 */
+	public void createView(ArangoDatabase db, Path collectionMapsPath) throws IOException {
+		// Read collection maps JSON
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode root = mapper.readTree(Files.readString(collectionMapsPath));
+		JsonNode maps = root.get("maps");
+
+		// Build view options with per-collection links
+		ArangoSearchCreateOptions options = new ArangoSearchCreateOptions()
+				.commitIntervalMsec(1000L)
+				.consolidationIntervalMsec(1000L)
+				.cleanupIntervalStep(2L);
+
+		for (JsonNode collectionMap : maps) {
+			String vertexName = collectionMap.get(0).asText();
+			// Skip non-vertex entries
+			if (vertexName.equals("edges") || vertexName.equals("TEST_DOCUMENT_COLLECTION")
+					|| vertexName.equals("TEST_EDGE_COLLECTION")) {
+				continue;
+			}
+
+			// Collect field names
+			JsonNode individualFields = collectionMap.get(1).get("individual_fields");
+			List<FieldLink> fieldLinks = new ArrayList<>();
+			for (JsonNode field : individualFields) {
+				String fieldName = field.get("field_to_display").asText();
+				fieldLinks.add(FieldLink.on(fieldName)
+						.analyzers("text_en", "text_en_no_stem", "n-gram", "identity"));
+			}
+
+			// Create collection link
+			CollectionLink link = CollectionLink.on(vertexName)
+					.analyzers("identity")
+					.includeAllFields(false)
+					.storeValues(StoreValuesType.NONE)
+					.trackListPositions(false)
+					.fields(fieldLinks.toArray(new FieldLink[0]));
+
+			options.link(link);
+		}
+
+		System.out.println("Creating view: indexed");
+		db.createArangoSearch("indexed", options);
+	}
+
+	/**
+	 * Delete the arangosearch view named "indexed" in the specified database.
+	 *
+	 * @param db Database in which to delete the view
+	 */
+	public void deleteView(ArangoDatabase db) {
+		try {
+			System.out.println("Deleting view: indexed");
+			db.arangoSearch("indexed").drop();
+		} catch (ArangoDBException e) {
+			System.out.println("View indexed not found, skipping");
 		}
 	}
 

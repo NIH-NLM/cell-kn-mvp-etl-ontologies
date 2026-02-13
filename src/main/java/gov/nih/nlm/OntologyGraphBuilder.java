@@ -41,8 +41,8 @@ public class OntologyGraphBuilder {
 
 	// Assign vertices to include in the graph
 	private static final ArrayList<String> validVertices = new ArrayList<>(
-			Arrays.asList("BGS", "BMC", "CHEMBL", "CL", "CS", "CSD", "GO", "GS", "HP", "HsapDv", "MONDO",
-					"MmusDv", "NCBITaxon", "NCT", "Orphanet", "PATO", "PR", "PUB", "RS", "UBERON"));
+			Arrays.asList("BGS", "BMC", "CHEBI", "CHEMBL", "CL", "CS", "CSD", "GO", "GS", "HP", "HsapDv", "MONDO",
+					"NCBITaxon", "NCT", "Orphanet", "PATO", "PR", "PUB", "RS", "UBERON"));
 
 	// Assign pattern used in collecting literal value sets
 	private static final Pattern parenPattern = Pattern.compile("(.*) (\\(.*\\))$");
@@ -544,8 +544,7 @@ public class OntologyGraphBuilder {
 		try {
 			oboFiles = listFilesMatchingPattern(oboPath, oboPattern);
 			if (oboFiles.isEmpty()) {
-				System.out.println("No OBO files found matching the pattern " + oboPattern);
-				System.exit(1);
+				throw new RuntimeException("No OBO files found matching the pattern " + oboPattern);
 			}
 		} catch (IOException e) {
 			throw new RuntimeException(e);
