@@ -39,18 +39,27 @@ public class OntologyTripleParser {
             "http://purl.org/dc/",
             "http://www.geneontology.org/formats/oboInOwl#");
 
+    public static boolean isValidTriple(Triple triple, String rootNS, boolean testObject) {
+        boolean subjectIsValid = triple.getSubject().toString().contains(rootNS);
+        if (testObject) {
+            boolean objectIsNamedResource = triple.getObject().isURI();
+            boolean objectContainsRootNS = triple.getObject().toString().contains(rootNS);
+            return subjectIsValid && (!objectIsNamedResource || objectContainsRootNS);
+        } return subjectIsValid;
+    }
+
     /**
-     * Read an OWL file and identify the root namespace. Collect triples from
-     * statements which contain a named object and a predicate in one of the
-     * specified name spaces. Handle statements which contain an anonymous object
-     * and an rdfs:subClassOf predicate by flattening all statements about the
-     * anonymous object into a single statement with a named subject and object,
-     * then collecting the triple from the single statement.
+     * Read an OWL file and identify the root namespace. Collect triples from statements which contain a named object
+     * and a predicate in one of the specified namespaces. Handle statements which contain an anonymous object and an
+     * rdfs:subClassOf predicate by flattening all statements about the anonymous object into a single statement with a
+     * named subject and object, then collecting the triple from the single statement. Optionally skip statements with a
+     * named object not in the root namespace
      *
-     * @param owlFile Path to OWL file
+     * @param owlFile            Path to OWL file
+     * @param testObjectInRootNS Flag to check that named objects are in the root namespace
      * @return List of triples with named subject and object nodes
      */
-    public static List<Triple> collectTriplesFromFile(Path owlFile) {
+    public static List<Triple> collectTriplesFromFile(Path owlFile, boolean testObjectInRootNS) {
         List<Triple> triples = new ArrayList<>();
         System.out.println("Collecting triples from within " + owlFile.getFileName());
         long startTime = System.nanoTime();
@@ -73,7 +82,10 @@ public class OntologyTripleParser {
                     if (predicateNameSpaces.stream().anyMatch(ns -> predicateURI.startsWith(ns))) {
                         // Collect statements as triples which contain a predicate in one of the
                         // selected name spaces
-                        triples.add(classStatement.asTriple());
+                        Triple triple = classStatement.asTriple();
+                        if (isValidTriple(triple, rootNS, testObjectInRootNS)) {
+                            triples.add(triple);
+                        }
                     }
                 } else if (predicateURI.equals("http://www.w3.org/2000/01/rdf-schema#subClassOf")) {
                     // Handle statements which contain an anonymous object and an rdfs:subClassOf
@@ -95,7 +107,10 @@ public class OntologyTripleParser {
                     }
                     // Create the single statement, and collect it as a triple
                     if (predicate != null && object != null) {
-                        triples.add(ontModel.createStatement(subject, predicate, object).asTriple());
+                        Triple triple = ontModel.createStatement(subject, predicate, object).asTriple();
+                        if (isValidTriple(triple, rootNS, testObjectInRootNS)) {
+                            triples.add(triple);
+                        }
                     }
                 }
             }
@@ -137,16 +152,17 @@ public class OntologyTripleParser {
     /**
      * Collect unique triples with named subject and object nodes.
      *
-     * @param files Paths to ontology files
+     * @param files              Paths to ontology files
+     * @param testObjectInRootNS Flag to check that named objects are in the root namespace
      * @return Set of unique triples with named subject and object nodes
      */
-    public static HashSet<Triple> collectUniqueTriples(List<Path> files) {
+    public static HashSet<Triple> collectUniqueTriples(List<Path> files, boolean testObjectInRootNS) {
         HashSet<Triple> uniqueTriplesSet = new HashSet<>();
         System.out.println("Collecting unique triples from within " + files.size() + " files");
         long startTime = System.nanoTime();
         for (Path file : files) {
             if (file.getFileName().toString().equals("ro.owl")) continue;
-            List<Triple> triples = collectTriplesFromFile(file);
+            List<Triple> triples = collectTriplesFromFile(file, testObjectInRootNS);
             uniqueTriplesSet.addAll(triples);
         }
         long stopTime = System.nanoTime();
@@ -187,6 +203,6 @@ public class OntologyTripleParser {
         Map<String, OntologyElementMap> ontologyElementMaps = parseOntologyElements(roFile);
 
         // Collect unique triples
-        HashSet<Triple> uniqueTriplesSet = collectUniqueTriples(oboFiles);
+        HashSet<Triple> uniqueTriplesSet = collectUniqueTriples(oboFiles, false);
     }
 }
