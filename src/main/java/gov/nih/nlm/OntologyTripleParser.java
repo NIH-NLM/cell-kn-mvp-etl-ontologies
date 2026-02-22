@@ -25,8 +25,7 @@ import static gov.nih.nlm.OntologyElementParser.parseOntologyElements;
 import static gov.nih.nlm.PathUtilities.listFilesMatchingPattern;
 
 /**
- * Parses each ontology file in the data/obo directory to collect unique
- * triples.
+ * Parses each ontology file in the data/obo directory to collect unique triples.
  */
 public class OntologyTripleParser {
 
@@ -107,7 +106,8 @@ public class OntologyTripleParser {
     }
 
     /**
-     * Find the root namespace term in the ontology term, or from the first class in the ontology (only expected for taxslim.owl).
+     * Find the root namespace term in the ontology term, or from the first class in the ontology (only expected for
+     * taxslim.owl).
      *
      * @param ontModel An ontology model created on reading an OWL file
      * @return The root namespace

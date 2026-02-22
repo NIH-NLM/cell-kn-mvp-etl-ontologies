@@ -33,8 +33,7 @@ import static gov.nih.nlm.OntologyTripleParser.collectUniqueTriples;
 import static gov.nih.nlm.PathUtilities.listFilesMatchingPattern;
 
 /**
- * Loads triples parsed from each ontology file in the data/obo directory into a
- * local ArangoDB server instance.
+ * Loads triples parsed from each ontology file in the data/obo directory into a local ArangoDB server instance.
  */
 public class OntologyGraphBuilder {
 
@@ -70,8 +69,7 @@ public class OntologyGraphBuilder {
     private static final Pattern parenPattern = Pattern.compile("(.*) (\\(.*\\))$");
 
     /**
-     * Parse a URI to find an ontology term, ID, and number, and test if the ID is a
-     * valid vertex.
+     * Parse a URI to find an ontology term, ID, and number, and test if the ID is a valid vertex.
      *
      * @param n Node from which to create VTuple
      * @return VTuple created from node
@@ -109,8 +107,7 @@ public class OntologyGraphBuilder {
     }
 
     /**
-     * Parse a URI node to obtain the fragment or last element of the path. Useful
-     * only for predicate nodes.
+     * Parse a URI node to obtain the fragment or last element of the path. Useful only for predicate nodes.
      *
      * @param ontologyElementMaps Maps terms and labels
      * @param p                   Predicate node to parse
@@ -137,9 +134,8 @@ public class OntologyGraphBuilder {
     }
 
     /**
-     * Construct vertices using triples parsed from specified ontology files that
-     * contain a named subject and object which contain an ontology ID contained in
-     * the valid vertices collection.
+     * Construct vertices using triples parsed from specified ontology files that contain a named subject and object
+     * which contain an ontology ID contained in the valid vertices collection.
      *
      * @param uniqueTriples     Unique triples with which to construct vertices
      * @param arangoDbUtilities Utilities for accessing ArangoDB
@@ -194,9 +190,8 @@ public class OntologyGraphBuilder {
     }
 
     /**
-     * Update vertices using triples parsed from specified ontology files that
-     * contain a named subject which contains an ontology ID contained in the valid
-     * vertices collection, and a filled object literal.
+     * Update vertices using triples parsed from specified ontology files that contain a named subject which contains an
+     * ontology ID contained in the valid vertices collection, and a filled object literal.
      *
      * @param uniqueTriples   Unique triples with which to update
      * @param vertexDocuments ArangoDB vertex documents
@@ -271,8 +266,7 @@ public class OntologyGraphBuilder {
     }
 
     /**
-     * Insert all vertices after they have been constructed and updated to improve
-     * performance.
+     * Insert all vertices after they have been constructed and updated to improve performance.
      *
      * @param vertexCollections ArangoDB vertex collections
      * @param vertexDocuments   ArangoDB vertex documents
@@ -347,8 +341,8 @@ public class OntologyGraphBuilder {
     }
 
     /**
-     * Normalize edge labels by making all characters upper case, and replacing
-     * spaces with underscores. Handle special cases.
+     * Normalize edge labels by making all characters upper case, and replacing spaces with underscores. Handle special
+     * cases.
      *
      * @param label Attribute value to normalize
      * @return Normalized attribute value
@@ -373,14 +367,12 @@ public class OntologyGraphBuilder {
     }
 
     /**
-     * Construct edges using triples parsed from specified ontology files that
-     * contain a named subject and object which contain an ontology ID contained in
-     * the valid vertices collection.
+     * Construct edges using triples parsed from specified ontology files that contain a named subject and object which
+     * contain an ontology ID contained in the valid vertices collection.
      *
      * @param triples             Triples with which to construct edges
      * @param ontologyElementMaps Maps terms and labels
-     * @param graph               ArangoDB graph in which to create vertex
-     *                            collections
+     * @param graph               ArangoDB graph in which to create vertex collections
      * @param edgeCollections     ArangoDB edge collections
      * @param edgeDocuments       ArangoDB edge documents
      */
@@ -464,9 +456,8 @@ public class OntologyGraphBuilder {
     }
 
     /**
-     * Get the document collection name, which is typically an ontology id for a
-     * vertex document, or an ontology id pair for an edge document, from a document
-     * id.
+     * Get the document collection name, which is typically an ontology id for a vertex document, or an ontology id pair
+     * for an edge document, from a document id.
      *
      * @param documentId Document id
      * @return Document collection name
@@ -480,9 +471,8 @@ public class OntologyGraphBuilder {
     }
 
     /**
-     * Get the document key, which is typically an ontology term number for a vertex
-     * document, or an ontology term number pair for an edge document, from a
-     * document id.
+     * Get the document key, which is typically an ontology term number for a vertex document, or an ontology term
+     * number pair for an edge document, from a document id.
      *
      * @param documentId Document id
      * @return Document key
@@ -544,8 +534,7 @@ public class OntologyGraphBuilder {
     }
 
     /**
-     * Load triples parsed from each ontology file in the data/obo directory into a
-     * local ArangoDB server instance.
+     * Load triples parsed from ontology files in the data/obo directory into a local ArangoDB server instance.
      *
      * @param args (None expected)
      */
