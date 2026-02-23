@@ -23,7 +23,7 @@ class OntologyTripleParserTest {
     @Test
     void collectTriplesFromFile_macrophage() {
         Path macrophageOwl = testOboDir.resolve("macrophage.owl");
-        List<Triple> triples = OntologyTripleParser.collectTriplesFromFile(macrophageOwl);
+        List<Triple> triples = OntologyTripleParser.collectTriplesFromFile(macrophageOwl, false);
 
         assertNotNull(triples);
         assertFalse(triples.isEmpty());
@@ -37,7 +37,7 @@ class OntologyTripleParserTest {
     @Test
     void collectTriplesFromFile_containsMacrophageSubClassOfTriples() {
         Path macrophageOwl = testOboDir.resolve("macrophage.owl");
-        List<Triple> triples = OntologyTripleParser.collectTriplesFromFile(macrophageOwl);
+        List<Triple> triples = OntologyTripleParser.collectTriplesFromFile(macrophageOwl, false);
 
         // Macrophage (CL_0000235) has rdfs:subClassOf to CL_0000113, CL_0000145, CL_0000766
         String macrophageUri = "http://purl.obolibrary.org/obo/CL_0000235";
@@ -57,7 +57,7 @@ class OntologyTripleParserTest {
     @Test
     void collectTriplesFromFile_flattenedRestrictions() {
         Path macrophageOwl = testOboDir.resolve("macrophage.owl");
-        List<Triple> triples = OntologyTripleParser.collectTriplesFromFile(macrophageOwl);
+        List<Triple> triples = OntologyTripleParser.collectTriplesFromFile(macrophageOwl, false);
 
         // Macrophage has a restriction: RO_0002202 someValuesFrom CL_0000576 (develops from monocyte)
         String macrophageUri = "http://purl.obolibrary.org/obo/CL_0000235";
@@ -72,7 +72,7 @@ class OntologyTripleParserTest {
     @Test
     void collectTriplesFromFile_capableOfRestriction() {
         Path macrophageOwl = testOboDir.resolve("macrophage.owl");
-        List<Triple> triples = OntologyTripleParser.collectTriplesFromFile(macrophageOwl);
+        List<Triple> triples = OntologyTripleParser.collectTriplesFromFile(macrophageOwl, false);
 
         // Macrophage has a restriction: RO_0002215 someValuesFrom GO_0031268 (capable of)
         String macrophageUri = "http://purl.obolibrary.org/obo/CL_0000235";
@@ -87,7 +87,7 @@ class OntologyTripleParserTest {
     @Test
     void collectTriplesFromFile_containsLiteralTriples() {
         Path macrophageOwl = testOboDir.resolve("macrophage.owl");
-        List<Triple> triples = OntologyTripleParser.collectTriplesFromFile(macrophageOwl);
+        List<Triple> triples = OntologyTripleParser.collectTriplesFromFile(macrophageOwl, false);
 
         // Should contain triples with literal objects (labels, definitions, etc.)
         String macrophageUri = "http://purl.obolibrary.org/obo/CL_0000235";
@@ -98,7 +98,7 @@ class OntologyTripleParserTest {
     @Test
     void collectUniqueTriples_skipsRoOwl() {
         List<Path> files = List.of(testOboDir.resolve("ro.owl"), testOboDir.resolve("macrophage.owl"));
-        HashSet<Triple> uniqueTriples = OntologyTripleParser.collectUniqueTriples(files);
+        HashSet<Triple> uniqueTriples = OntologyTripleParser.collectUniqueTriples(files, false);
 
         // Should have triples from macrophage.owl but not from ro.owl
         assertFalse(uniqueTriples.isEmpty());
@@ -115,10 +115,10 @@ class OntologyTripleParserTest {
     void collectUniqueTriples_deduplicates() {
         // Calling with the same file twice should still deduplicate
         List<Path> files = List.of(testOboDir.resolve("macrophage.owl"));
-        HashSet<Triple> uniqueTriples = OntologyTripleParser.collectUniqueTriples(files);
+        HashSet<Triple> uniqueTriples = OntologyTripleParser.collectUniqueTriples(files, false);
 
         // Get total triples from file directly
-        List<Triple> allTriples = OntologyTripleParser.collectTriplesFromFile(testOboDir.resolve("macrophage.owl"));
+        List<Triple> allTriples = OntologyTripleParser.collectTriplesFromFile(testOboDir.resolve("macrophage.owl"), false);
 
         // The unique set size should be <= total triples
         assertTrue(uniqueTriples.size() <= allTriples.size());
@@ -148,7 +148,7 @@ class OntologyTripleParserTest {
 
     @Test
     void collectUniqueTriples_emptyListReturnsEmpty() {
-        HashSet<Triple> uniqueTriples = OntologyTripleParser.collectUniqueTriples(List.of());
+        HashSet<Triple> uniqueTriples = OntologyTripleParser.collectUniqueTriples(List.of(), false);
         assertNotNull(uniqueTriples);
         assertTrue(uniqueTriples.isEmpty());
     }
