@@ -226,38 +226,11 @@ public class OntologyGraphBuilder {
                 updatedVertices.add(vtuple.id + "-" + vtuple.number);
                 BaseDocument doc = vertexDocuments.get(vtuple.id).get(vtuple.number);
 
-                // Handle each attribute as a set of literal values
-                Matcher parenMatcher;
-                HashSet<String> literals;
-                HashSet<String> strippedLiterals = new HashSet<>();
+                // Handle each attribute as a single literal value
                 if (doc.getAttribute(attribute) == null) {
-                    // Initialize the set of literal values
-                    literals = new HashSet<>();
-                    doc.addAttribute(attribute, literals);
+                    doc.addAttribute(attribute, literal);
                 } else {
-                    // Get the set of literal values
-                    literals = (HashSet<String>) doc.getAttribute(attribute);
-
-                    // Create a set of literal values stripped of ending parentheticals
-                    for (String l : literals) {
-                        parenMatcher = parenPattern.matcher(l);
-                        if (parenMatcher.matches()) {
-                            strippedLiterals.add(parenMatcher.group(1));
-                        } else {
-                            strippedLiterals.add(l);
-                        }
-                    }
-                }
-                // Remove a literal value in the set if it equals the current literal value
-                // stripped of an ending parenthetical
-                parenMatcher = parenPattern.matcher(literal);
-                if (parenMatcher.matches()) {
-                    literals.remove(parenMatcher.group(1));
-                }
-                // Only add the current literal value if it is not in the set of literal values
-                // stripped of ending parentheticals
-                if (!strippedLiterals.contains(literal)) {
-                    literals.add(literal);
+                    doc.updateAttribute(attribute, literal);
                 }
             }
         }
@@ -283,15 +256,6 @@ public class OntologyGraphBuilder {
             for (String number : vertexDocuments.get(id).keySet()) {
                 nVertices++;
                 BaseDocument doc = vertexDocuments.get(id).get(number);
-                Map<String, Object> properties = doc.getProperties();
-                Set<String> literals;
-                for (String attribute : properties.keySet()) {
-                    if (attribute.equals("_key")) continue;
-                    literals = (HashSet<String>) doc.getAttribute(attribute);
-                    if (literals.size() == 1) {
-                        doc.updateAttribute(attribute, literals.toArray()[0]);
-                    }
-                }
                 if (vertexCollection.getVertex(doc.getKey(), doc.getClass()) == null) {
                     Object deprecated = doc.getAttribute("deprecated");
                     Object label = doc.getAttribute("label");
@@ -421,8 +385,6 @@ public class OntologyGraphBuilder {
 
             // Construct the edge, if needed
             String key = subjectVTuple.number + "-" + objectVTuple.number;
-            HashSet<String> labels;
-            HashSet<String> sources;
             String normalizedSource = normalizeEdgeSource(subjectVTuple.id);
             String normalizedLabel = normalizeEdgeLabel(label);
             if (!edgeKeys.get(idPair).contains(key)) {
@@ -431,23 +393,16 @@ public class OntologyGraphBuilder {
                         subjectVTuple.id + "/" + subjectVTuple.number,
                         objectVTuple.id + "/" + objectVTuple.number);
 
-                // Collect the first label and source
-                labels = new HashSet<>();
-                labels.add(normalizedLabel);
-                doc.addAttribute("Label", labels);
-                sources = new HashSet<>();
-                sources.add(normalizedSource);
-                doc.addAttribute("Source", sources);
+                // Assign the first label and source
+                doc.addAttribute("Label", normalizedLabel);
+                doc.addAttribute("Source", normalizedSource);
                 edgeDocuments.get(idPair).put(key, doc);
                 edgeKeys.get(idPair).add(key);
             } else {
                 BaseEdgeDocument doc = edgeDocuments.get(idPair).get(key);
-
-                // Collect all subsequent labels and sources
-                labels = (HashSet<String>) doc.getAttribute("Label");
-                labels.add(normalizedLabel);
-                sources = (HashSet<String>) doc.getAttribute("Source");
-                sources.add(normalizedSource);
+                // Assign the last label and source
+                doc.updateAttribute("Label", normalizedLabel);
+                doc.updateAttribute("Source", normalizedSource);
             }
         }
         long stopTime = System.nanoTime();
