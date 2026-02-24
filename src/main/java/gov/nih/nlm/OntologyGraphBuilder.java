@@ -33,8 +33,7 @@ import static gov.nih.nlm.OntologyTripleParser.collectUniqueTriples;
 import static gov.nih.nlm.PathUtilities.listFilesMatchingPattern;
 
 /**
- * Loads triples parsed from each ontology file in the data/obo directory into a
- * local ArangoDB server instance.
+ * Loads triples parsed from each ontology file in the data/obo directory into a local ArangoDB server instance.
  */
 public class OntologyGraphBuilder {
 
@@ -70,8 +69,7 @@ public class OntologyGraphBuilder {
     private static final Pattern parenPattern = Pattern.compile("(.*) (\\(.*\\))$");
 
     /**
-     * Parse a URI to find an ontology term, ID, and number, and test if the ID is a
-     * valid vertex.
+     * Parse a URI to find an ontology term, ID, and number, and test if the ID is a valid vertex.
      *
      * @param n Node from which to create VTuple
      * @return VTuple created from node
@@ -109,8 +107,7 @@ public class OntologyGraphBuilder {
     }
 
     /**
-     * Parse a URI node to obtain the fragment or last element of the path. Useful
-     * only for predicate nodes.
+     * Parse a URI node to obtain the fragment or last element of the path. Useful only for predicate nodes.
      *
      * @param ontologyElementMaps Maps terms and labels
      * @param p                   Predicate node to parse
@@ -137,9 +134,8 @@ public class OntologyGraphBuilder {
     }
 
     /**
-     * Construct vertices using triples parsed from specified ontology files that
-     * contain a named subject and object which contain an ontology ID contained in
-     * the valid vertices collection.
+     * Construct vertices using triples parsed from specified ontology files that contain a named subject and object
+     * which contain an ontology ID contained in the valid vertices collection.
      *
      * @param uniqueTriples     Unique triples with which to construct vertices
      * @param arangoDbUtilities Utilities for accessing ArangoDB
@@ -194,9 +190,8 @@ public class OntologyGraphBuilder {
     }
 
     /**
-     * Update vertices using triples parsed from specified ontology files that
-     * contain a named subject which contains an ontology ID contained in the valid
-     * vertices collection, and a filled object literal.
+     * Update vertices using triples parsed from specified ontology files that contain a named subject which contains an
+     * ontology ID contained in the valid vertices collection, and a filled object literal.
      *
      * @param uniqueTriples   Unique triples with which to update
      * @param vertexDocuments ArangoDB vertex documents
@@ -231,38 +226,11 @@ public class OntologyGraphBuilder {
                 updatedVertices.add(vtuple.id + "-" + vtuple.number);
                 BaseDocument doc = vertexDocuments.get(vtuple.id).get(vtuple.number);
 
-                // Handle each attribute as a set of literal values
-                Matcher parenMatcher;
-                HashSet<String> literals;
-                HashSet<String> strippedLiterals = new HashSet<>();
+                // Handle each attribute as a single literal value
                 if (doc.getAttribute(attribute) == null) {
-                    // Initialize the set of literal values
-                    literals = new HashSet<>();
-                    doc.addAttribute(attribute, literals);
+                    doc.addAttribute(attribute, literal);
                 } else {
-                    // Get the set of literal values
-                    literals = (HashSet<String>) doc.getAttribute(attribute);
-
-                    // Create a set of literal values stripped of ending parentheticals
-                    for (String l : literals) {
-                        parenMatcher = parenPattern.matcher(l);
-                        if (parenMatcher.matches()) {
-                            strippedLiterals.add(parenMatcher.group(1));
-                        } else {
-                            strippedLiterals.add(l);
-                        }
-                    }
-                }
-                // Remove a literal value in the set if it equals the current literal value
-                // stripped of an ending parenthetical
-                parenMatcher = parenPattern.matcher(literal);
-                if (parenMatcher.matches()) {
-                    literals.remove(parenMatcher.group(1));
-                }
-                // Only add the current literal value if it is not in the set of literal values
-                // stripped of ending parentheticals
-                if (!strippedLiterals.contains(literal)) {
-                    literals.add(literal);
+                    doc.updateAttribute(attribute, literal);
                 }
             }
         }
@@ -271,8 +239,7 @@ public class OntologyGraphBuilder {
     }
 
     /**
-     * Insert all vertices after they have been constructed and updated to improve
-     * performance.
+     * Insert all vertices after they have been constructed and updated to improve performance.
      *
      * @param vertexCollections ArangoDB vertex collections
      * @param vertexDocuments   ArangoDB vertex documents
@@ -289,15 +256,6 @@ public class OntologyGraphBuilder {
             for (String number : vertexDocuments.get(id).keySet()) {
                 nVertices++;
                 BaseDocument doc = vertexDocuments.get(id).get(number);
-                Map<String, Object> properties = doc.getProperties();
-                Set<String> literals;
-                for (String attribute : properties.keySet()) {
-                    if (attribute.equals("_key")) continue;
-                    literals = (HashSet<String>) doc.getAttribute(attribute);
-                    if (literals.size() == 1) {
-                        doc.updateAttribute(attribute, literals.toArray()[0]);
-                    }
-                }
                 if (vertexCollection.getVertex(doc.getKey(), doc.getClass()) == null) {
                     Object deprecated = doc.getAttribute("deprecated");
                     Object label = doc.getAttribute("label");
@@ -347,8 +305,8 @@ public class OntologyGraphBuilder {
     }
 
     /**
-     * Normalize edge labels by making all characters upper case, and replacing
-     * spaces with underscores. Handle special cases.
+     * Normalize edge labels by making all characters upper case, and replacing spaces with underscores. Handle special
+     * cases.
      *
      * @param label Attribute value to normalize
      * @return Normalized attribute value
@@ -373,14 +331,12 @@ public class OntologyGraphBuilder {
     }
 
     /**
-     * Construct edges using triples parsed from specified ontology files that
-     * contain a named subject and object which contain an ontology ID contained in
-     * the valid vertices collection.
+     * Construct edges using triples parsed from specified ontology files that contain a named subject and object which
+     * contain an ontology ID contained in the valid vertices collection.
      *
      * @param triples             Triples with which to construct edges
      * @param ontologyElementMaps Maps terms and labels
-     * @param graph               ArangoDB graph in which to create vertex
-     *                            collections
+     * @param graph               ArangoDB graph in which to create vertex collections
      * @param edgeCollections     ArangoDB edge collections
      * @param edgeDocuments       ArangoDB edge documents
      */
@@ -429,8 +385,6 @@ public class OntologyGraphBuilder {
 
             // Construct the edge, if needed
             String key = subjectVTuple.number + "-" + objectVTuple.number;
-            HashSet<String> labels;
-            HashSet<String> sources;
             String normalizedSource = normalizeEdgeSource(subjectVTuple.id);
             String normalizedLabel = normalizeEdgeLabel(label);
             if (!edgeKeys.get(idPair).contains(key)) {
@@ -439,23 +393,16 @@ public class OntologyGraphBuilder {
                         subjectVTuple.id + "/" + subjectVTuple.number,
                         objectVTuple.id + "/" + objectVTuple.number);
 
-                // Collect the first label and source
-                labels = new HashSet<>();
-                labels.add(normalizedLabel);
-                doc.addAttribute("Label", labels);
-                sources = new HashSet<>();
-                sources.add(normalizedSource);
-                doc.addAttribute("Source", sources);
+                // Assign the first label and source
+                doc.addAttribute("Label", normalizedLabel);
+                doc.addAttribute("Source", normalizedSource);
                 edgeDocuments.get(idPair).put(key, doc);
                 edgeKeys.get(idPair).add(key);
             } else {
                 BaseEdgeDocument doc = edgeDocuments.get(idPair).get(key);
-
-                // Collect all subsequent labels and sources
-                labels = (HashSet<String>) doc.getAttribute("Label");
-                labels.add(normalizedLabel);
-                sources = (HashSet<String>) doc.getAttribute("Source");
-                sources.add(normalizedSource);
+                // Assign the last label and source
+                doc.updateAttribute("Label", normalizedLabel);
+                doc.updateAttribute("Source", normalizedSource);
             }
         }
         long stopTime = System.nanoTime();
@@ -464,9 +411,8 @@ public class OntologyGraphBuilder {
     }
 
     /**
-     * Get the document collection name, which is typically an ontology id for a
-     * vertex document, or an ontology id pair for an edge document, from a document
-     * id.
+     * Get the document collection name, which is typically an ontology id for a vertex document, or an ontology id pair
+     * for an edge document, from a document id.
      *
      * @param documentId Document id
      * @return Document collection name
@@ -480,9 +426,8 @@ public class OntologyGraphBuilder {
     }
 
     /**
-     * Get the document key, which is typically an ontology term number for a vertex
-     * document, or an ontology term number pair for an edge document, from a
-     * document id.
+     * Get the document key, which is typically an ontology term number for a vertex document, or an ontology term
+     * number pair for an edge document, from a document id.
      *
      * @param documentId Document id
      * @return Document key
@@ -544,20 +489,14 @@ public class OntologyGraphBuilder {
     }
 
     /**
-     * Load triples parsed from each ontology file in the data/obo directory into a
-     * local ArangoDB server instance.
+     * Load triples parsed from ontology files in the data/obo directory into a local ArangoDB server instance.
      *
      * @param args (None expected)
      */
     public static void main(String[] args) throws IOException {
 
-        // List ontology files
-        String oboPath;
-        if (args.length > 0) {
-            oboPath = args[0];
-        } else {
-            oboPath = oboDir.toString();
-        }
+        // List all ontology files
+        String oboPath = oboDir.toString();
         String oboPattern = ".*\\.owl";
         List<Path> oboFiles;
         try {
@@ -571,63 +510,53 @@ public class OntologyGraphBuilder {
 
         // Parse ontology elements, and collect unique triples
         Map<String, OntologyElementMap> ontologyElementMaps = parseOntologyElements(oboFiles);
-        HashSet<Triple> uniqueTriples = collectUniqueTriples(oboFiles);
+        HashSet<Triple> ontologyTriples = collectUniqueTriples(oboFiles, false);
 
-        // Connect to a local ArangoDB server instance
+        // Initialize the ontology database and graph
+        String ontologyDatabaseName = "Cell-KN-Ontologies";
+        String ontologyGraphName = "KN-Ontologies-v2.0";
         ArangoDbUtilities arangoDbUtilities = new ArangoDbUtilities();
-        String databaseName;
-        if (args.length > 1) {
-            databaseName = args[1];
-        } else {
-            databaseName = "Cell-KN-Ontologies";
-        }
-
-        // Always recreate the database
-        arangoDbUtilities.deleteDatabase(databaseName);
-        ArangoDatabase db = arangoDbUtilities.createOrGetDatabase(databaseName);
-
-        // Always recreate the graph
-        String graphName;
-        if (args.length > 2) {
-            graphName = args[2];
-        } else {
-            graphName = "KN-Ontologies-v2.0";
-        }
-        arangoDbUtilities.deleteGraph(db, graphName);
-        ArangoGraph graph = arangoDbUtilities.createOrGetGraph(db, graphName);
+        arangoDbUtilities.deleteDatabase(ontologyDatabaseName);
+        ArangoDatabase ontologyDb = arangoDbUtilities.createOrGetDatabase(ontologyDatabaseName);
+        arangoDbUtilities.deleteGraph(ontologyDb, ontologyGraphName);
+        ArangoGraph ontologyGraph = arangoDbUtilities.createOrGetGraph(ontologyDb, ontologyGraphName);
 
         // Create, update, and insert the vertices
-        Map<String, ArangoVertexCollection> vertexCollections = new HashMap<>();
-        Map<String, Map<String, BaseDocument>> vertexDocuments = new HashMap<>();
-        constructVertices(uniqueTriples, arangoDbUtilities, graph, vertexCollections, vertexDocuments);
+        Map<String, ArangoVertexCollection> ontologyVertexCollections = new HashMap<>();
+        Map<String, Map<String, BaseDocument>> ontologyVertexDocuments = new HashMap<>();
+        constructVertices(ontologyTriples,
+                arangoDbUtilities,
+                ontologyGraph,
+                ontologyVertexCollections,
+                ontologyVertexDocuments);
         try {
-            updateVertices(uniqueTriples, ontologyElementMaps, vertexDocuments);
+            updateVertices(ontologyTriples, ontologyElementMaps, ontologyVertexDocuments);
         } catch (RuntimeException e) {
             throw new RuntimeException(e);
         }
         try {
-            insertVertices(vertexCollections, vertexDocuments);
+            insertVertices(ontologyVertexCollections, ontologyVertexDocuments);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
         // Create, and insert the edges, capturing unique labels
-        Map<String, ArangoEdgeCollection> edgeCollections = new HashMap<>();
-        Map<String, Map<String, BaseEdgeDocument>> edgeDocuments = new HashMap<>();
+        Map<String, ArangoEdgeCollection> ontologyEdgeCollections = new HashMap<>();
+        Map<String, Map<String, BaseEdgeDocument>> ontologyEdgeDocuments = new HashMap<>();
         HashSet<String> edgeLabels = new HashSet<>();
         try {
-            edgeLabels.addAll(constructEdges(uniqueTriples,
+            edgeLabels.addAll(constructEdges(ontologyTriples,
                     ontologyElementMaps,
                     arangoDbUtilities,
-                    graph,
-                    edgeCollections,
-                    edgeDocuments));
+                    ontologyGraph,
+                    ontologyEdgeCollections,
+                    ontologyEdgeDocuments));
         } catch (RuntimeException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
             throw new IOException(e);
         }
-        insertEdges(vertexCollections, edgeCollections, edgeDocuments);
+        insertEdges(ontologyVertexCollections, ontologyEdgeCollections, ontologyEdgeDocuments);
 
         // Document unique labels, and their normalized values
         Charset charset = StandardCharsets.US_ASCII;
@@ -636,6 +565,66 @@ public class OntologyGraphBuilder {
             edgeLabelsWriter.write(label + ": " + normalizeEdgeLabel(label) + "\n");
         }
         edgeLabelsWriter.close();
+
+        // List the Cell Ontology file
+        oboPattern = "cl.owl";
+        try {
+            oboFiles = listFilesMatchingPattern(oboPath, oboPattern);
+            if (oboFiles.isEmpty()) {
+                throw new RuntimeException("No CL files found matching the pattern " + oboPattern);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        // Parse Cell Ontology elements, and collect unique triples
+        Map<String, OntologyElementMap> phenotypeElementMaps = parseOntologyElements(oboFiles);
+        phenotypeElementMaps.put("ro", ontologyElementMaps.get("ro"));
+        HashSet<Triple> phenotypeTriples = collectUniqueTriples(oboFiles, true);
+
+        // Initialize the phenotype database and subgraph
+        String phenotypeDatabaseName = "Cell-KN-Phenotypes";
+        String phenotypeGraphName = "KN-Phenotypes-v2.0";
+        arangoDbUtilities.deleteDatabase(phenotypeDatabaseName);
+        ArangoDatabase phenotypeDb = arangoDbUtilities.createOrGetDatabase(phenotypeDatabaseName);
+        arangoDbUtilities.deleteGraph(phenotypeDb, phenotypeGraphName);
+        ArangoGraph phenotypeGraph = arangoDbUtilities.createOrGetGraph(phenotypeDb, phenotypeGraphName);
+
+        // Create, update, and insert the vertices
+        Map<String, ArangoVertexCollection> phenotypeVertexCollections = new HashMap<>();
+        Map<String, Map<String, BaseDocument>> phenotypeVertexDocuments = new HashMap<>();
+        constructVertices(phenotypeTriples,
+                arangoDbUtilities,
+                phenotypeGraph,
+                phenotypeVertexCollections,
+                phenotypeVertexDocuments);
+        try {
+            updateVertices(phenotypeTriples, phenotypeElementMaps, phenotypeVertexDocuments);
+        } catch (RuntimeException e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            insertVertices(phenotypeVertexCollections, phenotypeVertexDocuments);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        // Create, and insert the edges, capturing unique labels
+        Map<String, ArangoEdgeCollection> phenotypeEdgeCollections = new HashMap<>();
+        Map<String, Map<String, BaseEdgeDocument>> phenotypeEdgeDocuments = new HashMap<>();
+        try {
+            edgeLabels.addAll(constructEdges(phenotypeTriples,
+                    phenotypeElementMaps,
+                    arangoDbUtilities,
+                    phenotypeGraph,
+                    phenotypeEdgeCollections,
+                    phenotypeEdgeDocuments));
+        } catch (RuntimeException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new IOException(e);
+        }
+        insertEdges(phenotypeVertexCollections, phenotypeEdgeCollections, phenotypeEdgeDocuments);
 
         // Disconnect from a local ArangoDB server instance
         arangoDbUtilities.arangoDB.shutdown();
