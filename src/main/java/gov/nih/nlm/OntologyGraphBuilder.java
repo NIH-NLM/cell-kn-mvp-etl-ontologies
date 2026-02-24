@@ -24,8 +24,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static gov.nih.nlm.OntologyElementParser.createURI;
 import static gov.nih.nlm.OntologyElementParser.parseOntologyElements;
@@ -65,9 +63,6 @@ public class OntologyGraphBuilder {
             "RS",
             "UBERON"));
 
-    // Assign pattern used in collecting literal value sets
-    private static final Pattern parenPattern = Pattern.compile("(.*) (\\(.*\\))$");
-
     /**
      * Parse a URI to find an ontology term, ID, and number, and test if the ID is a valid vertex.
      *
@@ -94,8 +89,8 @@ public class OntologyGraphBuilder {
         } else if (term.contains(":")) {
             tokens = term.split(":");
         }
-        String id = null;
-        String number = null;
+        String id;
+        String number;
         if (tokens != null && tokens.length == 2) {
             id = tokens[0];
             number = tokens[1];
@@ -135,7 +130,7 @@ public class OntologyGraphBuilder {
 
     /**
      * Construct vertices using triples parsed from specified ontology files that contain a named subject and object
-     * which contain an ontology ID contained in the valid vertices collection.
+     * which contain an ontology ID contained in the valid vertices' collection.
      *
      * @param uniqueTriples     Unique triples with which to construct vertices
      * @param arangoDbUtilities Utilities for accessing ArangoDB
@@ -286,8 +281,8 @@ public class OntologyGraphBuilder {
     /**
      * Normalize edge sources by making all characters upper case.
      *
-     * @param source
-     * @return
+     * @param source Unnormalized source
+     * @return Normalized source
      */
     public static String normalizeEdgeSource(String source) {
         switch (source) {
@@ -332,7 +327,7 @@ public class OntologyGraphBuilder {
 
     /**
      * Construct edges using triples parsed from specified ontology files that contain a named subject and object which
-     * contain an ontology ID contained in the valid vertices collection.
+     * contain an ontology ID contained in the valid vertices' collection.
      *
      * @param triples             Triples with which to construct edges
      * @param ontologyElementMaps Maps terms and labels
@@ -632,5 +627,6 @@ public class OntologyGraphBuilder {
 
     // Define a record describing a vertex
     public record VTuple(String term, String id, String number, Boolean isValidVertex) {
+
     }
 }
