@@ -44,6 +44,13 @@
     </dependency>
   </dependencies>
 
+  <distributionManagement>
+    <repository>
+      <id>github</id>
+      <url>https://maven.pkg.github.com/NIH-NLM/cell-kn-mvp-etl-ontologies</url>
+    </repository>
+  </distributionManagement>
+
   <build>
     <plugins>
       <plugin>
@@ -57,19 +64,33 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
-        <configuration>
-          <descriptorRefs>
-            <descriptorRef>jar-with-dependencies</descriptorRef>
-          </descriptorRefs>
-          <appendAssemblyId>false</appendAssemblyId>
-        </configuration>
         <executions>
+          <!-- Fat JAR: all dependencies bundled, no classifier suffix -->
           <execution>
             <id>make-assembly</id>
             <phase>package</phase>
             <goals>
               <goal>single</goal>
             </goals>
+            <configuration>
+              <descriptorRefs>
+                <descriptorRef>jar-with-dependencies</descriptorRef>
+              </descriptorRefs>
+              <appendAssemblyId>false</appendAssemblyId>
+            </configuration>
+          </execution>
+          <!-- Bundle: fat JAR + Python source, published with -bundle classifier -->
+          <execution>
+            <id>make-bundle</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+            <configuration>
+              <descriptors>
+                <descriptor>src/main/assembly/bundle.xml</descriptor>
+              </descriptors>
+            </configuration>
           </execution>
         </executions>
       </plugin>

@@ -8,16 +8,10 @@ package-mode = false
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.13"
-arango-rdf = ">=1.0"
-cellxgene-census = ">=1.14"
-gget = ">=0.29"
-ontogpt = ">=0.3"
-plotly = ">=5.22"
-pybiomart = ">=0.2"
+lxml = ">=5.0"
 python-arango = ">=7.4,<8.0.0"
 rdflib = ">=7.0"
-scanpy = ">=1.10"
-scikit-misc = ">=0.3"
+requests = ">=2.32"
 
 [tool.poetry.group.dev.dependencies]
 black = ">=24.4"

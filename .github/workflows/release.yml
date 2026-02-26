@@ -1,0 +1,72 @@
+name: Publish Release
+
+# Publishes a versioned release bundle to GitHub Packages on GitHub release publication,
+# then fires a repository_dispatch to cell-kn-mvp-etl-results to trigger the
+# combined ETL pipeline (ArangoDB archive + S3 upload).
+#
+# Two artifacts are published by mvn deploy:
+#   - cell-kn-mvp-etl-ontologies-{version}.jar        (fat JAR, no classifier)
+#   - cell-kn-mvp-etl-ontologies-{version}-bundle.zip (JAR + Python source)
+#
+# The release tag (e.g., v0.3.1) is used as the Maven version (0.3.1) and is
+# included in the dispatch payload so the results repo knows which ontologies
+# version to use.
+#
+# All GitHub context values are passed via env: blocks, not interpolated into run:.
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          server-id: github           # auto-generates ~/.m2/settings.xml for GitHub Packages
+          server-username: GITHUB_ACTOR
+          server-password: GITHUB_TOKEN
+
+      - name: Set release version
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          mvn versions:set -DnewVersion=${VERSION} -DgenerateBackupPoms=false
+
+      - name: Deploy release bundle to GitHub Packages
+        run: mvn deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  dispatch-integration:
+    needs: publish-release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger ETL integration in results repo
+        uses: actions/github-script@v7
+        with:
+          # DISPATCH_TOKEN must be a PAT with repo write scope on
+          # cell-kn-mvp-etl-results, stored as a repository secret.
+          github-token: ${{ secrets.DISPATCH_TOKEN }}
+          script: |
+            const ontologiesVersion = process.env.ONTOLOGIES_VERSION;
+            await github.rest.repos.createDispatchEvent({
+              owner: 'NIH-NLM',
+              repo: 'cell-kn-mvp-etl-results',
+              event_type: 'ontologies-release',
+              client_payload: {
+                ontologies_version: ontologiesVersion
+              }
+            })
+        env:
+          ONTOLOGIES_VERSION: ${{ github.ref_name }}
