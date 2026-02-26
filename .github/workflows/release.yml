@@ -1,10 +1,6 @@
 name: Publish Release
 
-# Publishes a versioned release bundle to GitHub Packages on GitHub release publication.
-#
-# Two artifacts are published by mvn deploy:
-#   - cell-kn-mvp-etl-ontologies-{version}.jar        (fat JAR, no classifier)
-#   - cell-kn-mvp-etl-ontologies-{version}-bundle.zip (JAR + Python source)
+# Publishes a versioned fat JAR to GitHub Packages on GitHub release publication.
 #
 # The release tag (e.g., v0.3.1) is used as the Maven version (0.3.1).
 # After a successful publish, the workflow prints a link to cell-kn-mvp-etl-results
@@ -40,7 +36,7 @@ jobs:
           VERSION=${GITHUB_REF_NAME#v}
           mvn versions:set -DnewVersion=${VERSION} -DgenerateBackupPoms=false
 
-      - name: Deploy release bundle to GitHub Packages
+      - name: Deploy JAR to GitHub Packages
         run: mvn deploy
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -48,7 +44,7 @@ jobs:
       - name: Print next step
         run: |
           echo ""
-          echo "Bundle published: ${GITHUB_REF_NAME}"
+          echo "JAR published: ${GITHUB_REF_NAME}"
           echo ""
           echo "Create a release in cell-kn-mvp-etl-results to run the combined ETL:"
           echo "https://github.com/NIH-NLM/cell-kn-mvp-etl-results/releases/new"

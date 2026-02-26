@@ -79,19 +79,6 @@
               <appendAssemblyId>false</appendAssemblyId>
             </configuration>
           </execution>
-          <!-- Bundle: fat JAR + Python source, published with -bundle classifier -->
-          <execution>
-            <id>make-bundle</id>
-            <phase>package</phase>
-            <goals>
-              <goal>single</goal>
-            </goals>
-            <configuration>
-              <descriptors>
-                <descriptor>src/main/assembly/bundle.xml</descriptor>
-              </descriptors>
-            </configuration>
-          </execution>
         </executions>
       </plugin>
     </plugins>
