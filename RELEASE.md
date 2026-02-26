@@ -33,7 +33,7 @@ workflow, which:
 
 1. Sets the Maven version to match the release tag (e.g., tag `v0.3.1` → version `0.3.1`).
 2. Builds and runs all tests.
-3. Publishes the fat JAR to [GitHub Packages](../../packages):
+3. Publishes the JAR to [GitHub Packages](../../packages):
    `cell-kn-mvp-etl-ontologies-{version}.jar`
 4. Prints a link to `cell-kn-mvp-etl-results` in the workflow log so you can
    create the follow-up results release manually (see below).

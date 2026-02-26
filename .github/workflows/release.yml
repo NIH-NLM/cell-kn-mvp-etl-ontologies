@@ -1,6 +1,6 @@
 name: Publish Release
 
-# Publishes a versioned fat JAR to GitHub Packages on GitHub release publication.
+# Publishes a versioned JAR to GitHub Packages on GitHub release publication.
 #
 # The release tag (e.g., v0.3.1) is used as the Maven version (0.3.1).
 # After a successful publish, the workflow prints a link to cell-kn-mvp-etl-results
