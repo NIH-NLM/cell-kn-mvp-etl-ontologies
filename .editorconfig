@@ -1,0 +1,46 @@
+# Stop looking for other config files in parent folders
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+indent_style = space
+indent_size = 4
+trim_trailing_whitespace = true
+
+# Max line length for all files (Standard)
+max_line_length = 120
+
+[*.java]
+# --- Standard Settings ---
+indent_size = 4
+continuation_indent_size = 8
+
+# --- IntelliJ Specific Enforcements ---
+# This is the "Hard Wrap" margin in IntelliJ
+ij_java_right_margin = 100
+# This tells IntelliJ to actually wrap code that exceeds the margin
+ij_java_wrap_on_typing = true
+# Ensures long method calls, long parameter lists, etc., wrap to the next line
+ij_java_call_parameters_wrap = on_every_item
+ij_java_method_parameters_wrap = on_every_item
+ij_java_extends_list_wrap = on_every_item
+
+# --- Import Management ---
+# Standardizes imports so everyone's "Organize Imports" behaves the same
+ij_java_use_single_class_imports = true
+ij_java_insert_inner_class_imports = true
+ij_java_class_count_to_use_import_on_demand = 99
+ij_java_names_count_to_use_import_on_demand = 99
+
+# --- Formatting Behavior ---
+# Disable "Keep line breaks" so the formatter is allowed to fix long lines
+ij_java_keep_line_breaks = false
+# Put braces on the same line (Standard Java style)
+ij_java_class_brace_style = end_of_line
+ij_java_method_brace_style = end_of_line
+
+# JSON and YAML often prefer 2 spaces
+[{*.json,*.yml,*.yaml}]
+indent_size = 2
