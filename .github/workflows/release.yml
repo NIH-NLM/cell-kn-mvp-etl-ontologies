@@ -1,0 +1,55 @@
+name: Publish Release
+
+# Publishes a versioned JAR to GitHub Packages on GitHub release publication.
+#
+# The release tag (e.g., v0.3.1) is used as the Maven version (0.3.1).
+# After a successful publish, the workflow prints a link to cell-kn-mvp-etl-results
+# so the follow-up results release can be created manually.
+#
+# All GitHub context values are passed via env: blocks, not interpolated into run:.
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          server-id: github           # auto-generates ~/.m2/settings.xml for GitHub Packages
+          server-username: GITHUB_ACTOR
+          server-password: GITHUB_TOKEN
+
+      - name: Set release version
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          mvn versions:set -DnewVersion=${VERSION} -DgenerateBackupPoms=false
+
+      - name: Deploy JAR to GitHub Packages
+        run: mvn deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Print next step
+        run: |
+          echo ""
+          echo "JAR published: ${GITHUB_REF_NAME}"
+          echo ""
+          echo "Create a release in cell-kn-mvp-etl-results to run the combined ETL:"
+          echo "https://github.com/NIH-NLM/cell-kn-mvp-etl-results/releases/new"
+          echo ""
+          echo "Set ontologies.version=${GITHUB_REF_NAME#v} in the results pom.xml if"
+          echo "it does not already reference this ontologies version."
+        env:
+          GITHUB_REF_NAME: ${{ github.ref_name }}
