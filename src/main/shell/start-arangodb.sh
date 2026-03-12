@@ -6,5 +6,5 @@ if [ -z "$container_id" ]; then
            -p 8529:8529 \
            -d \
            -v $ARANGO_DB_HOME:/var/lib/arangodb3 \
-           arangodb > /dev/null
+           arangodb/arangodb:latest > /dev/null
 fi
